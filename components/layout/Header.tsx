@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { SlidersHorizontal } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
 import {
   ShoppingCart, Heart, User, Search, Menu, ChevronDown,
@@ -11,6 +12,8 @@ import { useCartStore } from '@/store/useCartStore';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useCartDrawer } from '@/lib/contexts/CartDrawerContext';
 import MobileMenu from './MobileMenu';
+import TopBar from '../header/TopBar';
+import NavigationBar from '../header/NavigationBar';
 
 export interface Category {
   id: number;
@@ -36,6 +39,14 @@ export default function Header({ categories }: Props) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
+
+// add alongside your other useState declarations
+const [isMobileCatOpen, setIsMobileCatOpen] = useState(false);
+
+  const [selectedCategory, setSelectedCategory] = useState('');
+
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
   const categoryRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -54,6 +65,8 @@ export default function Header({ categories }: Props) {
       if (value.trim()) router.push(`/${locale}/catalogue?search=${encodeURIComponent(value.trim())}`);
     }, 300);
   };
+
+  
 
   // Close dropdowns on outside click
   useEffect(() => {
@@ -79,27 +92,11 @@ export default function Header({ categories }: Props) {
 
   return (
     <header className="sticky top-0 z-40 w-full">
-      {/* ── Top bar (desktop) ── */}
-      <div className="hidden lg:block bg-gray-100 border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 py-1.5 flex items-center justify-between text-xs text-gray-600">
-          <span className="flex items-center gap-1.5">
-            <Truck className="w-3.5 h-3.5 text-[#E94560]" />
-            Livraison rapide partout au Maroc
-          </span>
-          <div className="flex items-center gap-5">
-            <a href="tel:+212600000000" className="flex items-center gap-1 hover:text-[#0F3460] transition">
-              <Phone className="w-3 h-3" /> +212 6 00 00 00 00
-            </a>
-            <a href="mailto:contact@iris.ma" className="flex items-center gap-1 hover:text-[#0F3460] transition">
-              <Mail className="w-3 h-3" /> contact@iris.ma
-            </a>
-          </div>
-        </div>
-      </div>
+      <TopBar />
 
       {/* ── Main bar ── */}
       <div className="bg-white shadow-sm border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center gap-4">
+        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           {/* Mobile hamburger */}
           <button
             className="lg:hidden p-1.5 rounded-md hover:bg-gray-100 text-[#0F3460]"
@@ -110,50 +107,69 @@ export default function Header({ categories }: Props) {
           </button>
 
           {/* Logo */}
-          <Link href={`/${locale}`} className="flex-shrink-0 flex items-baseline gap-0.5 select-none">
-            <span className="text-2xl font-extrabold tracking-tight text-[#0F3460]">IRIS</span>
-            <span className="text-2xl font-extrabold text-[#E94560]">.</span>
-            <span className="hidden sm:block text-sm font-semibold text-gray-400 ml-0.5">MA</span>
-          </Link>
+          <Link
+  href={`/${locale}`}
+  className="flex-1 lg:flex-none flex justify-center lg:justify-start"
+>
+  <img
+    src="http://networkservice-info.com/wp-content/uploads/2025/02/networkservies-logo-1707919409.png"
+    alt="network service info logo"
+    className="w-[140px] sm:w-[160px]"
+  />
+</Link>
 
           {/* Search */}
-          <div className="flex-1 max-w-2xl">
-            <div className="relative flex">
-              <input
-                type="search"
-                value={searchQuery}
-                onChange={(e) => handleSearchInput(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter') { clearTimeout(debounceRef.current); handleSearch(); }}}
-                placeholder="Rechercher un produit, une marque…"
-                className="w-full h-10 pl-4 pr-12 rounded-l-lg border border-r-0 border-gray-300 bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-[#0F3460] focus:border-transparent transition"
-              />
-              <button
-                onClick={handleSearch}
-                className="h-10 w-11 flex items-center justify-center rounded-r-lg bg-[#0F3460] text-white hover:bg-[#0a2444] transition flex-shrink-0"
-                aria-label="Rechercher"
-              >
-                <Search className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
+          <div className="hidden lg:block flex-1 max-w-2xl">
+            <div className="flex h-10 rounded-lg border border-gray-300 overflow-hidden focus-within:border-[#0F3460] transition-colors">
+  <select
+    value={selectedCategory}
+    onChange={(e) => setSelectedCategory(e.target.value)}
+    className="h-full border-r border-gray-300 bg-gray-50 px-3 text-sm text-gray-700 outline-none cursor-pointer shrink-0 max-w-[190px]"
+  >
+    <option value="">Toutes les catégories</option>
+    {categories.map((cat) => (
+      <option key={cat.slug} value={cat.slug}>
+        {locale === 'ar' ? cat.name_ar : cat.name_fr}
+      </option>
+    ))}
+  </select>
+
+  <input
+    type="search"
+    value={searchQuery}
+    onChange={(e) => handleSearchInput(e.target.value)}
+    onKeyDown={(e) => {
+      if (e.key === 'Enter') {
+        clearTimeout(debounceRef.current);
+        handleSearch();
+      }
+    }}
+    placeholder="Rechercher un produit, une marque…"
+    className="flex-1 h-full px-4 bg-gray-50 text-sm outline-none"
+  />
+
+  <button
+    onClick={handleSearch}
+    className="h-full w-11 flex items-center justify-center bg-[#0F3460] text-white shrink-0 hover:bg-[#0a2444] transition-colors"
+  >
+    <Search className="w-4 h-4" />
+  </button>
+</div>
+</div>
 
           {/* Right icons */}
           <div className="flex items-center gap-1">
-            {/* Locale switcher — desktop */}
-            <div className="hidden lg:flex items-center text-xs font-semibold text-gray-500 border border-gray-200 rounded-md overflow-hidden">
-              <button
-                onClick={() => switchLocale('fr')}
-                className={`px-2.5 py-1.5 transition ${locale === 'fr' ? 'bg-[#0F3460] text-white' : 'hover:bg-gray-50'}`}
-              >
-                FR
-              </button>
-              <button
-                onClick={() => switchLocale('ar')}
-                className={`px-2.5 py-1.5 transition ${locale === 'ar' ? 'bg-[#0F3460] text-white' : 'hover:bg-gray-50'}`}
-              >
-                AR
-              </button>
-            </div>
+            <button
+  onClick={() => {
+  setIsMobileSearchOpen((v) => !v);
+  setIsMobileCatOpen(false); // add this line
+}}
+  className="lg:hidden p-2 rounded-lg hover:bg-gray-100 text-gray-600"
+  aria-label="Recherche"
+>
+  <Search className="w-5 h-5" />
+</button>
+            
 
             {/* Wishlist — desktop + authenticated */}
             {isAuthenticated && (
@@ -222,62 +238,88 @@ export default function Header({ categories }: Props) {
         </div>
       </div>
 
-      {/* ── Navigation bar ── */}
-      <div className="hidden lg:block bg-[#0F3460]">
-        <div className="max-w-7xl mx-auto px-4">
-          <nav className="flex items-center h-10 text-sm text-white gap-1">
-            <Link href={`/${locale}`} className="px-3 py-1.5 rounded hover:bg-white/10 transition font-medium">
-              Accueil
-            </Link>
+      {isMobileSearchOpen && (
+  <div className="lg:hidden bg-white border-b border-gray-200 px-4 py-3 shadow-sm">
+    <div className="flex h-10 rounded-lg border border-gray-300 overflow-hidden focus-within:border-[#0F3460] transition-colors">
+      
+      {/* Category filter button */}
+      <button
+        onClick={() => setIsMobileCatOpen((v) => !v)}
+        className="h-full px-3 bg-gray-50 border-r border-gray-300 text-[#0F3460] hover:bg-gray-100 transition-colors shrink-0 flex items-center gap-1"
+        aria-label="Filtrer par catégorie"
+      >
+        <SlidersHorizontal className="w-4 h-4" />
+        <ChevronDown className={`w-3 h-3 transition-transform ${isMobileCatOpen ? 'rotate-180' : ''}`} />
+      </button>
 
-            {/* Catalogue dropdown */}
-            <div ref={categoryRef} className="relative h-full flex items-center">
-              <button
-                onMouseEnter={() => setIsCategoryOpen(true)}
-                className="flex items-center gap-1 px-3 py-1.5 rounded hover:bg-white/10 transition font-medium"
-              >
-                Catalogue <ChevronDown className="w-3.5 h-3.5" />
-              </button>
-              {isCategoryOpen && (
-                <div
-                  onMouseLeave={() => setIsCategoryOpen(false)}
-                  className="absolute left-0 top-full w-60 bg-white text-gray-700 shadow-2xl rounded-b-xl border-t-2 border-[#E94560] py-2 z-50"
-                >
-                  {categories.length === 0 ? (
-                    <p className="px-4 py-3 text-sm text-gray-400">Aucune catégorie</p>
-                  ) : (
-                    categories.map((cat) => (
-                      <Link
-                        key={cat.slug}
-                        href={`/${locale}/catalogue/${cat.slug}`}
-                        onClick={() => setIsCategoryOpen(false)}
-                        className="flex items-center justify-between px-4 py-2.5 text-sm hover:bg-gray-50 hover:text-[#0F3460] transition"
-                      >
-                        {locale === 'ar' ? cat.name_ar : cat.name_fr}
-                        {cat.children && cat.children.length > 0 && (
-                          <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
-                        )}
-                      </Link>
-                    ))
-                  )}
-                  <hr className="my-1 border-gray-100" />
-                  <Link
-                    href={`/${locale}/catalogue`}
-                    onClick={() => setIsCategoryOpen(false)}
-                    className="block px-4 py-2.5 text-sm font-semibold text-[#0F3460] hover:bg-blue-50 transition"
-                  >
-                    Voir tout le catalogue →
-                  </Link>
-                </div>
-              )}
-            </div>
+      <input
+        type="search"
+        value={searchQuery}
+        onChange={(e) => handleSearchInput(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            handleSearch();
+            setIsMobileSearchOpen(false);
+            setIsMobileCatOpen(false);
+          }
+        }}
+        placeholder="Rechercher..."
+        autoFocus
+        className="flex-1 h-full px-4 bg-gray-50 text-sm outline-none"
+      />
 
-            <Link href="#" className="px-3 py-1.5 rounded hover:bg-white/10 transition font-medium">Marques</Link>
-            <Link href={`/${locale}/b2b`} className="px-3 py-1.5 rounded hover:bg-white/10 transition font-medium">B2B / Entreprises</Link>
-            <Link href="#" className="px-3 py-1.5 rounded hover:bg-white/10 transition font-medium">Contact</Link>
-          </nav>
-        </div>
+      <button
+        onClick={() => {
+          handleSearch();
+          setIsMobileSearchOpen(false);
+          setIsMobileCatOpen(false);
+        }}
+        className="h-full w-11 flex items-center justify-center bg-[#0F3460] text-white shrink-0 hover:bg-[#0a2444] transition-colors"
+      >
+        <Search className="w-4 h-4" />
+      </button>
+    </div>
+
+    {/* Category dropdown panel */}
+    {isMobileCatOpen && (
+      <div className="mt-2 rounded-lg border border-gray-200 bg-white shadow-md overflow-hidden">
+        <button
+          onClick={() => {
+            setSelectedCategory('');
+            setIsMobileCatOpen(false);
+          }}
+          className={`w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors ${
+            selectedCategory === '' ? 'font-semibold text-[#0F3460] bg-blue-50' : 'text-gray-700'
+          }`}
+        >
+          Toutes les catégories
+        </button>
+        {categories.map((cat) => (
+          <button
+            key={cat.slug}
+            onClick={() => {
+              setSelectedCategory(cat.slug);
+              setIsMobileCatOpen(false);
+            }}
+            className={`w-full text-left px-4 py-2.5 text-sm border-t border-gray-100 hover:bg-gray-50 transition-colors ${
+              selectedCategory === cat.slug ? 'font-semibold text-[#0F3460] bg-blue-50' : 'text-gray-700'
+            }`}
+          >
+            {locale === 'ar' ? cat.name_ar : cat.name_fr}
+          </button>
+        ))}
       </div>
+    )}
+  </div>
+)}
+
+      {/* ── Navigation bar ── */}
+      <NavigationBar
+        locale={locale}
+        categoryRef={categoryRef}
+        isCategoryOpen={isCategoryOpen}
+        setIsCategoryOpen={setIsCategoryOpen}
+      />
 
       {/* Mobile menu */}
       <MobileMenu
