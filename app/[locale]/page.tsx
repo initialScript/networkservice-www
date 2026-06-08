@@ -3,6 +3,10 @@ import { ArrowRight, Shield, Truck, RotateCcw, Headphones } from 'lucide-react';
 import ProductCard, { type Product } from '@/components/catalog/ProductCard';
 import { categories } from '@/data/categories';
 import Hero from '@/components/home/Hero';
+import { additionalProducts } from '@/data/products';
+import FeaturedProductsSection from '@/components/home/FeaturedProductsSection';
+import HomeBadge from '@/components/home/HomeBadge';
+import CategoryCarousel from '@/components/home/CategoryCarousel';
 
 export const revalidate = 3600;
 
@@ -51,57 +55,22 @@ export default async function HomePage({ params: { locale } }: Props) {
   const featuredProducts = norm<Product>(featuredRes, 'products');
   const inStockProducts = norm<Product>(inStockRes, 'products');
 
+
   return (
     <div>
       {/* ── Hero ── */}
       <Hero locale={locale} />
 
-      {/* ── Trust badges ── */}
-      <section className="bg-white border-b border-gray-100 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-gray-100">
-            {[
-              { Icon: Truck, label: 'Livraison rapide', sub: 'Partout au Maroc' },
-              { Icon: Shield, label: 'Garantie officielle', sub: 'Produits authentiques' },
-              { Icon: RotateCcw, label: 'Retours faciles', sub: 'Sous 14 jours' },
-              { Icon: Headphones, label: 'Support client', sub: 'Lun–Ven 9h–18h' },
-            ].map(({ Icon, label, sub }) => (
-              <div key={label} className="flex items-center gap-3 px-4 py-5">
-                <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
-                  <Icon className="w-5 h-5 text-[#0F3460]" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-gray-800">{label}</p>
-                  <p className="text-xs text-gray-500">{sub}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <HomeBadge />
 
-
+<CategoryCarousel locale={locale} />
+      
       {/* ── Featured products ── */}
-      {featuredProducts.length > 0 && (
-        <section className="bg-[#F8F9FA]">
-          <div className="max-w-7xl mx-auto px-4 py-14">
-            <div className="flex items-center justify-between mb-7">
-              <div>
-                <h2 className="text-xl font-bold text-gray-900">Nouveaux produits</h2>
-                <p className="text-sm text-gray-500 mt-0.5">Les dernières arrivées dans notre catalogue</p>
-              </div>
-              <Link href={`/${locale}/catalogue?sort=newest`} className="text-sm font-medium text-[#0F3460] hover:underline flex items-center gap-1">
-                Tout voir <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-              {featuredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-          </div>
-        </section>
+      {additionalProducts.length > 0 && (
+        <FeaturedProductsSection locale={locale} products={additionalProducts} />
       )}
+
+      
 
       {/* ── B2B promo banner ── */}
       <section className="max-w-7xl mx-auto px-4 py-10">

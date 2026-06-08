@@ -74,7 +74,7 @@ const Hero = ({locale}:{locale:string}) => {
         <div className="flex flex-col lg:flex-row items-center gap-12">
           <div className="flex-1 text-center lg:text-start">
             <span className="inline-block mb-4 text-xs font-bold tracking-widest uppercase text-[#E94560] bg-black/30 backdrop-blur-sm border border-[#E94560]/30 px-3 py-1 rounded-full">
-              Nouveautés 2025
+              Nouveautés {new Date().getFullYear()}
             </span>
             <h1 className="text-3xl sm:text-4xl lg:text-6xl font-extrabold text-white leading-tight mb-4">
               Votre matériel informatique<br />

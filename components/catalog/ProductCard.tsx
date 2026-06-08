@@ -23,7 +23,7 @@ interface Props {
   product: Product;
 }
 
-export default function ProductCard({ product }: Props) {
+export default function ProductCard({ product,  }: Props) {
   const locale = useLocale();
   const addItem = useCartStore((s) => s.addItem);
   const [isAdding, setIsAdding] = useState(false);
