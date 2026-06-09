@@ -6,6 +6,7 @@ import ImageGallery from "@/components/products/ImageGallery";
 import ProductCarousel from "@/components/products/ProductCarousel";
 import { Button } from "@/components/ui/button";
 import { fakeProducts } from "@/data/products";
+import { useCartStore } from "@/store/useCartStore";
 import { CircleCheck, ShieldCheck, ShoppingCart, Store, Truck, MapPin, Clock, ArrowRight, RefreshCw, Headphones } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -15,7 +16,7 @@ const ProductsDetailClient = ({
 }: {
   productId: string;
 }) => {
-  const [amount, setAmount] = useState(1);
+  const [quantity, setQuantity] = useState(1);
   const [infoOpen, setInfoOpen] = useState('description')
 
   const product = fakeProducts.find(
@@ -25,6 +26,9 @@ const ProductsDetailClient = ({
   const handleInfoOpen = (str: string) => {
     setInfoOpen(str)
   }
+
+ 
+
 
   if (!product) {
     return (
@@ -50,16 +54,29 @@ const ProductsDetailClient = ({
   const specs = product?.specs
 
   const handleIncrease = () => {
-    if (amount < 99) {
-      setAmount(prev => prev + 1);
+    if (quantity < 99) {
+      setQuantity(prev => prev + 1);
     }
   };
 
   const handleDecrease = () => {
-    if (amount > 1) {
-      setAmount(prev => prev - 1);
+    if (quantity > 1) {
+      setQuantity(prev => prev - 1);
     }
   };
+
+ const addItem = useCartStore((state) => state.addItem);
+
+const handleAddToCart = () => {
+  addItem({
+    product_id: product.id,
+    name: product.title,
+    slug: product.slug,
+    price: product.price,
+    image: product.images[0],
+    quantity,
+  });
+};
 
   // Format price for better display
   const formatPrice = (price: string | number) => {
@@ -161,14 +178,16 @@ const ProductsDetailClient = ({
           <div className="flex items-center gap-4 w-full">
             <div >
               <AmountBtns
-                amount={amount}
+                amount={quantity}
                 onIncrease={handleIncrease}
                 onDecrease={handleDecrease}
                 minAmount={1}
                 maxAmount={99}
               />
             </div>
-            <Button className="flex-1 gap-2 bg-gray-900 hover:bg-gray-800 text-white rounded-xl py-6 transition-all duration-200 shadow-md hover:shadow-lg">
+            <Button
+              onClick={handleAddToCart}
+              className="flex-1 gap-2 bg-gray-900 hover:bg-gray-800 text-white rounded-xl py-6 transition-all duration-200 shadow-md hover:shadow-lg">
               <ShoppingCart size={20} />
               Ajouter au panier
               <ArrowRight size={16} className="opacity-70" />

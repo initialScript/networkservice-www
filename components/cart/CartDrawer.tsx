@@ -14,6 +14,7 @@ export default function CartDrawer() {
   const pathname = usePathname();
   const locale = pathname.split('/')[1] || 'fr';
 
+
   return (
     <>
       {/* Overlay */}
