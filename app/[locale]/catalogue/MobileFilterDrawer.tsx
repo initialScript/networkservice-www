@@ -10,7 +10,7 @@ interface MobileFilterDrawerProps {
   brands: any[];
   currentFilters: any;
   locale: string;
-  onFilterChange: (updates: Record<string, string | null>) => void;
+  onFilterChange?: (updates: Record<string, string | null>) => void;
 }
 
 export default function MobileFilterDrawer({
@@ -64,7 +64,7 @@ export default function MobileFilterDrawer({
                 currentFilters={currentFilters}
                 locale={locale}
                 onFilterChange={(updates) => {
-                  onFilterChange(updates);
+                  onFilterChange?.(updates);
                   setIsOpen(false);
                 }}
               />

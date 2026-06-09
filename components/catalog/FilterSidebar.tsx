@@ -10,6 +10,7 @@ export interface Category {
   slug: string;
   name_fr: string;
   name_ar: string;
+  description?: string;
 }
 
 export interface Brand {
@@ -17,6 +18,7 @@ export interface Brand {
   slug: string;
   name: string;
   logo?: string;
+  productCount?: number;
 }
 
 export interface CurrentFilters {
@@ -198,6 +200,9 @@ export default function FilterSidebar({
                         {brand.name}
                       </span>
                     )}
+                    {brand.productCount && (
+                      <span className="text-xs text-gray-400 ml-auto">{brand.productCount}</span>
+                    )}
                   </label>
                 </li>
               );
@@ -237,9 +242,9 @@ export default function FilterSidebar({
           </button>
           <div className="flex flex-wrap gap-1.5">
             {[
-              { label: '0–500 MAD', min: '0', max: '500' },
-              { label: '500–2000 MAD', min: '500', max: '2000' },
-              { label: '2000+ MAD', min: '2000', max: '' },
+              { label: '0–500 DH', min: '0', max: '500' },
+              { label: '500–2000 DH', min: '500', max: '2000' },
+              { label: '2000+ DH', min: '2000', max: '' },
             ].map((preset) => (
               <button
                 key={preset.label}

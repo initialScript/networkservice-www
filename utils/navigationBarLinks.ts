@@ -6,7 +6,7 @@ export const navigationBarLinks = [
     {
         id: 1,
         title: 'BOUTIQUE',
-        path: '/store'
+        path: '/catalogue'
     },
     {
         id: 2,

@@ -39,11 +39,13 @@ export default function ProductCard({ product }: any) {
     }
   };
 
-  const productSlug = product.id + '-' + product.slug
+ const productSlug = product.id + '-' + product.slug
+const categorySlug = product.category?.toLowerCase() || 'product';
+
 
   return (
     <Link
-      href={`/store/${productSlug}`}
+      href={`/catalogue/${categorySlug}/${productSlug}`}
       className="group flex flex-col bg-white rounded-xl border border-gray-100 hover:shadow-md hover:border-gray-200 transition-all duration-200 overflow-hidden"
     >
       {/* Image - Smaller */}
