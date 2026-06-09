@@ -5,7 +5,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import ProductCard from '../catalog/ProductCard';
 import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
-import { additionalProducts } from '@/data/products';
+import { additionalProducts, fakeProducts } from '@/data/products';
 
 
 
@@ -164,13 +164,19 @@ const CategoryCarousel = ({locale}:{locale:string}) => {
       </div>
       
       {/*  */}
-      <div className="max-w-7xl mx-auto px-4">
+      <div className="max-w-7xl mx-auto px-4 mb-8">
            
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-              {additionalProducts.map((product:any) => (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-8">
+              {fakeProducts.map((product:any) => (
                 <ProductCard key={product.id} product={product} />
               ))}
-            </div>
+        </div>
+        
+        <div className='w-full grid place-items-center'>
+          <Link href={'/products'} className='bg-[#0F3460] text-white px-12 py-3 shadow-md rounded-xl'>
+              voir tous les produits
+        </Link>
+          </div>
           </div>
     </>
   );

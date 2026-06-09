@@ -66,9 +66,9 @@ export default async function HomePage({ params: { locale } }: Props) {
 <CategoryCarousel locale={locale} />
       
       {/* ── Featured products ── */}
-      {additionalProducts.length > 0 && (
+      {/* {additionalProducts.length > 0 && (
         <FeaturedProductsSection locale={locale} products={additionalProducts} />
-      )}
+      )} */}
 
       
 

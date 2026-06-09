@@ -8,22 +8,8 @@ import { useLocale } from 'next-intl';
 import { useCartStore } from '@/store/useCartStore';
 import { cn, formatPrice } from '@/lib/utils';
 
-export interface Product {
-  id: number;
-  name_fr: string;
-  name_ar: string;
-  slug: string;
-  price: number;
-  compare_price?: number;
-  stock_qty: number;
-  image?: { url: string; alt: string };
-}
 
-interface Props {
-  product: Product;
-}
-
-export default function ProductCard({ product,  }: Props) {
+export default function ProductCard({ product }: any) {
   const locale = useLocale();
   const addItem = useCartStore((s) => s.addItem);
   const [isAdding, setIsAdding] = useState(false);
@@ -36,6 +22,7 @@ export default function ProductCard({ product,  }: Props) {
   const discountPct = hasDiscount
     ? Math.round((1 - product.price / product.compare_price!) * 100)
     : 0;
+
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -52,24 +39,26 @@ export default function ProductCard({ product,  }: Props) {
     }
   };
 
+  const productSlug = product.id + '-' + product.slug
+
   return (
     <Link
-      href={`/${locale}/produits/${product.slug}`}
+      href={`/products/${productSlug}`}
       className="group flex flex-col bg-white rounded-xl border border-gray-100 hover:shadow-md hover:border-gray-200 transition-all duration-200 overflow-hidden"
     >
-      {/* Image */}
-      <div className="relative aspect-square bg-gray-50 overflow-hidden">
-        {product.image ? (
+      {/* Image - Smaller */}
+      <div className="relative h-40 sm:h-48 md:h-52 bg-gray-100 overflow-hidden">
+        {product.images ? (
           <Image
-            src={product.image.url}
-            alt={product.image.alt || name}
+            src={product.images[0]}
+            alt={product.title}
             fill
-            className="object-contain p-3 group-hover:scale-105 transition-transform duration-300"
+            className="object-contain p-2 group-hover:scale-105 transition-transform duration-300"
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center text-gray-200">
-            <Camera className="w-12 h-12" />
+            <Camera className="w-8 h-8" />
           </div>
         )}
 
@@ -88,7 +77,7 @@ export default function ProductCard({ product,  }: Props) {
       {/* Body */}
       <div className="flex flex-col flex-1 p-3 gap-2">
         <p className="text-sm font-medium text-gray-800 line-clamp-2 leading-snug min-h-[2.5rem]">
-          {name}
+          {product.title}
         </p>
 
         {/* Price */}
