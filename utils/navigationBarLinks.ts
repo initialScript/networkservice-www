@@ -26,6 +26,6 @@ export const navigationBarLinks = [
     {
         id: 5,
         title: 'À PROPOS',
-        path: '/about-us'
+        path: '/a-propos'
     },
 ]
