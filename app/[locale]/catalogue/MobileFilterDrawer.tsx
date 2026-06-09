@@ -1,73 +1,77 @@
 'use client';
 
 import { useState } from 'react';
-import { SlidersHorizontal, X } from 'lucide-react';
-import FilterSidebar, { type Category, type Brand, type CurrentFilters } from '@/components/catalog/FilterSidebar';
+import { Filter, X } from 'lucide-react';
+import FilterSidebar from '@/components/catalog/FilterSidebar';
+import { cn } from '@/lib/utils';
 
-interface Props {
-  categories: Category[];
-  brands: Brand[];
-  currentFilters: CurrentFilters;
+interface MobileFilterDrawerProps {
+  categories: any[];
+  brands: any[];
+  currentFilters: any;
   locale: string;
+  onFilterChange: (updates: Record<string, string | null>) => void;
 }
 
-export default function MobileFilterDrawer({ categories, brands, currentFilters, locale }: Props) {
-  const [open, setOpen] = useState(false);
-
-  const hasFilters =
-    !!currentFilters.category ||
-    !!currentFilters.brand ||
-    !!currentFilters.min_price ||
-    !!currentFilters.max_price ||
-    !!currentFilters.in_stock;
+export default function MobileFilterDrawer({
+  categories,
+  brands,
+  currentFilters,
+  locale,
+  onFilterChange,
+}: MobileFilterDrawerProps) {
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <>
-      {/* Sticky trigger — only visible on mobile */}
-      <div className="lg:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-30">
+      {/* Mobile filter button */}
+      <div className="lg:hidden fixed bottom-4 right-4 z-30">
         <button
-          type="button"
-          onClick={() => setOpen(true)}
-          className="flex items-center gap-2 px-5 py-3 bg-[#0F3460] text-white text-sm font-semibold rounded-full shadow-lg"
+          onClick={() => setIsOpen(true)}
+          className="flex items-center justify-center gap-2 bg-[#0F3460] text-white rounded-full px-4 py-3 shadow-lg hover:bg-[#0a2444] transition-colors"
         >
-          <SlidersHorizontal className="w-4 h-4" />
-          Filtres{hasFilters ? ' ●' : ''}
+          <Filter size={18} />
+          <span className="text-sm font-medium">Filtrer</span>
         </button>
       </div>
 
-      {/* Overlay */}
-      {open && (
-        <div
-          className="lg:hidden fixed inset-0 z-40 bg-black/50"
-          onClick={() => setOpen(false)}
-        />
-      )}
-
       {/* Drawer */}
-      <div
-        className={`lg:hidden fixed inset-x-0 bottom-0 z-50 bg-white rounded-t-2xl shadow-2xl transform transition-transform duration-300 max-h-[85dvh] overflow-y-auto ${
-          open ? 'translate-y-0' : 'translate-y-full'
-        }`}
-      >
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 sticky top-0 bg-white">
-          <span className="font-semibold text-gray-900">Filtres</span>
-          <button
-            type="button"
-            onClick={() => setOpen(false)}
-            className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-        <div className="px-5 pb-8">
-          <FilterSidebar
-            categories={categories}
-            brands={brands}
-            currentFilters={currentFilters}
-            locale={locale}
+      {isOpen && (
+        <>
+          <div
+            className="fixed inset-0 bg-black/50 z-40"
+            onClick={() => setIsOpen(false)}
           />
-        </div>
-      </div>
+          <div
+            className={cn(
+              'fixed top-0 right-0 h-full w-full max-w-sm bg-white shadow-2xl z-50 transition-transform duration-300 overflow-y-auto',
+              isOpen ? 'translate-x-0' : 'translate-x-full'
+            )}
+          >
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-gray-900">Filtrer</h2>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X size={20} className="text-gray-500" />
+              </button>
+            </div>
+            <div className="p-4">
+              <FilterSidebar
+                categories={categories}
+                brands={brands}
+                currentFilters={currentFilters}
+                locale={locale}
+                onFilterChange={(updates) => {
+                  onFilterChange(updates);
+                  setIsOpen(false);
+                }}
+              />
+            </div>
+          </div>
+        </>
+      )}
     </>
   );
 }

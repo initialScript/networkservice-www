@@ -1,8 +1,8 @@
-import ProductCard, { type Product } from './ProductCard';
+import ProductCard from './ProductCard';
 import Skeleton from '@/components/ui/Skeleton';
 
 interface Props {
-  products: Product[];
+  products: any[];
   isLoading?: boolean;
   columns?: 'default' | 'related';
 }

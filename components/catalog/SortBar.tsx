@@ -1,52 +1,92 @@
 'use client';
 
-import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { ChevronDown, Grid3x3, List } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
-interface Props {
+interface SortBarProps {
   total: number;
-  currentSort?: string;
+  currentSort: string;
+  currentLayout?: string;
+  onSortChange?: (sort: string) => void;
+  onLayoutChange?: (layout: string) => void;
 }
 
-const SORT_OPTIONS = [
-  { value: 'newest', label: 'Plus récents' },
-  { value: 'price_asc', label: 'Prix croissant' },
-  { value: 'price_desc', label: 'Prix décroissant' },
-  { value: 'name_asc', label: 'Nom A–Z' },
-];
+export default function SortBar({ 
+  total, 
+  currentSort, 
+  currentLayout = 'grid',
+  onSortChange, 
+  onLayoutChange 
+}: SortBarProps) {
+  const sortOptions = [
+    { value: 'newest', label: 'Plus récents' },
+    { value: 'price-asc', label: 'Prix croissant' },
+    { value: 'price-desc', label: 'Prix décroissant' },
+    { value: 'rating', label: 'Meilleures notes' },
+  ];
 
-export default function SortBar({ total, currentSort }: Props) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+  const handleSortChange = (sort: string) => {
+    if (onSortChange) {
+      onSortChange(sort);
+    }
+  };
 
-  const handleSort = (value: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set('sort', value);
-    params.delete('page');
-    router.push(`${pathname}?${params.toString()}`);
+  const handleLayoutChange = (layout: string) => {
+    if (onLayoutChange) {
+      onLayoutChange(layout);
+    }
   };
 
   return (
-    <div className="flex items-center justify-between gap-4 py-3 border-b border-gray-100">
+    <div className="flex flex-row items-center justify-between gap-4">
       <p className="text-sm text-gray-500">
-        <span className="font-semibold text-gray-800">{total}</span> produit{total !== 1 ? 's' : ''} trouvé{total !== 1 ? 's' : ''}
+        <span className="font-medium text-gray-900">{total}</span> produits
       </p>
-      <div className="flex items-center gap-2">
-        <label htmlFor="sort-select" className="text-sm text-gray-500 whitespace-nowrap hidden sm:block">
-          Trier par :
-        </label>
-        <select
-          id="sort-select"
-          value={currentSort ?? 'newest'}
-          onChange={(e) => handleSort(e.target.value)}
-          className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#0F3460]/30 cursor-pointer"
-        >
-          {SORT_OPTIONS.map((o) => (
-            <option key={o.value} value={o.value}>
-              {o.label}
-            </option>
-          ))}
-        </select>
+      
+      <div className="flex items-center gap-3">
+        {/* Layout Toggle Buttons */}
+        <div className="flex border border-gray-300 rounded-lg overflow-hidden">
+          <button
+            onClick={() => handleLayoutChange('grid')}
+            className={cn(
+              'p-1.5 px-3 transition-colors',
+              currentLayout === 'grid'
+                ? 'bg-[#0F3460] text-white'
+                : 'bg-white text-gray-600 hover:bg-gray-50'
+            )}
+            aria-label="Grid view"
+          >
+            <Grid3x3 size={18} />
+          </button>
+          <button
+            onClick={() => handleLayoutChange('list')}
+            className={cn(
+              'p-1.5 px-3 transition-colors',
+              currentLayout === 'list'
+                ? 'bg-[#0F3460] text-white'
+                : 'bg-white text-gray-600 hover:bg-gray-50'
+            )}
+            aria-label="List view"
+          >
+            <List size={18} />
+          </button>
+        </div>
+
+        {/* Sort Dropdown */}
+        <div className="relative">
+          <select
+            value={currentSort}
+            onChange={(e) => handleSortChange(e.target.value)}
+            className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 text-sm focus:ring-2 focus:ring-[#0F3460] focus:border-transparent cursor-pointer"
+          >
+            {sortOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                Trier par: {option.label}
+              </option>
+            ))}
+          </select>
+          <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+        </div>
       </div>
     </div>
   );

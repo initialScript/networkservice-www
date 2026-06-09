@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { ChevronDown, ChevronUp, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -32,6 +32,7 @@ interface Props {
   brands: Brand[];
   currentFilters: CurrentFilters;
   locale?: string;
+  onFilterChange?: (updates: Record<string, string | null>) => void;
 }
 
 function Section({
@@ -59,7 +60,13 @@ function Section({
   );
 }
 
-export default function FilterSidebar({ categories, brands, currentFilters, locale = 'fr' }: Props) {
+export default function FilterSidebar({ 
+  categories, 
+  brands, 
+  currentFilters, 
+  locale = 'fr',
+  onFilterChange 
+}: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -67,17 +74,29 @@ export default function FilterSidebar({ categories, brands, currentFilters, loca
   const [minPrice, setMinPrice] = useState(currentFilters.min_price ?? '');
   const [maxPrice, setMaxPrice] = useState(currentFilters.max_price ?? '');
 
+  // Sync local state with currentFilters when they change
+  useEffect(() => {
+    setMinPrice(currentFilters.min_price ?? '');
+    setMaxPrice(currentFilters.max_price ?? '');
+  }, [currentFilters.min_price, currentFilters.max_price]);
+
   const pushFilter = (updates: Record<string, string | null>) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.delete('page');
-    for (const [key, val] of Object.entries(updates)) {
-      if (val === null || val === '') {
-        params.delete(key);
-      } else {
-        params.set(key, val);
+    if (onFilterChange) {
+      // Use the callback if provided (for client-side)
+      onFilterChange(updates);
+    } else {
+      // Fallback to router navigation
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete('page');
+      for (const [key, val] of Object.entries(updates)) {
+        if (val === null || val === '') {
+          params.delete(key);
+        } else {
+          params.set(key, val);
+        }
       }
+      router.push(`${pathname}?${params.toString()}`);
     }
-    router.push(`${pathname}?${params.toString()}`);
   };
 
   const selectedBrands = currentFilters.brand
@@ -92,13 +111,19 @@ export default function FilterSidebar({ categories, brands, currentFilters, loca
   };
 
   const applyPrice = () => {
-    pushFilter({ min_price: minPrice || null, max_price: maxPrice || null });
+    pushFilter({ 
+      min_price: minPrice || null, 
+      max_price: maxPrice || null 
+    });
   };
 
   const setPreset = (min: string, max: string) => {
     setMinPrice(min);
     setMaxPrice(max);
-    pushFilter({ min_price: min || null, max_price: max || null });
+    pushFilter({ 
+      min_price: min || null, 
+      max_price: max || null 
+    });
   };
 
   const hasFilters =
@@ -111,7 +136,13 @@ export default function FilterSidebar({ categories, brands, currentFilters, loca
   const clearAll = () => {
     setMinPrice('');
     setMaxPrice('');
-    router.push(pathname);
+    pushFilter({ 
+      category: null, 
+      brand: null, 
+      min_price: null, 
+      max_price: null, 
+      in_stock: null 
+    });
   };
 
   return (

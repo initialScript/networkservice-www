@@ -74,7 +74,9 @@ export interface Product {
   rating?: number;
   inStock?: boolean;
   descriptionHtml?: string;
-technicalSheet?: { label: string; value: string }[];
+  technicalSheet?: { label: string; value: string }[];
+  brand?: string
+  createdAt?:number
 }
 
 // Helper function to generate slug from title

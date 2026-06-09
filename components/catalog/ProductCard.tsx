@@ -29,7 +29,7 @@ export default function ProductCard({ product }: any) {
     if (isOutOfStock || isAdding || isAdded) return;
     setIsAdding(true);
     try {
-      await addItem(product.id, 1);
+      await addItem(product.id);
       setIsAdded(true);
       setTimeout(() => setIsAdded(false), 2000);
     } catch {
@@ -43,7 +43,7 @@ export default function ProductCard({ product }: any) {
 
   return (
     <Link
-      href={`/products/${productSlug}`}
+      href={`/store/${productSlug}`}
       className="group flex flex-col bg-white rounded-xl border border-gray-100 hover:shadow-md hover:border-gray-200 transition-all duration-200 overflow-hidden"
     >
       {/* Image - Smaller */}

@@ -9,9 +9,10 @@ interface Props {
   page: number;
   limit: number;
   totalPages: number;
+  onPageChange?: (page: number) => void;
 }
 
-export default function Pagination({ page, totalPages }: Props) {
+export default function Pagination({ page, totalPages, onPageChange }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
