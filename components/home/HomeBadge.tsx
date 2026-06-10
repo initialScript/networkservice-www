@@ -8,6 +8,18 @@ const badges = [
     title: "Partout au Maroc",
     img: "/images/maroc.png",
   },
+  {
+    id: 2,
+    desc: "Garantie incluse",
+    title: "Produits garantis",
+    img: "/images/garantie.png",
+  },
+  {
+    id: 3,
+    desc: "Assistance disponible",
+    title: "Service 7j/7",
+    img: "/images/service-clients.png",
+  },
 ];
 
 const HomeBadge = () => {
@@ -22,7 +34,7 @@ const HomeBadge = () => {
               backgroundPosition: "center",
               backgroundSize: "cover",
             }}
-            className="relative h-[250px] overflow-hidden rounded-2xl bg-white px-8 flex items-center justify-between"
+            className="relative h-[250px] overflow-hidden rounded-2xl bg-white px-8 flex items-center justify-between holographic-card"
           >
             <div className="max-w-[180px] z-10">
               <p className="text-gray-600 ">{item.desc}</p>
@@ -36,7 +48,7 @@ const HomeBadge = () => {
               </button>
             </div>
 
-            <div className="relative w-[180px] h-[180px] shrink-0">
+            <div className={`relative w-[180px] h-[180px] shrink-0 ${item.title === 'Partout au Maroc' ? 'w-[180px] h-[180px]' : 'w-[150px] h-[150px]'}`}>
               <Image
                 src={item.img}
                 alt={item.title}

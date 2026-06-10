@@ -114,3 +114,39 @@
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
   background: #9ca3af;
 }
+
+.holographic-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 30%,
+    rgba(255,255,255,0.05) 40%,
+    rgba(255,255,255,0.35) 50%,
+    rgba(255,255,255,0.05) 60%,
+    transparent 70%
+  );
+  transform: translateX(-150%);
+  transition: transform 0.8s ease;
+}
+
+.holographic-card:hover::before {
+  transform: translateX(150%);
+}
+
+.holographic-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 25px rgba(0,0,0,0.12);
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}

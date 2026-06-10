@@ -86,7 +86,7 @@ export default function CartDrawer() {
                 Voir le panier
               </Link>
               <Link
-                href={`/${locale}/checkout`}
+                href={`/${locale}/order`}
                 onClick={close}
                 className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-[#E94560] text-white text-sm font-semibold hover:bg-[#c73350] transition"
               >

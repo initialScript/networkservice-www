@@ -1,17 +1,20 @@
 import Link from 'next/link';
 import { Facebook, Instagram, Linkedin, MapPin, Phone, Mail, Clock } from 'lucide-react';
+import Image from 'next/image';
 
 export default function Footer() {
   return (
-    <footer className="bg-gray-900 text-gray-400 mt-16">
+    <footer className="bg-[#047189] text-gray-400 mt-16">
       <div className="max-w-7xl mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Brand */}
           <div>
             <div className="flex items-baseline gap-0.5 mb-3">
-              <span className="text-2xl font-extrabold text-white">IRIS</span>
-              <span className="text-2xl font-extrabold text-[#E94560]">.</span>
-              <span className="text-sm font-medium text-gray-500 ms-0.5">MA</span>
+              <img
+    src="http://networkservice-info.com/wp-content/uploads/2025/02/networkservies-logo-1707919409.png"
+    alt="network service info logo"
+    className="w-[140px] sm:w-[160px]"
+  />
             </div>
             <p className="text-sm leading-relaxed mb-5">
               Votre partenaire informatique au Maroc. Imprimantes, ordinateurs, accessoires et bien plus, livrés partout au Royaume.

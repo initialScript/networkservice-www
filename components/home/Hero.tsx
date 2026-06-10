@@ -43,7 +43,7 @@ const Hero = ({locale}:{locale:string}) => {
   }
 
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden">
+    <section className="relative h-[calc(100vh-65px)] lg:h-[calc(100vh-139px)] flex items-center overflow-hidden">
       {/* Background Carousel with Ken Burns effect */}
       <div className="absolute inset-0 z-0">
         {backgroundImages.map((image, index) => (
@@ -60,11 +60,11 @@ const Hero = ({locale}:{locale:string}) => {
                 fill
                 className="object-cover"
                 priority={index === 0}
-                sizes="100vw"
+                sizes="60vw"
               />
             </div>
             {/* Gradient overlay for better text readability */}
-            <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/70" />
+            <div className="absolute inset-0 bg-black/30" />
           </div>
         ))}
       </div>

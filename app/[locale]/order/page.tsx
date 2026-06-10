@@ -1,9 +1,9 @@
 import React from 'react'
-import PanierClientPage from './PanierClientPage'
+import ClientOrderPage from './ClientOrderPage'
 
 const page = () => {
   return (
-    <PanierClientPage />
+    <ClientOrderPage />
   )
 }
 

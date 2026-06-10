@@ -29,6 +29,8 @@ export default function ProductList({ products }: ProductListProps) {
     }
   };
 
+   
+
   if (products.length === 0) {
     return (
       <div className="py-20 text-center">
@@ -46,12 +48,14 @@ export default function ProductList({ products }: ProductListProps) {
         const discountPct = hasDiscount
           ? Math.round((1 - product.price / product.compare_price!) * 100)
           : 0;
-        const productSlug = `${product.id}-${product.slug}`;
+
+        const productSlug = product.id + '-' + product.slug
+const categorySlug = product.category?.toLowerCase() || 'product';
 
         return (
           <Link
             key={product.id}
-            href={`/products/${productSlug}`}
+            href={`/catalogue/${categorySlug}/${productSlug}`}
             className="group flex flex-col sm:flex-row gap-4 bg-white rounded-xl border border-gray-100 hover:shadow-md hover:border-gray-200 transition-all duration-200 overflow-hidden p-4"
           >
             {/* Image */}
@@ -177,7 +181,7 @@ export default function ProductList({ products }: ProductListProps) {
                     )}
                   </button>
                   <Link
-                    href={`/products/${productSlug}`}
+                    href={`/catalogue/${categorySlug}/${productSlug}`}
                     className="flex items-center justify-center p-1.5 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 hover:text-[#E94560] transition-colors"
                   >
                     <Eye size={16} />

@@ -135,25 +135,21 @@ export default function ProductCarousel({ products, title }: ProductCarouselProp
         )}
 
         <div
-          ref={carouselRef}
-          className={cn(
-            "flex overflow-x-auto gap-4 scroll-smooth",
-            "scrollbar-thin scrollbar-track-gray-100 scrollbar-thumb-gray-300",
-            "snap-mandatory snap-x",
-            isDragging ? "cursor-grabbing select-none" : "cursor-grab"
-          )}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
-          onTouchStart={handleMouseDown}
-          onTouchMove={handleMouseMove}
-          onTouchEnd={handleMouseUp}
-          style={{
-            scrollbarWidth: 'thin',
-            msOverflowStyle: 'auto'
-          }}
-        >
+  ref={carouselRef}
+  className={cn(
+    "flex overflow-x-auto overflow-y-hidden gap-4",
+    "scroll-smooth snap-x snap-mandatory",
+    "hide-scrollbar",
+    isDragging ? "cursor-grabbing select-none" : "cursor-grab"
+  )}
+  onMouseDown={handleMouseDown}
+  onMouseMove={handleMouseMove}
+  onMouseUp={handleMouseUp}
+  onMouseLeave={handleMouseUp}
+  onTouchStart={handleMouseDown}
+  onTouchMove={handleMouseMove}
+  onTouchEnd={handleMouseUp}
+>
           {products.map((product, index) => (
             <div
               key={product.id}
