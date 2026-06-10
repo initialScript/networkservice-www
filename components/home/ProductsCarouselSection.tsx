@@ -3,7 +3,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { categories } from '@/data/categories';
 import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import ProductCard from '../catalog/ProductCard';
 
 export interface Product {
@@ -22,8 +22,8 @@ type Props = {
   products: Product[] | any;
   title?: string;
   subtitle?: string;
-  banner?: string
-  haveCategories?: boolean
+  banner?: string;
+  haveCategories?: boolean;
 };
 
 const ProductsCarouselSection = ({ 
@@ -32,41 +32,78 @@ const ProductsCarouselSection = ({
   locale, 
   title,
   subtitle,
-  haveCategories=false
+  haveCategories = false
 }: Props) => {
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const categoryScrollRef = useRef<HTMLDivElement>(null);
   const productScrollRef = useRef<HTMLDivElement>(null);
+  
+  // Category carousel state
+  const [showCategoryLeftArrow, setShowCategoryLeftArrow] = useState(false);
+  const [showCategoryRightArrow, setShowCategoryRightArrow] = useState(true);
+  
+  // Product carousel state
+  const [showProductLeftArrow, setShowProductLeftArrow] = useState(false);
+  const [showProductRightArrow, setShowProductRightArrow] = useState(true);
   const [showLeftArrow, setShowLeftArrow] = useState(false);
-  const [showRightArrow, setShowRightArrow] = useState(true);
+  
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
-  const [activeCategory, setActiveCategory] = useState('imprimante-scanner')
+  const [activeCategory, setActiveCategory] = useState('laptop');
 
-  const checkScrollPosition = () => {
-    const container = productScrollRef.current;
+  // Check scroll position for category carousel
+  const checkCategoryScrollPosition = () => {
+    const container = categoryScrollRef.current;
     if (container) {
       const { scrollLeft, scrollWidth, clientWidth } = container;
-      setShowLeftArrow(scrollLeft > 0);
-      setShowRightArrow(scrollLeft + clientWidth < scrollWidth - 5);
+      setShowCategoryLeftArrow(scrollLeft > 0);
+      setShowCategoryRightArrow(scrollLeft + clientWidth < scrollWidth - 10);
     }
   };
 
-  const scrollProducts = (direction: 'left' | 'right') => {
+  // Check scroll position for product carousel
+  const checkProductScrollPosition = () => {
     const container = productScrollRef.current;
     if (container) {
-      const amount = container.clientWidth * 0.9;
-      container.scrollBy({
-        left: direction === 'left' ? -amount : amount,
+      const { scrollLeft, scrollWidth, clientWidth } = container;
+      setShowProductLeftArrow(scrollLeft > 0);
+      setShowProductRightArrow(scrollLeft + clientWidth < scrollWidth - 10);
+    }
+  };
+
+  // Scroll category carousel
+  const scrollCategory = (direction: 'left' | 'right') => {
+    const container = categoryScrollRef.current;
+    if (container) {
+      const scrollAmount = container.clientWidth * 0.7;
+      const newScrollLeft = direction === 'left' 
+        ? container.scrollLeft - scrollAmount 
+        : container.scrollLeft + scrollAmount;
+      
+      container.scrollTo({
+        left: newScrollLeft,
         behavior: 'smooth',
       });
     }
   };
 
+  // Scroll product carousel
+  const scrollProducts = (direction: 'left' | 'right') => {
+    const container = productScrollRef.current;
+    if (container) {
+      const scrollAmount = container.clientWidth * 0.8;
+      container.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth',
+      });
+    }
+  };
+
+  // Drag scrolling for categories
   const handleMouseDown = (e: React.MouseEvent) => {
     setIsDragging(true);
-    setStartX(e.pageX - (productScrollRef.current?.offsetLeft || 0));
-    setScrollLeft(productScrollRef.current?.scrollLeft || 0);
+    setStartX(e.pageX - (categoryScrollRef.current?.offsetLeft || 0));
+    setScrollLeft(categoryScrollRef.current?.scrollLeft || 0);
   };
 
   const handleMouseLeave = () => {
@@ -80,43 +117,54 @@ const ProductsCarouselSection = ({
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!isDragging) return;
     e.preventDefault();
-    const x = e.pageX - (productScrollRef.current?.offsetLeft || 0);
+    const x = e.pageX - (categoryScrollRef.current?.offsetLeft || 0);
     const walk = (x - startX) * 1.5;
-    if (productScrollRef.current) {
-      productScrollRef.current.scrollLeft = scrollLeft - walk;
+    if (categoryScrollRef.current) {
+      categoryScrollRef.current.scrollLeft = scrollLeft - walk;
     }
   };
 
+  // Add scroll event listeners
   useEffect(() => {
-    const container = productScrollRef.current;
-    if (container) {
-      container.addEventListener('scroll', checkScrollPosition);
-      window.addEventListener('resize', checkScrollPosition);
-      checkScrollPosition();
-      
-      return () => {
-        container.removeEventListener('scroll', checkScrollPosition);
-        window.removeEventListener('resize', checkScrollPosition);
-      };
+    const categoryContainer = categoryScrollRef.current;
+    const productContainer = productScrollRef.current;
+    
+    if (categoryContainer) {
+      categoryContainer.addEventListener('scroll', checkCategoryScrollPosition);
+      checkCategoryScrollPosition();
     }
+    
+    if (productContainer) {
+      productContainer.addEventListener('scroll', checkProductScrollPosition);
+      checkProductScrollPosition();
+    }
+    
+    window.addEventListener('resize', () => {
+      checkCategoryScrollPosition();
+      checkProductScrollPosition();
+    });
+    
+    return () => {
+      if (categoryContainer) {
+        categoryContainer.removeEventListener('scroll', checkCategoryScrollPosition);
+      }
+      if (productContainer) {
+        productContainer.removeEventListener('scroll', checkProductScrollPosition);
+      }
+      window.removeEventListener('resize', () => {});
+    };
   }, [products]);
 
-  const scroll = (direction: 'left' | 'right') => {
-      const container = scrollContainerRef.current;
-      if (container) {
-        const scrollAmount = container.clientWidth * 0.8;
-        const newScrollLeft = direction === 'left' 
-          ? container.scrollLeft - scrollAmount 
-          : container.scrollLeft + scrollAmount;
-        
-        container.scrollTo({
-          left: newScrollLeft,
-          behavior: 'smooth',
-        });
-      }
-    };
-
   if (!products || products.length === 0) return null;
+
+  // Get products for active category
+  const filteredProducts = activeCategory 
+    ? products.filter((product: any) => 
+        product.category?.toLowerCase() === activeCategory.toLowerCase()
+      )
+    : products;
+
+  const displayProducts = filteredProducts.length > 0 ? filteredProducts : products;
 
   return (
     <section className="bg-[#f8fafc] py-8 w-full">
@@ -135,53 +183,34 @@ const ProductsCarouselSection = ({
 
         {haveCategories && (
           <>
-            <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
-              {/* Carousel Container with Arrows */}
+            <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
               <div className="relative group">
-                {/* Left Arrow */}
+                {/* Left Arrow - Categories */}
                 <button
-                  onClick={() => scroll('left')}
-                  className={`absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white rounded-full p-2 shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    showLeftArrow ? 'opacity-100 visible' : 'opacity-0 invisible'
+                  onClick={() => scrollCategory('left')}
+                  className={`absolute -left-3 top-1/2 -translate-y-1/2 z-10 bg-white hover:bg-gray-50 rounded-full p-2 shadow-lg transition-all duration-200 border border-gray-200 ${
+                    showCategoryLeftArrow ? 'opacity-100 visible' : 'opacity-0 invisible group-hover:opacity-100'
                   }`}
                   aria-label="Scroll left"
                 >
-                  <svg 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    fill="none" 
-                    viewBox="0 0 24 24" 
-                    strokeWidth={2} 
-                    stroke="currentColor" 
-                    className="w-5 h-5 text-gray-700"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-                  </svg>
+                  <ChevronLeft className="w-5 h-5 text-gray-600" />
                 </button>
-        
-                {/* Right Arrow */}
+
+                {/* Right Arrow - Categories */}
                 <button
-                  onClick={() => scroll('right')}
-                  className={`absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white rounded-full p-2 shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    showRightArrow ? 'opacity-100 visible' : 'opacity-0 invisible'
+                  onClick={() => scrollCategory('right')}
+                  className={`absolute -right-3 top-1/2 -translate-y-1/2 z-10 bg-white hover:bg-gray-50 rounded-full p-2 shadow-lg transition-all duration-200 border border-gray-200 ${
+                    showCategoryRightArrow ? 'opacity-100 visible' : 'opacity-0 invisible group-hover:opacity-100'
                   }`}
                   aria-label="Scroll right"
                 >
-                  <svg 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    fill="none" 
-                    viewBox="0 0 24 24" 
-                    strokeWidth={2} 
-                    stroke="currentColor" 
-                    className="w-5 h-5 text-gray-700"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                  </svg>
+                  <ChevronRight className="w-5 h-5 text-gray-600" />
                 </button>
-        
+
                 {/* Scrollable Categories */}
                 <div
-                  ref={scrollContainerRef}
-                  className="flex overflow-x-auto scroll-smooth gap-4 pb-4 hide-scrollbar"
+                  ref={categoryScrollRef}
+                  className="flex overflow-x-auto scroll-smooth gap-3 pb-2 hide-scrollbar"
                   style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                   onMouseDown={handleMouseDown}
                   onMouseLeave={handleMouseLeave}
@@ -189,50 +218,51 @@ const ProductsCarouselSection = ({
                   onMouseMove={handleMouseMove}
                 >
                   {categories.map((category, index) => (
-                    <button onClick={() => setActiveCategory(category.slug)}
+                    <button
                       key={index}
-                      className={`flex-shrink-0   rounded-xl shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer group/item border border-gray-100 hover:border-blue-200 ${activeCategory === category.slug ? ' bg-[#0F3460]' : 'bg-gradient-to-br from-gray-50 to-white'}`}
+                      onClick={() => setActiveCategory(category.slug)}
+                      className={`flex-shrink-0 px-5 py-2.5 rounded-full font-medium transition-all duration-300 whitespace-nowrap ${
+                        activeCategory === category.slug 
+                          ? 'bg-[#0F3460] text-white shadow-md' 
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
                     >
-                      <div className="flex flex-col items-center p-4 text-center">
-                        {/* Icon Placeholder - you can replace with actual icons */}
-                        <div  className={`text-sm sm:text-base font-medium  transition-colors duration-200 ${activeCategory === category.slug ? 'text-white' : 'text-gray-800 group-hover/item:text-blue-600'}`}>
-                          {category.name}
-                        </div>
-                      </div>
+                      {category.name}
                     </button>
                   ))}
                 </div>
+              </div>
+            </div>
+
+            {/* Category Banner - Dynamic based on active category */}
+            <div className="bg-gradient-to-r from-[#0F3460] to-[#1a4a8a] rounded-2xl p-6 md:p-8 my-8 text-white">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                <div className="text-center md:text-left">
+                  <h3 className="text-xl md:text-2xl font-bold">
+                    {categories.find(c => c.slug === activeCategory)?.name || 'Produits'}
+                  </h3>
+                  <p className="text-slate-300 mt-1 text-sm md:text-base">
+                    Découvrez notre sélection de {categories.find(c => c.slug === activeCategory)?.name?.toLowerCase() || 'produits'} de qualité
+                  </p>
                 </div>
-                </div>
-                <div className="bg-gradient-to-r from-[#0F3460] to-[#163d70] rounded-3xl p-8 my-10 text-white">
-                  <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-2xl font-bold">
-              Imprimantes & Scanner
-            </h3>
-        
-            <p className="text-slate-300 mt-2">
-              Les meilleures imprimantes pour particuliers et entreprises.
-            </p>
-          </div>
-        
-          <Link
-            href="/products"
-            className="hidden md:flex bg-white text-[#0F3460] px-6 py-3 rounded-xl font-semibold"
-          >
-            Découvrir
-          </Link>
-        </div>
-        </div>
+                <Link
+                  href={`/${locale}/catalogue/${activeCategory}`}
+                  className="flex items-center gap-2 bg-white text-[#0F3460] px-5 py-2.5 rounded-xl font-semibold hover:bg-gray-100 transition-colors text-sm md:text-base"
+                >
+                  Tout voir
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
+            </div>
           </>
-         )}
+        )}
 
         <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
           <div className="relative">
             <button
               onClick={() => scrollProducts('left')}
               className={`absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-lg rounded-full p-3 ${
-                showLeftArrow ? 'opacity-100 visible' : 'opacity-0 invisible'
+                showProductLeftArrow  ? 'opacity-100 visible' : 'opacity-0 invisible'
               }`}
             >
               ←
@@ -241,7 +271,7 @@ const ProductsCarouselSection = ({
             <button
               onClick={() => scrollProducts('right')}
               className={`absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-lg rounded-full p-3 ${
-                showRightArrow ? 'opacity-100 visible' : 'opacity-0 invisible'
+                showProductRightArrow  ? 'opacity-100 visible' : 'opacity-0 invisible'
               }`}
             >
               →

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { ArrowRight} from 'lucide-react';
-import ProductCard, { type Product } from '@/components/catalog/ProductCard';
+import ProductCard from '@/components/catalog/ProductCard';
 import Hero from '@/components/home/Hero';
 import { additionalProducts, fakeProducts } from '@/data/products';
 import HomeBadge from '@/components/home/HomeBadge';
@@ -45,8 +45,8 @@ export default async function HomePage({ params: { locale } }: Props) {
   };
 
   // const categories = norm<Category>(catRes, 'categories');
-  const featuredProducts = norm<Product>(featuredRes, 'products');
-  const inStockProducts = norm<Product>(inStockRes, 'products');
+  const featuredProducts = norm<any>(featuredRes, 'products');
+  const inStockProducts = norm<any>(inStockRes, 'products');
 
 
   return (
