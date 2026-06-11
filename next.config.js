@@ -5,21 +5,31 @@ const withNextIntl = createNextIntlPlugin('./i18n.ts');
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['localhost', 'images.unsplash.com'],
+    domains: [
+      'localhost',
+      'images.unsplash.com',
+      '192.168.111.183',
+    ],
     remotePatterns: [
       {
         protocol: 'https',
         hostname: 'images.unsplash.com',
-        port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'http',
+        hostname: '192.168.111.183',
+        port: '7000',
+        pathname: '*',
       },
     ],
   },
+
   async rewrites() {
     return [
       {
         source: '/api/:path*',
-        destination: 'http://localhost:5000/api/:path*',
+        destination: 'http://localhost:7000/api/:path*',
       },
     ];
   },

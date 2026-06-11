@@ -10,9 +10,10 @@ import { cn, formatPrice } from '@/lib/utils';
 
 interface ProductListProps {
   products: any[];
+  media_url?:string
 }
 
-export default function ProductList({ products }: ProductListProps) {
+export default function ProductList({ products, media_url }: ProductListProps) {
   const addItem = useCartStore((s) => s.addItem);
   const [addingProductId, setAddingProductId] = useState<string | null>(null);
 
@@ -62,8 +63,8 @@ const categorySlug = product.category?.toLowerCase() || 'product';
             <div className="relative w-full sm:w-40 h-40 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden">
               {product.images?.[0] ? (
                 <Image
-                  src={product.images[0]}
-                  alt={product.title}
+                  src={`${media_url}${product.images[0].url}`}
+                  alt={product.name_fr}
                   fill
                   className="object-contain p-2 group-hover:scale-105 transition-transform duration-300"
                 />
@@ -88,11 +89,13 @@ const categorySlug = product.category?.toLowerCase() || 'product';
             <div className="flex-1 flex flex-col sm:flex-row sm:items-center gap-4">
               <div className="flex-1">
                 <h3 className="font-semibold text-gray-900 text-base line-clamp-1 mb-1">
-                  {product.title}
+                  {product.name_fr}
                 </h3>
+                {product?.short_description && (
                 <p className="text-gray-500 text-sm line-clamp-2 mb-2">
-                  {product.description || "Description du produit..."}
+                  {product.short_description}
                 </p>
+                )}
                 
                 {/* Specs summary */}
                 {product.specs && (

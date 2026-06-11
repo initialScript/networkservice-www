@@ -8,12 +8,18 @@ import { useLocale } from 'next-intl';
 import { useCartStore } from '@/store/useCartStore';
 import { cn, formatPrice } from '@/lib/utils';
 
+type Props = {
+  media_url?: string,
+  product: any
+}
 
-export default function ProductCard({ product }: any) {
+
+export default function ProductCard({ product, media_url }: Props) {
   const locale = useLocale();
   const addItem = useCartStore((s) => s.addItem);
   const [isAdding, setIsAdding] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
+  const [imageLoading, setImageLoading] = useState(true);
 
   const name = locale === 'ar' ? product.name_ar : product.name_fr;
   const isOutOfStock = product.stock_qty === 0;
@@ -50,36 +56,39 @@ const categorySlug = product.category?.toLowerCase() || 'product';
     >
       {/* Image - Smaller */}
       <div className="relative h-40 sm:h-48 md:h-52 bg-gray-100 overflow-hidden">
-        {product.images ? (
-          <Image
-            src={product.images[0]}
-            alt={product.title}
-            fill
-            className="object-contain p-2 group-hover:scale-105 transition-transform duration-300"
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-          />
-        ) : (
-          <div className="absolute inset-0 flex items-center justify-center text-gray-200">
-            <Camera className="w-8 h-8" />
+  {product.images ? (
+    <>
+      {imageLoading && (
+        <div className="absolute inset-0 animate-pulse bg-gray-200">
+          <div className="flex h-full items-center justify-center">
+            <div className="h-8 w-8 rounded-full border-2 border-gray-300 border-t-gray-500 animate-spin" />
           </div>
-        )}
+        </div>
+      )}
 
-        {hasDiscount && (
-          <span className="absolute top-2 start-2 bg-[#E94560] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md">
-            PROMO
-          </span>
+      <Image
+        src={`${media_url}${product.images[0].url}`}
+        alt={product.name_fr}
+        fill
+        className={cn(
+          'object-contain p-2 group-hover:scale-105 transition-all duration-300',
+          imageLoading ? 'opacity-0' : 'opacity-100'
         )}
-        {isOutOfStock && (
-          <span className="absolute top-2 end-2 bg-red-100 text-red-600 text-[10px] font-semibold px-1.5 py-0.5 rounded-md">
-            Rupture
-          </span>
-        )}
-      </div>
+        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+        onLoad={() => setImageLoading(false)}
+      />
+    </>
+  ) : (
+    <div className="absolute inset-0 flex items-center justify-center text-gray-200">
+      <Camera className="w-8 h-8" />
+    </div>
+  )}
+</div>
 
       {/* Body */}
       <div className="flex flex-col flex-1 p-3 gap-2">
         <p className="text-sm font-medium text-gray-800 line-clamp-2 leading-snug min-h-[2.5rem]">
-          {product.title}
+          {product.name_fr}
         </p>
 
         {/* Price */}

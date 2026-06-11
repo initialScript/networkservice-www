@@ -29,6 +29,7 @@ interface CatalogueClientProps {
   categories: any[];
   brands: any[];
   locale: string;
+  media_url?:string
 }
 
 export default function CatalogueClient({
@@ -41,6 +42,7 @@ export default function CatalogueClient({
   categories,
   brands,
   locale,
+  media_url
 }: CatalogueClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -185,9 +187,9 @@ useEffect(() => {
               </div>
             ) : (
                                   layout === 'grid' ? (
-                                      <ProductGrid products={products} />
+                                      <ProductGrid products={products} media_url={media_url} />
                                   ) : (
-                                          <ProductList products={products} />
+                                          <ProductList products={products} media_url={media_url} />
               )
             )}
           </div>

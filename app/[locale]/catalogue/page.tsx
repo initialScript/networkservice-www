@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
-import { Suspense } from 'react';
 import CatalogueClient from './CatalogueClient';
-import { fakeProducts } from '@/data/products';
+import { getAllProducts } from '@/lib/api/products';
 
 interface Props {
   params: { locale: string };
@@ -196,60 +195,20 @@ export default async function CataloguePage({ params: { locale }, searchParams }
   ];
 
   // Filter and paginate products on the server
-  let products = [...fakeProducts];
+const params: Record<string, string> = {
+  page: page.toString(),
+  limit: "20",
+};
 
-  if (search) {
-    products = products.filter((product) =>
-      product.title.toLowerCase().includes(search.toLowerCase())
-    );
-  }
+if (search) params.search = search;
+if (category) params.category = category;
+if (brand) params.brand = brand;
+if (min_price) params.min_price = min_price;
+if (max_price) params.max_price = max_price;
+if (in_stock) params.in_stock = in_stock;
+if (sort) params.sort = sort;
 
-  if (category) {
-    products = products.filter(
-      (product) => product.category.toLowerCase() === category.toLowerCase()
-    );
-  }
-
-  if (brand) {
-    products = products.filter(
-      (product) => product.brand?.toLowerCase() === brand.toLowerCase()
-    );
-  }
-
-  if (min_price) {
-    products = products.filter(
-      (product) => product.price >= Number(min_price)
-    );
-  }
-
-  if (max_price) {
-    products = products.filter(
-      (product) => product.price <= Number(max_price)
-    );
-  }
-
-  switch (sort) {
-    case 'price-asc':
-      products.sort((a, b) => a.price - b.price);
-      break;
-    case 'price-desc':
-      products.sort((a, b) => b.price - a.price);
-      break;
-    case 'rating':
-      products.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
-      break;
-    default:
-      // newest first
-     
-  }
-
-  const limit = 24;
-  const total = products.length;
-  const totalPages = Math.ceil(total / limit);
-  const paginatedProducts = products.slice((page - 1) * limit, page * limit);
-
-
-
+const { data: products, pagination } = await getAllProducts(params);
   const currentFilters = { 
     search, 
     category, 
@@ -261,17 +220,22 @@ export default async function CataloguePage({ params: { locale }, searchParams }
     page 
   };
 
+  const media_url = process.env.MEDIA_URL || 'http://192.168.111.183:7000'
+
+  
+
   return (
     <CatalogueClient
-      initialProducts={paginatedProducts}
-      totalProducts={total}
-      totalPages={totalPages}
-      currentPage={page}
-      currentSort={sort}
-      currentFilters={currentFilters}
-      categories={categories}
-      brands={brands}
+  initialProducts={products}
+  totalProducts={pagination.total}
+  totalPages={pagination.totalPages}
+  currentPage={pagination.page}
+  currentSort={sort}
+  currentFilters={currentFilters}
+  categories={categories}
+  brands={brands}
       locale={locale}
-    />
+      media_url={media_url}
+/>
   );
 }

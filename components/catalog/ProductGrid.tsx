@@ -5,9 +5,10 @@ interface Props {
   products: any[];
   isLoading?: boolean;
   columns?: 'default' | 'related';
+  media_url?:string
 }
 
-export default function ProductGrid({ products, isLoading, columns = 'default' }: Props) {
+export default function ProductGrid({ products, isLoading, columns = 'default', media_url }: Props) {
   const gridCls =
     columns === 'related'
       ? 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4'
@@ -39,7 +40,7 @@ export default function ProductGrid({ products, isLoading, columns = 'default' }
   return (
     <div className={gridCls}>
       {products.map((product) => (
-        <ProductCard key={product.id} product={product} />
+        <ProductCard key={product.id} product={product} media_url={media_url} />
       ))}
     </div>
   );

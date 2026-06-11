@@ -6,20 +6,9 @@ import Link from 'next/link';
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import ProductCard from '../catalog/ProductCard';
 
-export interface Product {
-  id: number;
-  name_fr: string;
-  name_ar: string;
-  slug: string;
-  price: number;
-  compare_price?: number;
-  stock_qty: number;
-  image?: { url: string; alt: string };
-}
-
 type Props = {
   locale: string;
-  products: Product[] | any;
+  products: any[];
   title?: string;
   subtitle?: string;
   banner?: string;
@@ -37,21 +26,16 @@ const ProductsCarouselSection = ({
   const categoryScrollRef = useRef<HTMLDivElement>(null);
   const productScrollRef = useRef<HTMLDivElement>(null);
   
-  // Category carousel state
   const [showCategoryLeftArrow, setShowCategoryLeftArrow] = useState(false);
   const [showCategoryRightArrow, setShowCategoryRightArrow] = useState(true);
-  
-  // Product carousel state
   const [showProductLeftArrow, setShowProductLeftArrow] = useState(false);
   const [showProductRightArrow, setShowProductRightArrow] = useState(true);
-  const [showLeftArrow, setShowLeftArrow] = useState(false);
   
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
   const [activeCategory, setActiveCategory] = useState('laptop');
 
-  // Check scroll position for category carousel
   const checkCategoryScrollPosition = () => {
     const container = categoryScrollRef.current;
     if (container) {
@@ -61,7 +45,6 @@ const ProductsCarouselSection = ({
     }
   };
 
-  // Check scroll position for product carousel
   const checkProductScrollPosition = () => {
     const container = productScrollRef.current;
     if (container) {
@@ -71,23 +54,17 @@ const ProductsCarouselSection = ({
     }
   };
 
-  // Scroll category carousel
   const scrollCategory = (direction: 'left' | 'right') => {
     const container = categoryScrollRef.current;
     if (container) {
       const scrollAmount = container.clientWidth * 0.7;
-      const newScrollLeft = direction === 'left' 
-        ? container.scrollLeft - scrollAmount 
-        : container.scrollLeft + scrollAmount;
-      
       container.scrollTo({
-        left: newScrollLeft,
+        left: direction === 'left' ? container.scrollLeft - scrollAmount : container.scrollLeft + scrollAmount,
         behavior: 'smooth',
       });
     }
   };
 
-  // Scroll product carousel
   const scrollProducts = (direction: 'left' | 'right') => {
     const container = productScrollRef.current;
     if (container) {
@@ -99,20 +76,14 @@ const ProductsCarouselSection = ({
     }
   };
 
-  // Drag scrolling for categories
   const handleMouseDown = (e: React.MouseEvent) => {
     setIsDragging(true);
     setStartX(e.pageX - (categoryScrollRef.current?.offsetLeft || 0));
     setScrollLeft(categoryScrollRef.current?.scrollLeft || 0);
   };
 
-  const handleMouseLeave = () => {
-    setIsDragging(false);
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
+  const handleMouseLeave = () => setIsDragging(false);
+  const handleMouseUp = () => setIsDragging(false);
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!isDragging) return;
@@ -124,7 +95,6 @@ const ProductsCarouselSection = ({
     }
   };
 
-  // Add scroll event listeners
   useEffect(() => {
     const categoryContainer = categoryScrollRef.current;
     const productContainer = productScrollRef.current;
@@ -145,19 +115,15 @@ const ProductsCarouselSection = ({
     });
     
     return () => {
-      if (categoryContainer) {
-        categoryContainer.removeEventListener('scroll', checkCategoryScrollPosition);
-      }
-      if (productContainer) {
-        productContainer.removeEventListener('scroll', checkProductScrollPosition);
-      }
+      if (categoryContainer) categoryContainer.removeEventListener('scroll', checkCategoryScrollPosition);
+      if (productContainer) productContainer.removeEventListener('scroll', checkProductScrollPosition);
       window.removeEventListener('resize', () => {});
     };
   }, [products]);
 
   if (!products || products.length === 0) return null;
 
-  // Get products for active category
+  // ✅ FIXED: Filter products by active category
   const filteredProducts = activeCategory 
     ? products.filter((product: any) => 
         product.category?.toLowerCase() === activeCategory.toLowerCase()
@@ -169,7 +135,8 @@ const ProductsCarouselSection = ({
   return (
     <section className="bg-[#f8fafc] py-8 w-full">
       <div className="w-full max-w-7xl mx-auto px-4">
-        <div className="max-w-7xl mx-auto px-4 mb-10">
+        {/* Header */}
+        <div className="mb-10">
           <span className="text-[#E94560] font-semibold uppercase tracking-wider text-sm">
             {banner}
           </span>
@@ -181,33 +148,29 @@ const ProductsCarouselSection = ({
           </p>
         </div>
 
+        {/* Categories Section */}
         {haveCategories && (
           <>
             <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
               <div className="relative group">
-                {/* Left Arrow - Categories */}
                 <button
                   onClick={() => scrollCategory('left')}
-                  className={`absolute -left-3 top-1/2 -translate-y-1/2 z-10 bg-white hover:bg-gray-50 rounded-full p-2 shadow-lg transition-all duration-200 border border-gray-200 ${
-                    showCategoryLeftArrow ? 'opacity-100 visible' : 'opacity-0 invisible group-hover:opacity-100'
-                  }`}
-                  aria-label="Scroll left"
+                  className={`absolute -left-3 top-1/2 -translate-y-1/2 z-10 bg-white hover:bg-gray-50 rounded-full p-2 shadow-lg border border-gray-200 ${
+                    showCategoryLeftArrow ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                  } transition-all duration-200`}
                 >
                   <ChevronLeft className="w-5 h-5 text-gray-600" />
                 </button>
 
-                {/* Right Arrow - Categories */}
                 <button
                   onClick={() => scrollCategory('right')}
-                  className={`absolute -right-3 top-1/2 -translate-y-1/2 z-10 bg-white hover:bg-gray-50 rounded-full p-2 shadow-lg transition-all duration-200 border border-gray-200 ${
-                    showCategoryRightArrow ? 'opacity-100 visible' : 'opacity-0 invisible group-hover:opacity-100'
-                  }`}
-                  aria-label="Scroll right"
+                  className={`absolute -right-3 top-1/2 -translate-y-1/2 z-10 bg-white hover:bg-gray-50 rounded-full p-2 shadow-lg border border-gray-200 ${
+                    showCategoryRightArrow ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                  } transition-all duration-200`}
                 >
                   <ChevronRight className="w-5 h-5 text-gray-600" />
                 </button>
 
-                {/* Scrollable Categories */}
                 <div
                   ref={categoryScrollRef}
                   className="flex overflow-x-auto scroll-smooth gap-3 pb-2 hide-scrollbar"
@@ -234,7 +197,7 @@ const ProductsCarouselSection = ({
               </div>
             </div>
 
-            {/* Category Banner - Dynamic based on active category */}
+            {/* Category Banner */}
             <div className="bg-gradient-to-r from-[#0F3460] to-[#1a4a8a] rounded-2xl p-6 md:p-8 my-8 text-white">
               <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                 <div className="text-center md:text-left">
@@ -247,50 +210,44 @@ const ProductsCarouselSection = ({
                 </div>
                 <Link
                   href={`/${locale}/catalogue/${activeCategory}`}
-                  className="flex items-center gap-2 bg-white text-[#0F3460] px-5 py-2.5 rounded-xl font-semibold hover:bg-gray-100 transition-colors text-sm md:text-base"
+                  className="flex items-center gap-2 bg-white text-[#0F3460] px-5 py-2.5 rounded-xl font-semibold hover:bg-gray-100 transition-colors"
                 >
-                  Tout voir
-                  <ArrowRight className="w-4 h-4" />
+                  Tout voir <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
             </div>
           </>
         )}
 
+        {/* Products Carousel */}
         <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
           <div className="relative">
             <button
               onClick={() => scrollProducts('left')}
               className={`absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-lg rounded-full p-3 ${
-                showProductLeftArrow  ? 'opacity-100 visible' : 'opacity-0 invisible'
-              }`}
+                showProductLeftArrow ? 'opacity-100' : 'opacity-0'
+              } transition-all duration-200`}
             >
-              ←
+              <ChevronLeft className="w-5 h-5 text-gray-600" />
             </button>
 
             <button
               onClick={() => scrollProducts('right')}
               className={`absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-lg rounded-full p-3 ${
-                showProductRightArrow  ? 'opacity-100 visible' : 'opacity-0 invisible'
-              }`}
+                showProductRightArrow ? 'opacity-100' : 'opacity-0'
+              } transition-all duration-200`}
             >
-              →
+              <ChevronRight className="w-5 h-5 text-gray-600" />
             </button>
 
             <div
               ref={productScrollRef}
               className="flex overflow-x-auto scroll-smooth gap-6 snap-x snap-mandatory pb-4 hide-scrollbar"
               style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-              onMouseDown={handleMouseDown}
-              onMouseLeave={handleMouseLeave}
-              onMouseUp={handleMouseUp}
-              onMouseMove={handleMouseMove}
             >
-              {products.map((product: any) => (
-                <div
-                  key={product.id}
-                  className="flex-none snap-start w-[220px] md:w-[260px]"
-                >
+              {/* ✅ FIXED: Use displayProducts (filtered by category) */}
+              {displayProducts.map((product: any) => (
+                <div key={product.id} className="flex-none snap-start w-[220px] md:w-[260px]">
                   <ProductCard product={product} />
                 </div>
               ))}
@@ -298,9 +255,10 @@ const ProductsCarouselSection = ({
           </div>
         </div>
 
+        {/* View All Button */}
         <div className="w-full grid place-items-center mt-8">
           <Link
-            href={`/${locale}/catalogue?sort=newest`}
+            href={`/${locale}/catalogue`}
             className="bg-[#0F3460] text-white px-12 py-3 shadow-md rounded-xl hover:bg-[#0a2444] transition-colors"
           >
             Voir tous les produits
