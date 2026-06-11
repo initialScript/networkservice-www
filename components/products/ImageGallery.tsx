@@ -186,17 +186,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
           )}
         </div>
 
-        {/* Image Title/Description */}
-        {(selectedImage.title || selectedImage.description) && (
-          <div className="mt-4 text-center">
-            {selectedImage.title && (
-              <h3 className="text-lg font-semibold text-gray-900">{selectedImage.title}</h3>
-            )}
-            {selectedImage.description && (
-              <p className="text-sm text-gray-600 mt-1">{selectedImage.description}</p>
-            )}
-          </div>
-        )}
+        
       </div>
 
       {/* Thumbnail Carousel */}

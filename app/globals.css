@@ -150,3 +150,52 @@
   width: 0;
   height: 0;
 }
+
+.product-specs h3 {
+  display: none;
+}
+
+.product-specs dl {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 14px 24px;
+}
+
+.product-specs dt {
+  font-weight: 600;
+  color: #374151;
+}
+
+.product-specs dd {
+  margin: 0;
+  color: #111827;
+}
+
+.product-specs a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Add to your global.css */
+@layer utilities {
+  /* Better touch targets for mobile */
+  @media (max-width: 640px) {
+    button, 
+    a,
+    [role="button"] {
+      min-height: 44px;
+    }
+  }
+  
+  /* Prevent horizontal scroll on mobile */
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Better text contrast on mobile */
+  @media (max-width: 640px) {
+    body {
+      -webkit-tap-highlight-color: transparent;
+    }
+  }
+}

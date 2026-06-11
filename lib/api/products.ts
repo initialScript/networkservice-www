@@ -1,6 +1,6 @@
 // lib/api/products.ts
 
-const API_URL = process.env.API_URL;
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export async function getAllProducts(params: Record<string, string>) {
   const query = new URLSearchParams();
@@ -12,7 +12,7 @@ export async function getAllProducts(params: Record<string, string>) {
   });
 
   const res = await fetch(
-    `${process.env.API_URL}/products?${query.toString()}`,
+    `${API_URL}/products?${query.toString()}`,
     { cache: "no-store" }
   );
 
@@ -24,4 +24,23 @@ export async function getAllProducts(params: Record<string, string>) {
   }
 
   return res.json();
+}
+
+
+
+export async function getSingleProduct(slug: string) {
+  const res = await fetch(
+    `${API_URL}/products/${slug}`,
+    {
+      cache: "no-store",
+    }
+  );
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch product");
+  }
+
+  const result = await res.json();
+
+  return result.data;
 }

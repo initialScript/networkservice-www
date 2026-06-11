@@ -51,7 +51,7 @@ export default function ProductList({ products, media_url }: ProductListProps) {
           : 0;
 
         const productSlug = product.id + '-' + product.slug
-const categorySlug = product.category?.toLowerCase() || 'product';
+        const categorySlug = product.category?.toLowerCase() || 'product'
 
         return (
           <Link
@@ -62,11 +62,9 @@ const categorySlug = product.category?.toLowerCase() || 'product';
             {/* Image */}
             <div className="relative w-full sm:w-40 h-40 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden">
               {product.images?.[0] ? (
-                <Image
+                <ProductImage
                   src={`${media_url}${product.images[0].url}`}
                   alt={product.name_fr}
-                  fill
-                  className="object-contain p-2 group-hover:scale-105 transition-transform duration-300"
                 />
               ) : (
                 <div className="absolute inset-0 flex items-center justify-center text-gray-300">
@@ -196,5 +194,38 @@ const categorySlug = product.category?.toLowerCase() || 'product';
         );
       })}
     </div>
+  );
+}
+
+function ProductImage({
+  src,
+  alt,
+}: {
+  src: string;
+  alt: string;
+}) {
+  const [loaded, setLoaded] = useState(false);
+
+  return (
+    <>
+      {!loaded && (
+        <div className="absolute inset-0 animate-pulse bg-gray-200">
+          <div className="flex h-full items-center justify-center">
+            <div className="h-6 w-6 rounded-full border-2 border-gray-300 border-t-gray-500 animate-spin" />
+          </div>
+        </div>
+      )}
+
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        onLoad={() => setLoaded(true)}
+        className={cn(
+          'object-contain p-2 group-hover:scale-105 transition-all duration-300',
+          loaded ? 'opacity-100' : 'opacity-0'
+        )}
+      />
+    </>
   );
 }

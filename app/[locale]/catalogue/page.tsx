@@ -220,7 +220,7 @@ const { data: products, pagination } = await getAllProducts(params);
     page 
   };
 
-  const media_url = process.env.MEDIA_URL || 'http://192.168.111.183:7000'
+  const media_url = process.env.NEXT_PUBLIC_MEDIA_URL
 
   
 

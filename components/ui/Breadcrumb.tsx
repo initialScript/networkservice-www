@@ -36,13 +36,13 @@ export default function Breadcrumb({ items }: Props) {
               <li key={i} className="flex items-center gap-1">
                 {i > 0 && <ChevronRight className="w-3.5 h-3.5 text-gray-300 rtl:rotate-180" />}
                 {isLast || !item.href ? (
-                  <span className={isLast ? 'text-gray-800 font-medium' : undefined}>
+                  <span className={isLast ? 'text-gray-800 font-medium truncate max-w-xs' : undefined}>
                     {item.label}
                   </span>
                 ) : (
                   <Link
                     href={item.href}
-                    className="hover:text-[#0F3460] hover:underline transition-colors"
+                    className="hover:text-[#0F3460] hover:underline transition-colors  truncate max-w-sm"
                   >
                     {item.label}
                   </Link>
