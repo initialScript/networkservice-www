@@ -1,7 +1,7 @@
 'use client';
 
 import { AmountBtns } from "@/components/product/AmountBtns";
-import ReviewsSection from "@/components/product/ReviewsSection";
+import ProductCarousel from '@/components/products/ProductCarousel';
 import ImageGallery from "@/components/products/ImageGallery";
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/store/useCartStore";
@@ -122,7 +122,16 @@ const StockBadge = ({ qty }: { qty: number }) =>
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-const ProductDetailClient = ({ product }: { product: Product }) => {
+const ProductDetailClient = ({
+  product,
+  relatedProducts,
+  media_url
+}: {
+  product: Product;
+    relatedProducts: any[];
+  media_url?:string
+  }) => {
+  
   const [quantity, setQuantity] = useState(1);
 
   const [showAllSpecs, setShowAllSpecs] = useState(false);
@@ -566,6 +575,16 @@ const ProductDetailClient = ({ product }: { product: Product }) => {
             />
           </div>
         )}
+
+        {relatedProducts?.length > 0 && (
+  <div className="mt-12">
+    <ProductCarousel
+      title="Produits similaires"
+              products={relatedProducts}
+              media_url={media_url}
+    />
+  </div>
+)}
 
         {/* ── Reviews ── */}
         {/* <div className="mt-10 sm:mt-14">

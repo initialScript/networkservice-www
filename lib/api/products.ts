@@ -44,3 +44,27 @@ export async function getSingleProduct(slug: string) {
 
   return result.data;
 }
+
+
+export const getRelatedProducts = async (slug: string) => {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/products/${slug}/related`,
+      {
+        next: {
+          revalidate: 3600,
+        },
+      }
+    );
+
+    if (!res.ok) {
+      return [];
+    }
+
+    const data = await res.json();
+
+    return data.data || [];
+  } catch {
+    return [];
+  }
+};

@@ -1,6 +1,9 @@
 // /catalogue/[slug]/page.tsx
 import { notFound } from 'next/navigation';
-import { getSingleProduct } from '@/lib/api/products';
+import {
+  getSingleProduct,
+  getRelatedProducts,
+} from '@/lib/api/products';
 
 import type { Metadata } from "next";
 import ProductDetailClient from './ProductDetailClient';
@@ -60,6 +63,7 @@ export async function generateMetadata(
 export default async function ProductDetailPage({ params }: Props) {
   try {
     const product = await getSingleProduct(params.slug);
+    const relatedProducts = await getRelatedProducts(params.slug);
 
     if (!product) {
       notFound();
@@ -90,6 +94,8 @@ export default async function ProductDetailPage({ params }: Props) {
       },
     };
 
+      // const mediaUrl = process.env.NEXT_PUBLIC_MEDIA_URL;
+
     return (
       <>
         <script
@@ -98,7 +104,7 @@ export default async function ProductDetailPage({ params }: Props) {
             __html: JSON.stringify(structuredData),
           }}
         />
-        <ProductDetailClient product={product} />
+        <ProductDetailClient product={product} relatedProducts={relatedProducts} media_url={mediaUrl} />
       </>
     );
   } catch {

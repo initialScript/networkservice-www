@@ -8,9 +8,10 @@ import { cn } from '@/lib/utils';
 interface ProductCarouselProps {
   products: any[];
   title?: string;
+  media_url?: string;
 }
 
-export default function ProductCarousel({ products, title }: ProductCarouselProps) {
+export default function ProductCarousel({ products, title, media_url }: ProductCarouselProps) {
   const [scrollPosition, setScrollPosition] = useState(0);
   const [maxScroll, setMaxScroll] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
@@ -160,7 +161,7 @@ export default function ProductCarousel({ products, title }: ProductCarouselProp
                 "lg:w-[calc(25%-0.75rem)]"
               )}
             >
-              <ProductCard product={product} />
+              <ProductCard product={product} media_url={media_url} />
             </div>
           ))}
         </div>
