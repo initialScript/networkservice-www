@@ -30,7 +30,9 @@ const [recentProducts, categories, inStockProducts] =
   ]);
 
   const media_url =process.env.NEXT_PUBLIC_MEDIA_URL
-process.env.NEXT_PUBLIC_MEDIA_URL
+  process.env.NEXT_PUBLIC_MEDIA_URL
+  
+  
 
   return (
     <div>

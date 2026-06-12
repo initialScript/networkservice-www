@@ -13,7 +13,6 @@ type Props = {
   product: any
 }
 
-
 export default function ProductCard({ product, media_url }: Props) {
   const locale = useLocale();
   const addItem = useCartStore((s) => s.addItem);
@@ -29,60 +28,81 @@ export default function ProductCard({ product, media_url }: Props) {
     ? Math.round((1 - product.price / product.compare_price!) * 100)
     : 0;
 
+  // Get the primary image URL - return undefined instead of null
+  const getImageUrl = (): string | undefined => {
+    if (!product.images || product.images.length === 0) return undefined;
+    const primaryImage = product.images.find((img: any) => img.is_primary) || product.images[0];
+    return `${media_url}${primaryImage.url}`;
+  };
+
+  const imageUrl = getImageUrl();
 
   const handleAddToCart = async (e: React.MouseEvent) => {
-    e.preventDefault();
+    e.preventDefault(); // Prevent navigating to product page
+    e.stopPropagation();
+    
     if (isOutOfStock || isAdding || isAdded) return;
+    
     setIsAdding(true);
+    
     try {
-      await addItem(product.id);
+      // Match the same structure as your ProductDetailClient
+      addItem({
+        product_id: product.id,
+        name: product.name_fr,
+        slug: product.slug,
+        price: parseFloat(product.price),
+        image: imageUrl,
+        quantity: 1, // Default quantity for card
+      });
+      
       setIsAdded(true);
       setTimeout(() => setIsAdded(false), 2000);
-    } catch {
-      // TODO: surface error toast
+    } catch (error) {
+      console.error('Error adding to cart:', error);
     } finally {
       setIsAdding(false);
     }
   };
 
-
-
-
   return (
     <Link
-      href={`/catalogue/${product.slug}`}
+      href={`/${locale}/catalogue/${product.slug}`}
       className="group flex flex-col bg-white rounded-xl border border-gray-100 hover:shadow-md hover:border-gray-200 transition-all duration-200 overflow-hidden"
     >
-      {/* Image - Smaller */}
+      {/* Image Container - isolate the hover effect */}
       <div className="relative h-40 sm:h-48 md:h-52 bg-gray-100 overflow-hidden">
-  {product.images ? (
-    <>
-      {imageLoading && (
-        <div className="absolute inset-0 animate-pulse bg-gray-200">
-          <div className="flex h-full items-center justify-center">
-            <div className="h-8 w-8 rounded-full border-2 border-gray-300 border-t-gray-500 animate-spin" />
-          </div>
-        </div>
-      )}
+        {imageUrl ? (
+          <>
+            {imageLoading && (
+              <div className="absolute inset-0 animate-pulse bg-gray-200">
+                <div className="flex h-full items-center justify-center">
+                  <div className="h-8 w-8 rounded-full border-2 border-gray-300 border-t-gray-500 animate-spin" />
+                </div>
+              </div>
+            )}
 
-      <Image
-        src={`${media_url}${product.images[0].url}`}
-        alt={product.name_fr}
-        fill
-        className={cn(
-          'object-contain p-2 group-hover:scale-105 transition-all duration-300',
-          imageLoading ? 'opacity-0' : 'opacity-100'
+            <div className="relative w-full h-full overflow-hidden">
+              <Image
+                src={imageUrl}
+                alt={product.name_fr}
+                fill
+                className={cn(
+                  'object-contain p-2 transition-all duration-300',
+                  'group-hover:scale-105', // Only scale on hover of the parent Link
+                  imageLoading ? 'opacity-0' : 'opacity-100'
+                )}
+                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                onLoad={() => setImageLoading(false)}
+              />
+            </div>
+          </>
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center text-gray-200">
+            <Camera className="w-8 h-8" />
+          </div>
         )}
-        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-        onLoad={() => setImageLoading(false)}
-      />
-    </>
-  ) : (
-    <div className="absolute inset-0 flex items-center justify-center text-gray-200">
-      <Camera className="w-8 h-8" />
-    </div>
-  )}
-</div>
+      </div>
 
       {/* Body */}
       <div className="flex flex-col flex-1 p-3 gap-2">
@@ -92,11 +112,13 @@ export default function ProductCard({ product, media_url }: Props) {
 
         {/* Price */}
         <div className="flex items-end gap-1.5 flex-wrap">
-          <span className="text-base font-bold text-[#0F3460]">{formatPrice(product.price)}</span>
+          <span className="text-base font-bold text-[#0F3460]">
+            {formatPrice(product.price)} MAD
+          </span>
           {hasDiscount && (
             <>
               <span className="text-xs text-gray-400 line-through leading-relaxed">
-                {formatPrice(product.compare_price!)}
+                {formatPrice(product.compare_price!)} MAD
               </span>
               <span className="text-[10px] font-bold text-[#E94560] bg-orange-50 px-1 py-0.5 rounded">
                 -{discountPct}%
