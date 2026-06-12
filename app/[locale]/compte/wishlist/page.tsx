@@ -64,10 +64,18 @@ export default function WishlistPage() {
     }
   };
 
-  const addToCart = async (product_id: number) => {
-    setAddingId(product_id);
+  const addToCart = async (item: WishlistProduct) => {
+    setAddingId(item.product_id);
     try {
-      await addItem(product_id, 1);
+      await addItem({
+        product_id: String(item.product_id),
+        name: item.name_fr,
+        slug: item.slug,
+        price: item.price,
+        compare_price: item.compare_price,
+        image: item.image ? getImageUrl(item.image.url) : undefined,
+        quantity: 1,
+      });
       success('Ajouté au panier !');
     } catch {
       toastError('Impossible d\'ajouter au panier.');
@@ -177,7 +185,7 @@ export default function WishlistPage() {
 
                   <button
                     type="button"
-                    onClick={() => addToCart(item.product_id)}
+                    onClick={() => addToCart(item)}
                     disabled={isOutOfStock || addingId === item.product_id}
                     className={cn(
                       'mt-auto flex items-center justify-center gap-2 w-full py-2 rounded-lg text-xs font-semibold transition-all',

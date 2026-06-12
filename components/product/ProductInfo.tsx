@@ -62,7 +62,14 @@ export default function ProductInfo({ product, locale }: Props) {
     if (isOutOfStock || isAdding) return;
     setIsAdding(true);
     try {
-      await addItem(product.id, qty);
+      await addItem({
+        product_id: String(product.id),
+        name: product.name_fr,
+        slug: product.slug,
+        price: product.price,
+        compare_price: product.compare_price,
+        quantity: qty,
+      });
       setIsAdded(true);
       openCart();
       setTimeout(() => setIsAdded(false), 2500);

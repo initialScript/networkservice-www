@@ -46,8 +46,7 @@ export default function ProductCard({ product, media_url }: Props) {
     setIsAdding(true);
     
     try {
-      // Match the same structure as your ProductDetailClient
-      addItem({
+      await addItem({
         product_id: product.id,
         name: product.name_fr,
         slug: product.slug,

@@ -24,7 +24,17 @@ export default function ProductList({ products, media_url }: ProductListProps) {
     
     setAddingProductId(product.id);
     try {
-      await addItem(product.id);
+      const image = product.images?.[0]?.url ? `${media_url}${product.images[0].url}` : undefined;
+
+      await addItem({
+        product_id: product.id,
+        name: product.name_fr,
+        slug: product.slug,
+        price: parseFloat(product.price),
+        compare_price: product.compare_price ? parseFloat(product.compare_price) : undefined,
+        image,
+        quantity: 1,
+      });
     } finally {
       setTimeout(() => setAddingProductId(null), 500);
     }

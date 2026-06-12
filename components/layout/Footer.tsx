@@ -4,7 +4,7 @@ import Image from 'next/image';
 
 export default function Footer() {
   return (
-    <footer className="bg-[#047189] text-gray-400">
+    <footer className="bg-[#5A7A99] text-gray-400">
       <div className="max-w-7xl mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Brand */}
@@ -29,7 +29,7 @@ export default function Footer() {
                   key={label}
                   href={href}
                   aria-label={label}
-                  className={`p-2 rounded-lg bg-white/10 ${hover} text-gray-300 hover:text-white transition-all`}
+                  className={`p-2 rounded-lg bg-white/10 ${hover} text-gray-300 text-white transition hover:text-gray-400 -all`}
                 >
                   <Icon className="w-4 h-4" />
                 </a>
@@ -48,7 +48,7 @@ export default function Footer() {
                 { label: 'Contact', href: '/fr#contact' },
               ].map(({ label, href }) => (
                 <li key={label}>
-                  <Link href={href} className="hover:text-white transition">
+                  <Link href={href} className="text-white transition hover:text-gray-400 ">
                     {label}
                   </Link>
                 </li>
@@ -67,7 +67,7 @@ export default function Footer() {
                 { label: 'Panier', href: '/fr/panier' },
               ].map(({ label, href }) => (
                 <li key={label}>
-                  <Link href={href} className="hover:text-white transition">
+                  <Link href={href} className="text-white transition hover:text-gray-400 ">
                     {label}
                   </Link>
                 </li>
@@ -80,23 +80,23 @@ export default function Footer() {
             <h3 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Contact</h3>
             <ul className="space-y-3 text-sm">
               <li className="flex items-start gap-2.5">
-                <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0 text-gray-400" />
-                <span className="text-gray-300">Marrakech, Maroc</span>
+                <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0 text-gray-100" />
+                <span className="text-gray-100">Marrakech, Maroc</span>
               </li>
               <li>
-                <a href="tel:+212524000000" className="flex items-center gap-2.5 hover:text-white transition">
-                  <Phone className="w-4 h-4 flex-shrink-0 text-gray-400" />
+                <a href="tel:+212524000000" className="flex items-center gap-2.5 text-white transition hover:text-gray-400 ">
+                  <Phone className="w-4 h-4 flex-shrink-0 text-gray-100" />
                   +212 5 24 XX XX XX
                 </a>
               </li>
               <li>
-                <a href="mailto:contact@network-service-info.com" className="flex items-center gap-2.5 hover:text-white transition">
-                  <Mail className="w-4 h-4 flex-shrink-0 text-gray-400" />
+                <a href="mailto:contact@network-service-info.com" className="flex items-center gap-2.5 text-white transition hover:text-gray-400 ">
+                  <Mail className="w-4 h-4 flex-shrink-0 text-gray-200" />
                   contact@network-service-info.com
                 </a>
               </li>
-              <li className="flex items-center gap-2.5">
-                <Clock className="w-4 h-4 flex-shrink-0 text-gray-400" />
+              <li className="flex items-center gap-2.5 text-gray-200">
+                <Clock className="w-4 h-4 flex-shrink-0 text-gray-200" />
                 Lun–Ven : 9h–18h
               </li>
             </ul>

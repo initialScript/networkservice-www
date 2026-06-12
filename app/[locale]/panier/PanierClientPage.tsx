@@ -16,14 +16,15 @@ const PanierClientPage = () => {
   const router = useRouter();
   const pathname = usePathname();
   const locale = pathname.split('/')[1] ?? 'fr';
-  const { items, subtotal, updateItem, removeItem, clearCart, hydrate } = useCartStore();
+  const { items, subtotal, updateItem, removeItem, clearCart, hydrate, isLoading: isCartLoading } = useCartStore();
   
   const [couponCode, setCouponCode] = useState('');
   const [couponDiscount, setCouponDiscount] = useState(0);
   const [couponError, setCouponError] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number } | null>(null);
   const [deliveryFee, setDeliveryFee] = useState(40);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isHydrated, setIsHydrated] = useState(false);
+  const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
 
   // Valid coupons
   const validCoupons: Record<string, { discount: number; type: 'fixed' | 'percentage' }> = {
@@ -35,6 +36,7 @@ const PanierClientPage = () => {
   // Hydrate cart on mount
   useEffect(() => {
     hydrate();
+    setIsHydrated(true);
   }, [hydrate]);
 
   const updateQuantity = (productId: string, newQuantity: number) => {
@@ -78,9 +80,13 @@ const PanierClientPage = () => {
 
   const handleCheckout = () => {
     if (items.length === 0) return;
-    setIsLoading(true);
+    setIsCheckoutLoading(true);
     router.push(`/${locale}/order`);
   };
+
+  if (!isHydrated || (isCartLoading && items.length === 0)) {
+    return <CartPageLoading />;
+  }
 
   if (items.length === 0) {
     return (
@@ -413,10 +419,10 @@ const PanierClientPage = () => {
             
             <button
               onClick={handleCheckout}
-              disabled={isLoading}
+              disabled={isCheckoutLoading}
               className="w-full mt-5 py-3 bg-[#E94560] text-white rounded-lg font-semibold hover:bg-[#c73350] transition disabled:opacity-50 flex items-center justify-center gap-2"
             >
-              {isLoading ? (
+              {isCheckoutLoading ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
                 <>
@@ -435,5 +441,51 @@ const PanierClientPage = () => {
     </div>
   );
 };
+
+function CartPageLoading() {
+  return (
+    <div className="max-w-7xl mx-auto px-4 py-6 md:py-8 animate-pulse">
+      <div className="flex items-center justify-between mb-6">
+        <div className="h-8 w-40 rounded bg-gray-200" />
+        <div className="h-7 w-24 rounded-full bg-gray-100" />
+      </div>
+
+      <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
+        <div className="flex-1 bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm">
+          <div className="hidden md:grid grid-cols-12 gap-3 px-5 py-3 bg-gray-50 border-b border-gray-100">
+            <div className="col-span-5 h-4 rounded bg-gray-200" />
+            <div className="col-span-2 h-4 rounded bg-gray-200" />
+            <div className="col-span-2 h-4 rounded bg-gray-200" />
+            <div className="col-span-2 h-4 rounded bg-gray-200" />
+          </div>
+
+          {Array.from({ length: 3 }).map((_, index) => (
+            <div key={index} className="p-4 md:p-5 border-b border-gray-100 last:border-b-0">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 rounded-lg bg-gray-100" />
+                <div className="flex-1 space-y-3">
+                  <div className="h-4 w-3/4 rounded bg-gray-200" />
+                  <div className="h-4 w-32 rounded bg-gray-100" />
+                </div>
+                <div className="hidden md:block h-8 w-24 rounded bg-gray-100" />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="lg:w-80 xl:w-96 flex-shrink-0">
+          <div className="bg-white rounded-xl border border-gray-100 p-4 md:p-5 shadow-sm space-y-4">
+            <div className="h-6 w-28 rounded bg-gray-200" />
+            <div className="h-4 w-full rounded bg-gray-100" />
+            <div className="h-4 w-5/6 rounded bg-gray-100" />
+            <div className="h-px bg-gray-100" />
+            <div className="h-8 w-full rounded bg-gray-200" />
+            <div className="h-11 w-full rounded-lg bg-gray-200" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default PanierClientPage;

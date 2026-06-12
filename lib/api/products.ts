@@ -102,3 +102,4 @@ export async function getCategories() {
 
   return data.data ?? [];
 }
+

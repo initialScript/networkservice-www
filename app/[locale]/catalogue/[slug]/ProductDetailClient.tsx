@@ -1,3 +1,4 @@
+// app/[locale]/catalogue/[slug]/ProductDetailClient
 'use client';
 
 import { AmountBtns } from "@/components/product/AmountBtns";
@@ -8,7 +9,7 @@ import { useCartStore } from "@/store/useCartStore";
 import {
   CircleCheck, ShieldCheck, ShoppingCart, Store, Truck,
   MapPin, Clock, ArrowRight, RefreshCw, Headphones,
-  ChevronDown, ChevronUp, Tag, Package
+  ChevronDown, ChevronUp, Tag, Package, AlertCircle
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -128,14 +129,16 @@ const ProductDetailClient = ({
   media_url
 }: {
   product: Product;
-    relatedProducts: any[];
-  media_url?:string
-  }) => {
+  relatedProducts: any[];
+  media_url?: string
+}) => {
   
   const [quantity, setQuantity] = useState(1);
-
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [showAllSpecs, setShowAllSpecs] = useState(false);
   const [shortDescExpanded, setShortDescExpanded] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   const mediaUrl = process.env.NEXT_PUBLIC_MEDIA_URL || '';
 
@@ -151,9 +154,17 @@ const ProductDetailClient = ({
   const addItem = useCartStore(state => state.addItem);
   const inStock = product.stock_qty > 0;
 
-  const handleAddToCart = () => {
-    if (!inStock) return;
-    addItem({
+const handleAddToCart = async () => {
+  if (!inStock) return;
+
+  
+  setIsAddingToCart(true);
+  setError(null);
+  setSuccess(null);
+  
+  try {
+    // Only use the store's addItem - it will handle both API and local state
+    await addItem({
       product_id: product.id,
       name: product.name_fr,
       slug: product.slug,
@@ -161,11 +172,23 @@ const ProductDetailClient = ({
       image: `${mediaUrl}${product.images.find(i => i.is_primary)?.url ?? product.images[0]?.url}`,
       quantity,
     });
-  };
+    
+    setSuccess('Produit ajouté au panier avec succès !');
+    setTimeout(() => setSuccess(null), 3000);
+    
+  } catch (err) {
+    console.error('Full error details:', err);
+    setError(`Erreur: ${err instanceof Error ? err.message : 'Erreur inconnue'}`);
+    setTimeout(() => setError(null), 3000);
+  } finally {
+    setIsAddingToCart(false);
+  }
+};
 
   const handleIncrease = () => {
     if (quantity < Math.min(99, product.stock_qty)) setQuantity(q => q + 1);
   };
+  
   const handleDecrease = () => {
     if (quantity > 1) setQuantity(q => q - 1);
   };
@@ -389,6 +412,21 @@ const ProductDetailClient = ({
             {/* Stock */}
             <StockBadge qty={product.stock_qty} />
 
+            {/* Success/Error Messages */}
+            {success && (
+              <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex items-center gap-2">
+                <CircleCheck size={18} className="text-emerald-600" />
+                <span className="text-sm text-emerald-800">{success}</span>
+              </div>
+            )}
+            
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-xl p-3 flex items-center gap-2">
+                <AlertCircle size={18} className="text-red-600" />
+                <span className="text-sm text-red-800">{error}</span>
+              </div>
+            )}
+
             {/* Quantity + CTA */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full">
               {inStock && (
@@ -404,16 +442,25 @@ const ProductDetailClient = ({
               )}
               <Button
                 onClick={handleAddToCart}
-                disabled={!inStock}
+                disabled={!inStock || isAddingToCart}
                 className={`flex-1 gap-2 rounded-xl py-3 sm:py-4 transition-all duration-200 shadow-md hover:shadow-lg text-sm sm:text-base font-semibold ${
-                  !inStock
+                  !inStock || isAddingToCart
                     ? 'bg-gray-200 text-gray-400 cursor-not-allowed shadow-none'
                     : 'bg-gray-900 hover:bg-gray-800 text-white'
                 }`}
               >
-                <ShoppingCart size={18} />
-                {inStock ? 'Ajouter au panier' : 'Rupture de stock'}
-                {inStock && <ArrowRight size={14} className="opacity-60" />}
+                {isAddingToCart ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Ajout en cours...
+                  </>
+                ) : (
+                  <>
+                    <ShoppingCart size={18} />
+                    {inStock ? 'Ajouter au panier' : 'Rupture de stock'}
+                    {inStock && <ArrowRight size={14} className="opacity-60" />}
+                  </>
+                )}
               </Button>
             </div>
 
@@ -577,23 +624,14 @@ const ProductDetailClient = ({
         )}
 
         {relatedProducts?.length > 0 && (
-  <div className="mt-12">
-    <ProductCarousel
-      title="Produits similaires"
+          <div className="mt-12">
+            <ProductCarousel
+              title="Produits similaires"
               products={relatedProducts}
               media_url={media_url}
-    />
-  </div>
-)}
-
-        {/* ── Reviews ── */}
-        {/* <div className="mt-10 sm:mt-14">
-          <ReviewsSection
-            productId={product.id}
-            averageRating={4.5}
-            totalReviews={0}
-          />
-        </div> */}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

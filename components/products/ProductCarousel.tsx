@@ -138,10 +138,10 @@ export default function ProductCarousel({ products, title, media_url }: ProductC
         {scrollPosition > 0 && (
           <button
             onClick={() => scroll('left')}
-            className="absolute left-1 md:left-2 top-1/2 -translate-y-1/2 z-20 p-1 md:p-2 rounded-full bg-white/80 md:bg-white shadow-md border border-gray-200 hover:bg-gray-100 transition-all duration-200 active:scale-95"
+            className="absolute left-1 md:left-2 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-white/80 md:bg-white shadow-md border border-gray-200 hover:bg-gray-100 transition-all duration-200 active:scale-95"
             aria-label="Previous products"
           >
-            <ChevronLeft className="w-3 h-3 md:w-5 md:h-5 text-gray-600" />
+            <ChevronLeft className="w-5 h-5 text-gray-600" />
           </button>
         )}
 
@@ -149,10 +149,10 @@ export default function ProductCarousel({ products, title, media_url }: ProductC
         {scrollPosition < maxScroll - 5 && (
           <button
             onClick={() => scroll('right')}
-            className="absolute right-1 md:right-2 top-1/2 -translate-y-1/2 z-20 p-1 md:p-2 rounded-full bg-white/80 md:bg-white shadow-md border border-gray-200 hover:bg-gray-100 transition-all duration-200 active:scale-95"
+            className="absolute right-1 md:right-2 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-white/80 md:bg-white shadow-md border border-gray-200 hover:bg-gray-100 transition-all duration-200 active:scale-95"
             aria-label="Next products"
           >
-            <ChevronRight className="w-3 h-3 md:w-5 md:h-5 text-gray-600" />
+            <ChevronRight className="w-5 h-5 text-gray-600" />
           </button>
         )}
 
