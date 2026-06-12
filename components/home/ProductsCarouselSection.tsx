@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useRef, useState, useEffect } from 'react';
-import { categories } from '@/data/categories';
 import Link from 'next/link';
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import ProductCard from '../catalog/ProductCard';
@@ -9,19 +8,23 @@ import ProductCard from '../catalog/ProductCard';
 type Props = {
   locale: string;
   products: any[];
+  categories?: any[];
   title?: string;
   subtitle?: string;
   banner?: string;
   haveCategories?: boolean;
+  media_url?:string
 };
 
 const ProductsCarouselSection = ({ 
   products, 
+  categories = [],
   banner,
   locale, 
   title,
   subtitle,
-  haveCategories = false
+  haveCategories = false,
+  media_url
 }: Props) => {
   const categoryScrollRef = useRef<HTMLDivElement>(null);
   const productScrollRef = useRef<HTMLDivElement>(null);
@@ -34,7 +37,14 @@ const ProductsCarouselSection = ({
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
-  const [activeCategory, setActiveCategory] = useState('laptop');
+  const [activeCategory, setActiveCategory] =
+    useState<string>('');
+  
+  useEffect(() => {
+  if (categories.length > 0 && !activeCategory) {
+    setActiveCategory(categories[0].slug);
+  }
+}, [categories, activeCategory]);
 
   const checkCategoryScrollPosition = () => {
     const container = categoryScrollRef.current;
@@ -123,10 +133,12 @@ const ProductsCarouselSection = ({
 
   if (!products || products.length === 0) return null;
 
-  // ✅ FIXED: Filter products by active category
-  const filteredProducts = activeCategory 
-    ? products.filter((product: any) => 
-        product.category?.toLowerCase() === activeCategory.toLowerCase()
+
+  const filteredProducts =
+  activeCategory
+    ? products.filter(
+        (product) =>
+          product.Category?.slug === activeCategory
       )
     : products;
 
@@ -180,7 +192,7 @@ const ProductsCarouselSection = ({
                   onMouseUp={handleMouseUp}
                   onMouseMove={handleMouseMove}
                 >
-                  {categories.map((category, index) => (
+                  {categories.map((category:any, index) => (
                     <button
                       key={index}
                       onClick={() => setActiveCategory(category.slug)}
@@ -190,7 +202,7 @@ const ProductsCarouselSection = ({
                           : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                       }`}
                     >
-                      {category.name}
+                      {category.name_fr}
                     </button>
                   ))}
                 </div>
@@ -202,7 +214,9 @@ const ProductsCarouselSection = ({
               <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                 <div className="text-center md:text-left">
                   <h3 className="text-xl md:text-2xl font-bold">
-                    {categories.find(c => c.slug === activeCategory)?.name || 'Produits'}
+                    {categories.find(
+  (c: any) => c.slug === activeCategory
+)?.name_fr || 'Produits'}
                   </h3>
                   <p className="text-slate-300 mt-1 text-sm md:text-base">
                     Découvrez notre sélection de {categories.find(c => c.slug === activeCategory)?.name?.toLowerCase() || 'produits'} de qualité
@@ -248,7 +262,7 @@ const ProductsCarouselSection = ({
               {/* ✅ FIXED: Use displayProducts (filtered by category) */}
               {displayProducts.map((product: any) => (
                 <div key={product.id} className="flex-none snap-start w-[220px] md:w-[260px]">
-                  <ProductCard product={product} />
+                  <ProductCard product={product} media_url={media_url} />
                 </div>
               ))}
             </div>

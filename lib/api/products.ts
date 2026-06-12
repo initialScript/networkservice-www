@@ -68,3 +68,37 @@ export const getRelatedProducts = async (slug: string) => {
     return [];
   }
 };
+
+export async function getRecentProducts() {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/products/recent`,
+    {
+      next: { revalidate: 3600 },
+    }
+  );
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch recent products");
+  }
+
+  const data = await res.json();
+
+  return data.data ?? data;
+}
+
+export async function getCategories() {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/categories`,
+    {
+      next: { revalidate: 3600 },
+    }
+  );
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch categories");
+  }
+
+  const data = await res.json();
+
+  return data.data ?? [];
+}

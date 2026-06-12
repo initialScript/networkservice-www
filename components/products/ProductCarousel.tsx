@@ -17,7 +17,27 @@ export default function ProductCarousel({ products, title, media_url }: ProductC
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
+  const [itemsPerPage, setItemsPerPage] = useState(4);
   const carouselRef = useRef<HTMLDivElement>(null);
+
+  // Calculate items per page based on screen size
+  useEffect(() => {
+    const updateItemsPerPage = () => {
+      const width = window.innerWidth;
+      if (width < 640) setItemsPerPage(1);      // mobile
+      else if (width < 768) setItemsPerPage(2); // tablet
+      else if (width < 1024) setItemsPerPage(3); // small desktop
+      else setItemsPerPage(4);                   // large desktop
+    };
+    
+    updateItemsPerPage();
+    window.addEventListener('resize', updateItemsPerPage);
+    return () => window.removeEventListener('resize', updateItemsPerPage);
+  }, []);
+
+  // Calculate total pages
+  const totalPages = Math.ceil(products.length / itemsPerPage);
+  const currentPage = Math.round(scrollPosition / (carouselRef.current?.clientWidth || 1));
 
   useEffect(() => {
     const updateMaxScroll = () => {
@@ -39,13 +59,22 @@ export default function ProductCarousel({ products, title, media_url }: ProductC
 
   const scroll = (direction: 'left' | 'right') => {
     if (carouselRef.current) {
-      const scrollAmount = carouselRef.current.clientWidth * 0.8;
+      const scrollAmount = carouselRef.current.clientWidth;
       const newPosition = direction === 'left' 
         ? scrollPosition - scrollAmount 
         : scrollPosition + scrollAmount;
       
       carouselRef.current.scrollTo({
         left: newPosition,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  const scrollToPage = (pageIndex: number) => {
+    if (carouselRef.current) {
+      carouselRef.current.scrollTo({
+        left: pageIndex * carouselRef.current.clientWidth,
         behavior: 'smooth'
       });
     }
@@ -85,47 +114,17 @@ export default function ProductCarousel({ products, title, media_url }: ProductC
   if (!products || products.length === 0) return null;
 
   return (
-    <div className="w-full py-6">
-      {/* Header with title and navigation buttons */}
-      <div className="flex items-center justify-between mb-4 px-2">
+    <div className="w-full py-4 md:py-6">
+      {/* Header with title */}
+      <div className="flex items-center justify-between mb-3 md:mb-4 px-2">
         {title && (
-          <h2 className="text-xl md:text-2xl font-bold text-gray-900">
+          <h2 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900">
             {title}
           </h2>
         )}
-        
-        {/* Navigation Buttons - Desktop only */}
-        <div className="hidden md:flex gap-2">
-          <button
-            onClick={() => scroll('left')}
-            disabled={scrollPosition <= 0}
-            className={cn(
-              "p-2 rounded-full border border-gray-200 transition-all duration-200",
-              scrollPosition <= 0
-                ? "opacity-40 cursor-not-allowed bg-gray-50"
-                : "hover:bg-gray-100 hover:border-gray-300 active:scale-95"
-            )}
-            aria-label="Previous products"
-          >
-            <ChevronLeft className="w-5 h-5 text-gray-600" />
-          </button>
-          <button
-            onClick={() => scroll('right')}
-            disabled={scrollPosition >= maxScroll - 5}
-            className={cn(
-              "p-2 rounded-full border border-gray-200 transition-all duration-200",
-              scrollPosition >= maxScroll - 5
-                ? "opacity-40 cursor-not-allowed bg-gray-50"
-                : "hover:bg-gray-100 hover:border-gray-300 active:scale-95"
-            )}
-            aria-label="Next products"
-          >
-            <ChevronRight className="w-5 h-5 text-gray-600" />
-          </button>
-        </div>
       </div>
 
-      {/* Carousel Container - Touch/Mouse draggable */}
+      {/* Carousel Container with overlay navigation buttons */}
       <div className="relative group">
         {/* Gradient overlays for scroll indication */}
         {scrollPosition > 0 && (
@@ -135,27 +134,50 @@ export default function ProductCarousel({ products, title, media_url }: ProductC
           <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none hidden md:block" />
         )}
 
+        {/* Left Navigation Button - Small on mobile */}
+        {scrollPosition > 0 && (
+          <button
+            onClick={() => scroll('left')}
+            className="absolute left-1 md:left-2 top-1/2 -translate-y-1/2 z-20 p-1 md:p-2 rounded-full bg-white/80 md:bg-white shadow-md border border-gray-200 hover:bg-gray-100 transition-all duration-200 active:scale-95"
+            aria-label="Previous products"
+          >
+            <ChevronLeft className="w-3 h-3 md:w-5 md:h-5 text-gray-600" />
+          </button>
+        )}
+
+        {/* Right Navigation Button - Small on mobile */}
+        {scrollPosition < maxScroll - 5 && (
+          <button
+            onClick={() => scroll('right')}
+            className="absolute right-1 md:right-2 top-1/2 -translate-y-1/2 z-20 p-1 md:p-2 rounded-full bg-white/80 md:bg-white shadow-md border border-gray-200 hover:bg-gray-100 transition-all duration-200 active:scale-95"
+            aria-label="Next products"
+          >
+            <ChevronRight className="w-3 h-3 md:w-5 md:h-5 text-gray-600" />
+          </button>
+        )}
+
         <div
-  ref={carouselRef}
-  className={cn(
-    "flex overflow-x-auto overflow-y-hidden gap-4",
-    "scroll-smooth snap-x snap-mandatory",
-    "hide-scrollbar",
-    isDragging ? "cursor-grabbing select-none" : "cursor-grab"
-  )}
-  onMouseDown={handleMouseDown}
-  onMouseMove={handleMouseMove}
-  onMouseUp={handleMouseUp}
-  onMouseLeave={handleMouseUp}
-  onTouchStart={handleMouseDown}
-  onTouchMove={handleMouseMove}
-  onTouchEnd={handleMouseUp}
->
-          {products.map((product, index) => (
+          ref={carouselRef}
+          className={cn(
+            "flex overflow-x-auto overflow-y-hidden gap-3 md:gap-4",
+            "scroll-smooth snap-x snap-mandatory",
+            "hide-scrollbar",
+            isDragging ? "cursor-grabbing select-none" : "cursor-grab"
+          )}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+          onTouchStart={handleMouseDown}
+          onTouchMove={handleMouseMove}
+          onTouchEnd={handleMouseUp}
+        >
+          {products.map((product) => (
             <div
               key={product.id}
               className={cn(
-                "flex-shrink-0 w-full snap-start",
+                "flex-shrink-0 snap-start",
+                "w-full",
                 "sm:w-[calc(50%-0.5rem)]",
                 "md:w-[calc(33.333%-1rem)]",
                 "lg:w-[calc(25%-0.75rem)]"
@@ -167,30 +189,34 @@ export default function ProductCarousel({ products, title, media_url }: ProductC
         </div>
       </div>
 
-      {/* Scroll indicator dots (optional) */}
-      <div className="flex justify-center gap-1.5 mt-6 md:hidden">
-        {products.slice(0, Math.ceil(products.length / 2)).map((_, idx) => {
-          const isActive = scrollPosition >= (idx * 300) && scrollPosition < ((idx + 1) * 300);
-          return (
-            <button
+      {/* Scroll indicator dots - Very small on mobile */}
+      {totalPages > 1 && (
+        <div className="flex justify-center gap-1 mt-3 md:mt-6">
+          {Array.from({ length: totalPages }).map((_, idx) => (
+            <div
               key={idx}
-              onClick={() => {
-                if (carouselRef.current) {
-                  carouselRef.current.scrollTo({
-                    left: idx * carouselRef.current.clientWidth * 0.8,
-                    behavior: 'smooth'
-                  });
-                }
-              }}
+              onClick={() => scrollToPage(idx)}
               className={cn(
-                "h-1.5 rounded-full transition-all duration-300",
-                isActive ? "w-6 bg-orange-500" : "w-1.5 bg-gray-300"
+                "rounded-full transition-all duration-300",
+                currentPage === idx 
+                  ? "w-6 h-2 bg-orange-500" 
+                  : "w-2 h-2 bg-gray-300"
               )}
-              aria-label={`Go to slide ${idx + 1}`}
+              aria-label={`Go to page ${idx + 1}`}
             />
-          );
-        })}
-      </div>
+          ))}
+        </div>
+      )}
+
+      <style jsx>{`
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .hide-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
     </div>
   );
 }

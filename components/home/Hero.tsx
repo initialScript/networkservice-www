@@ -42,6 +42,8 @@ const Hero = ({locale}:{locale:string}) => {
     setCurrentIndex(index)
   }
 
+  
+
   return (
     <section className="relative h-[calc(100vh-65px)] lg:h-[calc(100vh-139px)] flex items-center overflow-hidden">
       {/* Background Carousel with Ken Burns effect */}
@@ -97,12 +99,12 @@ const Hero = ({locale}:{locale:string}) => {
         {/* Dots indicator */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-3 z-10">
           {backgroundImages.map((_, index) => (
-            <button
+            <div
               key={index}
               onClick={() => goToSlide(index)}
               className={`transition-all duration-300 rounded-full ${
                 index === currentIndex
-                  ? 'w-10 h-2 bg-[#E94560]'
+                  ? 'w-4 h-2 bg-[#E94560]'
                   : 'w-2 h-2 bg-white/50 hover:bg-white/80'
               }`}
               aria-label={`Aller à l'image ${index + 1}`}

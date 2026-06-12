@@ -29,9 +29,9 @@ const tabs = [
     id: "logiciels",
     label: "Logiciels",
     items: [
-      "Logiciel d’hôtellerie IMPERIALTECH PMS",
+      "Logiciel d'hôtellerie IMPERIALTECH PMS",
       "Logiciel de gestion de paie.",
-      "Logiciel d’agence de voyages.",
+      "Logiciel d'agence de voyages.",
       "Logiciel de gestion de Spa.",
       "Logiciel de gestion de Parapharmacie.",
       "Logiciel de gestion Commerciale.",
@@ -47,10 +47,10 @@ export default function ServicesTabs() {
   const currentTab = tabs.find((tab) => tab.id === activeTab);
 
   return (
-    <section className="bg-[#f5f5f5] py-16">
-      <div className="max-w-7xl mx-auto px-6">
-        {/* Tabs */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <section className="bg-[#f5f5f5] py-12 md:py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        {/* Tabs - responsive layout: column on mobile, grid on tablet+ */}
+        <div className="flex flex-col sm:grid sm:grid-cols-3 gap-4 sm:gap-6">
           {tabs.map((tab) => {
             const active = activeTab === tab.id;
 
@@ -58,18 +58,19 @@ export default function ServicesTabs() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`relative py-4 rounded border transition-all text-2xl font-bold
+                className={`relative py-3 sm:py-4 rounded border transition-all text-xl sm:text-2xl font-bold
                   ${
                     active
                       ? "bg-[#2ea0bf] text-white border-[#2ea0bf]"
-                      : "bg-white text-[#2ea0bf] border-[#2ea0bf]"
+                      : "bg-white text-[#2ea0bf] border-[#2ea0bf] hover:bg-[#2ea0bf]/5"
                   }`}
               >
                 {tab.label}
 
+                {/* Arrow indicator - hidden on mobile, visible on sm+ */}
                 {active && (
                   <span
-                    className="absolute left-1/2 top-full -translate-x-1/2
+                    className="hidden sm:block absolute left-1/2 top-full -translate-x-1/2
                     w-0 h-0 border-l-[20px] border-r-[20px]
                     border-t-[20px] border-l-transparent
                     border-r-transparent border-t-[#2ea0bf]"
@@ -80,11 +81,11 @@ export default function ServicesTabs() {
           })}
         </div>
 
-        {/* Content */}
-        <div className="mt-8 rounded border border-[#2ea0bf] bg-white p-10 shadow-sm">
-          <ul className="space-y-3 text-[20px] text-gray-700">
+        {/* Content - responsive padding and text sizes */}
+        <div className="mt-6 sm:mt-8 rounded border border-[#2ea0bf] bg-white p-6 sm:p-8 md:p-10 shadow-sm">
+          <ul className="space-y-2 sm:space-y-3 text-base sm:text-lg md:text-[20px] text-gray-700">
             {currentTab?.items.map((item, index) => (
-              <li key={index} className="list-disc ml-6">
+              <li key={index} className="list-disc ml-4 sm:ml-6 break-words">
                 {item}
               </li>
             ))}

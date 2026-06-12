@@ -2,52 +2,35 @@ import Link from 'next/link';
 import { ArrowRight} from 'lucide-react';
 import ProductCard from '@/components/catalog/ProductCard';
 import Hero from '@/components/home/Hero';
-import { additionalProducts, fakeProducts } from '@/data/products';
 import HomeBadge from '@/components/home/HomeBadge';
-import ProductsCarouselSection from '@/components/home/ProductsCarouselSection';
 import Services from '@/components/home/Services';
+import {
+  getAllProducts,
+  getCategories,
+  getRecentProducts,
+} from '@/lib/api/products';
+import ProductCarousel from '@/components/products/ProductCarousel';
+import ProductsByCategories from '@/components/home/ProductsByCategories';
 
 export const revalidate = 3600;
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000';
-
-async function safeFetch<T>(url: string, fallback: T): Promise<T> {
-  try {
-    const res = await fetch(url, { next: { revalidate: 3600 } });
-    if (!res.ok) return fallback;
-    return res.json();
-  } catch {
-    return fallback;
-  }
-}
-
 
 interface Props {
   params: { locale: string };
 }
 
 export default async function HomePage({ params: { locale } }: Props) {
-  const [catRes, featuredRes, inStockRes] = await Promise.all([
-    safeFetch<unknown>(`${API}/api/categories`, []),
-    safeFetch<unknown>(`${API}/api/products?limit=8&sort=newest`, []),
-    safeFetch<unknown>(`${API}/api/products?limit=8&in_stock=true&sort=newest`, []),
+const [recentProducts, categories, inStockProducts] =
+  await Promise.all([
+    getRecentProducts(),
+    getCategories(),
+    getAllProducts({
+      in_stock: "true",
+      limit: "8",
+    }),
   ]);
 
-  // Tolerate different API envelope shapes: { categories: [] } | { data: [] } | []
-  const norm = <T,>(r: unknown, key: string): T[] => {
-    if (Array.isArray(r)) return r as T[];
-    if (r && typeof r === 'object') {
-      const obj = r as Record<string, unknown>;
-      if (Array.isArray(obj[key])) return obj[key] as T[];
-      if (Array.isArray(obj['data'])) return obj['data'] as T[];
-    }
-    return [];
-  };
-
-  // const categories = norm<Category>(catRes, 'categories');
-  const featuredProducts = norm<any>(featuredRes, 'products');
-  const inStockProducts = norm<any>(inStockRes, 'products');
-
+  const media_url =process.env.NEXT_PUBLIC_MEDIA_URL
+process.env.NEXT_PUBLIC_MEDIA_URL
 
   return (
     <div>
@@ -56,26 +39,25 @@ export default async function HomePage({ params: { locale } }: Props) {
 
       <HomeBadge />
 
-      {/* CATEGORIES PRODUCTS */}
-       <ProductsCarouselSection
-          locale={locale}
-          products={fakeProducts}
-          title = "Nos produits informatiques"
-          subtitle="Découvrez notre sélection d'ordinateurs, imprimantes,
-    accessoires et équipements professionnels."
-        banner='Catalogue'
-        haveCategories={true}
-        />
+      {/* Recent PRODUCTS */}
+      <div className='w-full max-w-7xl mx-auto px-4 lg:px-0'>
+        <ProductCarousel products={recentProducts.slice(0, 8)} media_url={media_url} title='Nouveaux produits' />
+      </div>
       
-      {/* ── Featured products ── */}
-         {/* <FeaturedProductsSection locale={locale} products={additionalProducts} /> */}
-        <ProductsCarouselSection
-          locale={locale}
-          products={fakeProducts}
-          title = "Nouveaux produits"
-          subtitle="Les dernières arrivées dans notre catalogue"
-          banner='Featured'
-        />
+        {/* PRODUCTS BY CATEGORIES */}
+      <div className=' bg-[#6082B6] py-6'>
+        <div className='w-full max-w-7xl mx-auto px-4 lg:px-0'>
+          <div className='mb-6 lg:mb-9 text-white font-semibold text-3xl lg:text-3xl max-w-2xl mx-auto grid place-items-center'>
+            <h3 className='text-center'>Découvrez nos produits <br /> par catégorie</h3>
+          </div>
+          
+        <ProductsByCategories products={inStockProducts} categories={categories} media_url={media_url} />
+        </div>
+          
+        </div>
+
+      
+      
 
       <div className="w-full max-w-7xl mx-auto px-4 lg:px-0">
         {/* Features Section */}
@@ -253,8 +235,8 @@ export default async function HomePage({ params: { locale } }: Props) {
             </Link>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            {inStockProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
+            {inStockProducts.map((product:any) => (
+              <ProductCard key={product.id} product={product} media_url={media_url} />
             ))}
           </div>
         </section>

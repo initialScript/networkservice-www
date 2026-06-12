@@ -7,6 +7,7 @@ import { Eye, EyeOff } from 'lucide-react';
 import { login as loginService } from '@/lib/services/auth';
 import { useAuthStore } from '@/store/useAuthStore';
 import { cn } from '@/lib/utils';
+import Image from 'next/image';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -50,8 +51,13 @@ export default function LoginPage() {
       <div className="min-h-screen bg-[#F8F9FA] flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-md bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
           {/* Logo */}
-          <div className="mb-8 text-center">
-            <span className="text-2xl font-extrabold text-[#0F3460]">IRIS<span className="text-[#E94560]">.MA</span></span>
+          <div className="mb-8 grid place-items-center">
+            <Image
+              src={'/images/main-logo.png'}
+              alt='network service info logo'
+              width={150}
+              height={75}
+            />
           </div>
 
           <h1 className="text-xl font-bold text-gray-900 mb-6">Connexion à votre compte</h1>
@@ -142,12 +148,6 @@ export default function LoginPage() {
             </Link>
           </p>
 
-          <p className="mt-3 text-center text-xs text-gray-400">
-            Vous êtes une entreprise ?{' '}
-            <Link href="../../b2b" className="text-[#0F3460] hover:underline font-medium">
-              Espace B2B
-            </Link>
-          </p>
         </div>
       </div>
     </>
