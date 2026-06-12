@@ -158,7 +158,7 @@ const PanierClientPage = () => {
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <Link href={`/${locale}/products/${item.slug}`}>
+                        <Link href={`/${locale}/catalogue/${item.slug}`}>
                           <h3 className="font-semibold text-gray-800 hover:text-[#0F3460] transition text-sm line-clamp-2">
                             {item.name}
                           </h3>
