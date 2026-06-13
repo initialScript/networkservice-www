@@ -229,7 +229,7 @@ const handleAddToCart = async () => {
         <Breadcrumb items={breadcrumbItems} />
 
         {/* ── Main Grid ── */}
-        <div className="flex flex-col lg:grid lg:grid-cols-2 gap-6 lg:gap-8 xl:gap-12">
+        <div className="flex flex-col lg:grid lg:grid-cols-2 gap-6 lg:gap-8 xl:gap-12 mt-6">
 
           {/* LEFT: Image Gallery */}
           <div className="relative w-full">
