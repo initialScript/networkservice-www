@@ -25,7 +25,7 @@ const [recentProducts, categories, inStockProducts] =
     getCategories(),
     getAllProducts({
       in_stock: "true",
-      limit: "8",
+      limit: "100",
     }),
   ]);
 

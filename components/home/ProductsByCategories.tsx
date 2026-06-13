@@ -43,18 +43,28 @@ const ProductsByCategories = ({ products, categories, media_url }: Props) => {
   }, [categories, activeCategory])
 
   // Filter products when active category changes
-  useEffect(() => {
-    if (activeCategory && productsArray.length > 0) {
-      const filtered = productsArray.filter(
-        (product: any) => product.Category?.slug === activeCategory
-      )
-      setFilteredProducts(filtered)
-    } else if (!activeCategory && productsArray.length > 0) {
-      setFilteredProducts(productsArray)
-    } else {
-      setFilteredProducts([])
-    }
-  }, [activeCategory, productsArray])
+useEffect(() => {
+  if (activeCategory && productsArray.length > 0) {
+    const filtered = productsArray.filter(
+      (product: any) => {
+        // Check if product has categories array and if any category matches
+        if (product.categories && Array.isArray(product.categories)) {
+          return product.categories.some((category: any) => category.slug === activeCategory);
+        }
+        // Fallback for other possible structures
+        const categorySlug = product.category?.slug || product.Category?.slug;
+        return categorySlug === activeCategory;
+      }
+    );
+    setFilteredProducts(filtered);
+  } else if (!activeCategory && productsArray.length > 0) {
+    setFilteredProducts(productsArray);
+  } else {
+    setFilteredProducts([]);
+  }
+
+
+}, [activeCategory, productsArray]);
 
   // Handle category scroll position
   const checkCategoryScrollPosition = () => {
@@ -191,6 +201,7 @@ const ProductsByCategories = ({ products, categories, media_url }: Props) => {
       {/* Products Carousel */}
       {filteredProducts.length > 0 ? (
         <ProductCarousel 
+          key={activeCategory}
           products={filteredProducts.slice(0, 8)} 
           media_url={media_url} 
           title={currentCategoryName}

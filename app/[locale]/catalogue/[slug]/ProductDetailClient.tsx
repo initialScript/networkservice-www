@@ -14,6 +14,8 @@ import {
 import Link from "next/link";
 import { useState } from "react";
 import Breadcrumb from "@/components/ui/Breadcrumb";
+import { WhatsAppOrderButton } from "@/components/product/WhatsAppOrderButton";
+
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -452,6 +454,22 @@ const handleAddToCart = async () => {
                   </>
                 )}
               </Button>
+
+              {/* WhatsApp Order Button */}
+  {inStock && (
+    <WhatsAppOrderButton 
+      product={{
+        id: product.id,
+        name_fr: product.name_fr,
+        sku: product.sku,
+        price: product.price,
+        quantity: quantity,
+        images: product.images,
+        media_url: mediaUrl
+      }}
+      className="flex-1"
+    />
+  )}
             </div>
 
             {/* Delivery options */}
@@ -495,21 +513,7 @@ const handleAddToCart = async () => {
               </div>
             </div>
 
-            {/* Tags */}
-            {tags.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 pt-1">
-                {tags.map(tag => (
-                  <Link
-                    key={tag}
-                    href={`/catalogue?q=${encodeURIComponent(tag.trim())}`}
-                    className="inline-flex items-center gap-1 text-xs text-gray-500 bg-white border border-gray-200 hover:border-amber-300 hover:text-amber-600 px-2.5 py-1 rounded-full transition-colors"
-                  >
-                    <Tag size={10} />
-                    {tag}
-                  </Link>
-                ))}
-              </div>
-            )}
+            
           </div>
         </div>
 
