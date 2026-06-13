@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import CatalogueClient from './CatalogueClient';
 import { getAllProducts, getCategories } from '@/lib/api/products';
+import { getBrands } from '@/lib/api/brands';
 
 interface Props {
   params: { locale: string };
@@ -38,78 +39,6 @@ export default async function CataloguePage({ params: { locale }, searchParams }
   const sort = str(searchParams.sort) ?? 'newest';
   const page = Number(str(searchParams.page) ?? '1');
 
-    const brands = [
-    {
-      id: 1,
-      name: 'Apple',
-      slug: 'apple',
-      logo: '/brands/apple.svg',
-      productCount: 156,
-    },
-    {
-      id: 2,
-      name: 'Dell',
-      slug: 'dell',
-      logo: '/brands/dell.svg',
-      productCount: 89,
-    },
-    {
-      id: 3,
-      name: 'ASUS',
-      slug: 'asus',
-      logo: '/brands/asus.svg',
-      productCount: 124,
-    },
-    {
-      id: 4,
-      name: 'HP',
-      slug: 'hp',
-      logo: '/brands/hp.svg',
-      productCount: 98,
-    },
-    {
-      id: 5,
-      name: 'Lenovo',
-      slug: 'lenovo',
-      logo: '/brands/lenovo.svg',
-      productCount: 112,
-    },
-    {
-      id: 6,
-      name: 'Acer',
-      slug: 'acer',
-      logo: '/brands/acer.svg',
-      productCount: 76,
-    },
-    {
-      id: 7,
-      name: 'MSI',
-      slug: 'msi',
-      logo: '/brands/msi.svg',
-      productCount: 54,
-    },
-    {
-      id: 8,
-      name: 'Razer',
-      slug: 'razer',
-      logo: '/brands/razer.svg',
-      productCount: 32,
-    },
-    {
-      id: 9,
-      name: 'Microsoft',
-      slug: 'microsoft',
-      logo: '/brands/microsoft.svg',
-      productCount: 28,
-    },
-    {
-      id: 10,
-      name: 'LG',
-      slug: 'lg',
-      logo: '/brands/lg.svg',
-      productCount: 45,
-    },
-  ];
 
 
   // Filter and paginate products on the server
@@ -127,7 +56,9 @@ if (in_stock) params.in_stock = in_stock;
 if (sort) params.sort = sort;
 
   const categories = await getCategories()
-const { data: products, pagination } = await getAllProducts(params);
+  const { data: products, pagination } = await getAllProducts(params);
+  const {data:brands} = await getBrands()
+
   const currentFilters = { 
     search, 
     category, 
