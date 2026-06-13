@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import Breadcrumb from "@/components/ui/Breadcrumb";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -78,6 +79,7 @@ interface Product {
   Brand: Brand;
   images: ProductImage[];
   specs: ProductSpec[];
+  categories: Category[];
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -201,40 +203,28 @@ const handleAddToCart = async () => {
   const shortDesc = product.short_description || '';
   const TRUNCATE_AT = 220;
 
+  const breadcrumbItems = [
+  {
+    label: "Accueil",
+    href: "/",
+  },
+
+  ...product.categories.map((category) => ({
+    label: category.name_fr,
+    href: `/catalogue?category=${category.slug}`,
+  })),
+
+  {
+    label: product.name_fr,
+  },
+];
+
   return (
     <div className="w-full min-h-screen bg-gray-50">
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-10">
 
         {/* ── Breadcrumb ── */}
-        <nav className="mb-4 flex items-center gap-2 text-sm text-gray-400 flex-wrap">
-          <Link href="/" className="hover:text-gray-600 transition-colors">Accueil</Link>
-          <span>/</span>
-          <Link href="/catalogue" className="hover:text-gray-600 transition-colors">Catalogue</Link>
-          {product.Category && (
-            <>
-              <span>/</span>
-              <Link
-                href={`/catalogue?category=${product.Category.slug}`}
-                className="hover:text-gray-600 transition-colors"
-              >
-                {product.Category.name_fr}
-              </Link>
-            </>
-          )}
-          {product.Brand && (
-            <>
-              <span>/</span>
-              <Link
-                href={`/catalogue?brand=${product.Brand.slug}`}
-                className="hover:text-gray-600 transition-colors"
-              >
-                {product.Brand.name}
-              </Link>
-            </>
-          )}
-          <span>/</span>
-          <span className="text-gray-600 truncate max-w-[200px]">{product.name_fr}</span>
-        </nav>
+        <Breadcrumb items={breadcrumbItems} />
 
         {/* ── Main Grid ── */}
         <div className="flex flex-col lg:grid lg:grid-cols-2 gap-6 lg:gap-8 xl:gap-12">

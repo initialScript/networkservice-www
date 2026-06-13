@@ -116,7 +116,7 @@ const CategoryDropdown = ({
               return (
                 <Link
                   key={cat.slug}
-                  href={`${basePath}/${cat.slug}`}
+                   href={`/${locale}/catalogue?category=${cat.slug}`}
                   onMouseEnter={() => setActiveSlug(cat.slug)}
                   onClick={close}
                   className={cn(
@@ -147,7 +147,7 @@ const CategoryDropdown = ({
 
             <div className="border-t border-gray-100 mt-1 pt-1 px-4 py-2.5">
               <Link
-                href={basePath}
+                href={`/${locale}${basePath}`}
                 onClick={close}
                 className="text-sm font-semibold text-[#0F3460] hover:text-[#E94560] transition-colors"
               >
@@ -174,7 +174,7 @@ const CategoryDropdown = ({
                 {activeCategory.children.map((group) => (
                   <div key={group.slug}>
                     <Link
-                      href={`${basePath}/${group.slug}`}
+                       href={`/${locale}/catalogue?category=${group.slug}`}
                       onClick={close}
                       className="block font-bold text-[#0F3460] uppercase text-xs tracking-wide pb-1.5 mb-2 border-b-2 border-amber-400 hover:text-[#E94560] transition-colors"
                     >
@@ -187,7 +187,7 @@ const CategoryDropdown = ({
                           <li key={child.slug} className="flex items-start gap-1.5">
                             <span className="text-gray-400 text-xs mt-1 shrink-0">•</span>
                             <Link
-                              href={`${basePath}/${child.slug}`}
+                              href={`/${locale}/catalogue?category=${child.slug}`}
                               onClick={close}
                               className="text-sm text-gray-600 hover:text-[#0F3460] hover:underline transition-colors leading-snug"
                             >
