@@ -49,6 +49,7 @@ export default function CatalogueClient({
   const [products, setProducts] = useState(initialProducts);
   const [isLoading, setIsLoading] = useState(false);
   const [layout, setLayout] = useState('grid');
+  
 
   // Helper function to get numeric price
   const getNumericPrice = (price: string | number): number => {
@@ -138,6 +139,8 @@ export default function CatalogueClient({
   const handleClearFilters = () => {
     router.push(window.location.pathname);
   };
+
+  
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">

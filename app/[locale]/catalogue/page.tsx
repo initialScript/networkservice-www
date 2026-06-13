@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import CatalogueClient from './CatalogueClient';
-import { getAllProducts } from '@/lib/api/products';
+import { getAllProducts, getCategories } from '@/lib/api/products';
 
 interface Props {
   params: { locale: string };
@@ -111,88 +111,6 @@ export default async function CataloguePage({ params: { locale }, searchParams }
     },
   ];
 
-  const categories = [
-    {
-      id: 1,
-      name_fr: 'Laptop',
-      slug: 'laptop',
-      name_ar: 'حاسوب محمول',
-      productCount: 156,
-      icon: 'Laptop',
-    },
-    {
-      id: 2,
-      name_fr: 'Desktop',
-      slug: 'desktop',
-      name_ar: 'حاسوب مكتبي',
-      productCount: 89,
-      icon: 'Monitor',
-    },
-    {
-      id: 3,
-      name_fr: 'Gaming',
-      slug: 'gaming',
-      name_ar: 'ألعاب',
-      productCount: 124,
-      icon: 'Gamepad',
-    },
-    {
-      id: 4,
-      name_fr: 'Accessoires',
-      slug: 'accessories',
-      name_ar: 'إكسسوارات',
-      productCount: 234,
-      icon: 'Smartphone',
-    },
-    {
-      id: 5,
-      name_fr: 'Composants PC',
-      slug: 'components',
-      name_ar: 'مكونات الكمبيوتر',
-      productCount: 187,
-      icon: 'Cpu',
-    },
-    {
-      id: 6,
-      name_fr: 'Périphériques',
-      slug: 'peripherals',
-      name_ar: 'الأجهزة الطرفية',
-      productCount: 145,
-      icon: 'Keyboard',
-    },
-    {
-      id: 7,
-      name_fr: 'Stockage',
-      slug: 'storage',
-      name_ar: 'تخزين',
-      productCount: 98,
-      icon: 'HardDrive',
-    },
-    {
-      id: 8,
-      name_fr: 'Moniteurs',
-      slug: 'monitors',
-      name_ar: 'شاشات',
-      productCount: 76,
-      icon: 'Monitor',
-    },
-    {
-      id: 9,
-      name_fr: 'Imprimantes',
-      slug: 'printers',
-      name_ar: 'طابعات',
-      productCount: 54,
-      icon: 'Printer',
-    },
-    {
-      id: 10,
-      name_fr: 'Réseau',
-      slug: 'networking',
-      name_ar: 'شبكات',
-      productCount: 42,
-      icon: 'Wifi',
-    },
-  ];
 
   // Filter and paginate products on the server
 const params: Record<string, string> = {
@@ -208,6 +126,7 @@ if (max_price) params.max_price = max_price;
 if (in_stock) params.in_stock = in_stock;
 if (sort) params.sort = sort;
 
+  const categories = await getCategories()
 const { data: products, pagination } = await getAllProducts(params);
   const currentFilters = { 
     search, 
@@ -222,11 +141,21 @@ const { data: products, pagination } = await getAllProducts(params);
 
   const media_url = process.env.NEXT_PUBLIC_MEDIA_URL
 
-  
+  const selectedCategory = categories.find(
+    (c:any) => c.slug === category
+  );
+
+  const filteredProducts = category
+  ? products.filter((product: any) =>
+      product.categories.some(
+        (c: any) => c.slug === category
+      )
+    )
+  : products;
 
   return (
     <CatalogueClient
-  initialProducts={products}
+  initialProducts={filteredProducts}
   totalProducts={pagination.total}
   totalPages={pagination.totalPages}
   currentPage={pagination.page}

@@ -1,33 +1,29 @@
+// components/MobileMenu.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
-  X, Home, Tag, Building2, Phone, User, ShoppingCart,
+  X, Home, User, ShoppingCart,
   Heart, ChevronDown, LogOut, LayoutGrid,
   Printer, Laptop, Tv2, BatteryCharging, Keyboard,
-  PenTool, Camera, Wifi, Trash2, Package, Monitor, Droplets,
+  PenTool, Camera, Wifi, Trash2, Package, Monitor, Droplets, Phone,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useCartStore } from '@/store/useCartStore';
 import { useCartDrawer } from '@/lib/contexts/CartDrawerContext';
-import { categories } from '@/data/categories';
 import { navigationBarLinks } from '@/utils/navigationBarLinks';
+import { Category } from '@/hooks/useCategories';
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
   locale: string;
-}
-
-interface Category {
-  id: number;
-  name: string;
-  slug: string;
-  children?: Category[];
+  categories: Category[];
 }
 
 const categoryIcons: Record<string, React.ReactNode> = {
+  'telephonie':             <Phone className="w-4 h-4 shrink-0" />,
   'imprimante-scanner':     <Printer className="w-4 h-4 shrink-0" />,
   'ordinateur':             <Laptop className="w-4 h-4 shrink-0" />,
   'ecran-moniteur':         <Tv2 className="w-4 h-4 shrink-0" />,
@@ -36,7 +32,6 @@ const categoryIcons: Record<string, React.ReactNode> = {
   'tablette-graphique':     <PenTool className="w-4 h-4 shrink-0" />,
   'image-son':              <Camera className="w-4 h-4 shrink-0" />,
   'reseaux':                <Wifi className="w-4 h-4 shrink-0" />,
-  'telephonie':             <Phone className="w-4 h-4 shrink-0" />,
   'destructeur-papiers':    <Trash2 className="w-4 h-4 shrink-0" />,
   'accessoires-composants': <Package className="w-4 h-4 shrink-0" />,
   'logiciels':              <Monitor className="w-4 h-4 shrink-0" />,
@@ -45,27 +40,29 @@ const categoryIcons: Record<string, React.ReactNode> = {
   'consommables':           <Droplets className="w-4 h-4 shrink-0" />,
 };
 
-// Recursive category row — handles depth 0 (top-level) and depth 1+ (sub-groups)
+// Recursive category row component
 function CategoryRow({
   cat,
   onClose,
+  locale,
   depth = 0,
 }: {
   cat: Category;
   onClose: () => void;
+  locale: string;
   depth?: number;
 }) {
   const [open, setOpen] = useState(false);
   const hasChildren = !!cat.children?.length;
   const icon = categoryIcons[cat.slug] ?? <LayoutGrid className="w-4 h-4 shrink-0" />;
+  
+  // Get localized name
+  const categoryName = locale === 'ar' && cat.name_ar ? cat.name_ar : cat.name_fr;
 
-  const rowBase =
-    'w-full flex items-center gap-3 rounded-lg transition-colors text-sm';
-
-  const depthStyles =
-    depth === 0
-      ? 'px-3 py-2.5 text-gray-700 hover:bg-gray-50 hover:text-[#0F3460]'
-      : 'px-3 py-2 text-gray-600 hover:bg-gray-50 hover:text-[#0F3460]';
+  const rowBase = 'w-full flex items-center gap-3 rounded-lg transition-colors text-sm';
+  const depthStyles = depth === 0
+    ? 'px-3 py-2.5 text-gray-700 hover:bg-gray-50 hover:text-[#0F3460]'
+    : 'px-3 py-2 text-gray-600 hover:bg-gray-50 hover:text-[#0F3460]';
 
   if (!hasChildren) {
     return (
@@ -79,7 +76,7 @@ function CategoryRow({
         ) : (
           <span className="w-1.5 h-1.5 rounded-full bg-gray-300 shrink-0 ml-1" />
         )}
-        <span className="flex-1 text-left">{cat.name}</span>
+        <span className="flex-1 text-left">{categoryName}</span>
       </Link>
     );
   }
@@ -95,7 +92,7 @@ function CategoryRow({
         ) : (
           <span className="w-1.5 h-1.5 rounded-full bg-gray-300 shrink-0 ml-1" />
         )}
-        <span className="flex-1 text-left">{cat.name}</span>
+        <span className="flex-1 text-left">{categoryName}</span>
         <ChevronDown
           className={`w-3.5 h-3.5 text-gray-400 shrink-0 transition-transform duration-200 ${
             open ? 'rotate-180' : ''
@@ -105,19 +102,19 @@ function CategoryRow({
 
       {open && (
         <div className="ml-6 pl-3 border-l-2 border-gray-100 mt-0.5 mb-1 space-y-0.5">
-          {/* "Voir tout" shortcut */}
           <Link
             href={`/catalogue/${cat.slug}`}
             onClick={onClose}
             className="block px-3 py-1.5 text-xs font-semibold text-[#0F3460] hover:bg-blue-50 rounded-lg transition-colors"
           >
-            Voir tout — {cat.name} →
+            Voir tout — {categoryName} →
           </Link>
           {cat.children!.map((child) => (
             <CategoryRow
               key={child.slug}
               cat={child}
               onClose={onClose}
+              locale={locale}
               depth={depth + 1}
             />
           ))}
@@ -127,7 +124,7 @@ function CategoryRow({
   );
 }
 
-export default function MobileMenu({ isOpen, onClose, locale }: Props) {
+export default function MobileMenu({ isOpen, onClose, locale, categories }: Props) {
   const { isAuthenticated, logout } = useAuthStore();
   const items_count = useCartStore((s) => s.items_count);
   const { open: openCart } = useCartDrawer();
@@ -147,7 +144,6 @@ export default function MobileMenu({ isOpen, onClose, locale }: Props) {
 
       {/* Slide-in panel */}
       <div className="fixed inset-y-0 left-0 z-50 w-80 max-w-[85vw] bg-white shadow-2xl flex flex-col">
-
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 bg-[#0F3460] shrink-0">
           <img
@@ -165,7 +161,6 @@ export default function MobileMenu({ isOpen, onClose, locale }: Props) {
 
         {/* Scrollable nav */}
         <nav className="flex-1 overflow-y-auto py-3 px-3 space-y-0.5 text-sm">
-
           {/* Accueil */}
           <Link
             href={`/${locale}`}
@@ -176,7 +171,7 @@ export default function MobileMenu({ isOpen, onClose, locale }: Props) {
             Accueil
           </Link>
 
-          {/* ── Tous nos produits accordion ── */}
+          {/* Tous nos produits accordion */}
           <button
             onClick={() => setCatsOpen((v) => !v)}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-700 hover:bg-gray-50 hover:text-[#0F3460] transition"
@@ -195,8 +190,9 @@ export default function MobileMenu({ isOpen, onClose, locale }: Props) {
               {categories.map((cat) => (
                 <CategoryRow
                   key={cat.slug}
-                  cat={cat as Category}
+                  cat={cat}
                   onClose={onClose}
+                  locale={locale}
                   depth={0}
                 />
               ))}
@@ -283,7 +279,7 @@ export default function MobileMenu({ isOpen, onClose, locale }: Props) {
         <div className="px-5 py-4 border-t border-gray-100 flex items-center gap-2 text-sm shrink-0">
           <span className="text-gray-400">Langue :</span>
           <Link
-            href="/fr"
+            href={`/${locale === 'fr' ? 'fr' : 'fr'}`}
             onClick={onClose}
             className={`px-2.5 py-1 rounded-md font-medium transition ${
               locale === 'fr' ? 'bg-[#0F3460] text-white' : 'text-gray-600 hover:bg-gray-100'
@@ -292,7 +288,7 @@ export default function MobileMenu({ isOpen, onClose, locale }: Props) {
             FR
           </Link>
           <Link
-            href="/ar"
+            href={`/${locale === 'ar' ? 'ar' : 'ar'}`}
             onClick={onClose}
             className={`px-2.5 py-1 rounded-md font-medium transition ${
               locale === 'ar' ? 'bg-[#0F3460] text-white' : 'text-gray-600 hover:bg-gray-100'

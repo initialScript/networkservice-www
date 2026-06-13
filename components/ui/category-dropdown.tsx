@@ -1,9 +1,11 @@
+// components/ui/category-dropdown.tsx
 "use client";
 
 import * as React from "react";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Category } from "@/hooks/useCategories";
 
 import {
   Printer, Monitor, Droplets, Tv2, BatteryCharging,
@@ -12,6 +14,7 @@ import {
 } from "lucide-react";
 
 const categoryIcons: Record<string, React.ReactNode> = {
+  "telephonie":           <Phone className="w-4 h-4 shrink-0" />,
   "imprimante-scanner":   <Printer className="w-4 h-4 shrink-0" />,
   "ordinateur":           <Laptop className="w-4 h-4 shrink-0" />,
   "consommables":         <Droplets className="w-4 h-4 shrink-0" />,
@@ -21,7 +24,6 @@ const categoryIcons: Record<string, React.ReactNode> = {
   "tablette-graphique":   <PenTool className="w-4 h-4 shrink-0" />,
   "image-son":            <Camera className="w-4 h-4 shrink-0" />,
   "reseaux":              <Wifi className="w-4 h-4 shrink-0" />,
-  "telephonie":           <Phone className="w-4 h-4 shrink-0" />,
   "destructeur-papiers":  <Trash2 className="w-4 h-4 shrink-0" />,
   "accessoires-composants": <Package className="w-4 h-4 shrink-0" />,
   "logiciels":            <Monitor className="w-4 h-4 shrink-0" />,
@@ -29,25 +31,18 @@ const categoryIcons: Record<string, React.ReactNode> = {
   "tablette-tactile":     <Monitor className="w-4 h-4 shrink-0" />,
 };
 
-export interface Category {
-  id: number;
-  name: string;
-  slug: string;
-  children?: Category[];
-}
-
 interface CategoryDropdownProps {
   categories: Category[];
   triggerText: string;
   basePath?: string;
+  locale?: string;
 }
-
-
 
 const CategoryDropdown = ({
   categories,
   triggerText,
   basePath = "/catalogue",
+  locale = "fr",
 }: CategoryDropdownProps) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const [activeSlug, setActiveSlug] = React.useState<string>(
@@ -55,6 +50,10 @@ const CategoryDropdown = ({
   );
   const ref = React.useRef<HTMLDivElement>(null);
   const closeTimer = React.useRef<ReturnType<typeof setTimeout>>();
+
+  const getCategoryName = (cat: Category) => {
+    return locale === 'ar' && cat.name_ar ? cat.name_ar : cat.name_fr;
+  };
 
   const activeCategory = categories.find((c) => c.slug === activeSlug);
 
@@ -85,7 +84,6 @@ const CategoryDropdown = ({
 
   return (
     <div ref={ref} className="relative h-full flex items-center">
-      {/* Trigger */}
       <button
         onMouseEnter={handleMouseEnterTrigger}
         onClick={() => setIsOpen((v) => !v)}
@@ -101,7 +99,6 @@ const CategoryDropdown = ({
         />
       </button>
 
-      {/* Mega dropdown */}
       {isOpen && (
         <div
           onMouseEnter={handleMouseEnterPanel}
@@ -109,60 +106,55 @@ const CategoryDropdown = ({
           className="absolute left-0 top-full z-50 flex shadow-2xl border border-gray-200 bg-white"
           style={{ minHeight: 420 }}
         >
-          {/* LEFT sidebar — fixed width, no scroll */}
-<div className="w-64 shrink-0 bg-white border-r border-gray-100 py-1 overflow-y-auto">
-  {categories.map((cat) => {
-    const hasChildren = cat.children && cat.children.length > 0;
-    const isActive = activeSlug === cat.slug;
-    const icon = categoryIcons[cat.slug] ?? <LayoutGrid className="w-4 h-4 shrink-0" />;
+          {/* LEFT sidebar */}
+          <div className="w-64 shrink-0 bg-white border-r border-gray-100 py-1 overflow-y-auto">
+            {categories.map((cat) => {
+              const hasChildren = cat.children && cat.children.length > 0;
+              const isActive = activeSlug === cat.slug;
+              const icon = categoryIcons[cat.slug] ?? <LayoutGrid className="w-4 h-4 shrink-0" />;
 
-    return (
-      <Link
-        key={cat.slug}
-        href={`${basePath}/${cat.slug}`}
-        onMouseEnter={() => setActiveSlug(cat.slug)}
-        onClick={close}
-        className={cn(
-          "flex items-center gap-3 px-4 py-2.5 text-sm select-none transition-colors border-l-2 w-full",
-          isActive
-            ? "bg-gray-50 text-[#E94560] font-medium border-[#E94560]"
-            : "text-gray-700 hover:bg-gray-50 hover:text-[#E94560] border-transparent"
-        )}
-      >
-        {/* Icon */}
-        <span className={cn(
-          "shrink-0 transition-colors",
-          isActive ? "text-[#E94560]" : "text-gray-400"
-        )}>
-          {icon}
-        </span>
+              return (
+                <Link
+                  key={cat.slug}
+                  href={`${basePath}/${cat.slug}`}
+                  onMouseEnter={() => setActiveSlug(cat.slug)}
+                  onClick={close}
+                  className={cn(
+                    "flex items-center gap-3 px-4 py-2.5 text-sm select-none transition-colors border-l-2 w-full",
+                    isActive
+                      ? "bg-gray-50 text-[#E94560] font-medium border-[#E94560]"
+                      : "text-gray-700 hover:bg-gray-50 hover:text-[#E94560] border-transparent"
+                  )}
+                >
+                  <span className={cn(
+                    "shrink-0 transition-colors",
+                    isActive ? "text-[#E94560]" : "text-gray-400"
+                  )}>
+                    {icon}
+                  </span>
+                  <span className="flex-1 whitespace-nowrap overflow-hidden text-ellipsis">
+                    {getCategoryName(cat)}
+                  </span>
+                  {hasChildren && (
+                    <ChevronRight className={cn(
+                      "w-3.5 h-3.5 shrink-0",
+                      isActive ? "text-[#E94560]" : "text-gray-300"
+                    )} />
+                  )}
+                </Link>
+              );
+            })}
 
-        {/* Name — fixed, no wrap, no overflow */}
-        <span className="flex-1 whitespace-nowrap overflow-hidden text-ellipsis">
-          {cat.name}
-        </span>
-
-        {/* Chevron */}
-        {hasChildren && (
-          <ChevronRight className={cn(
-            "w-3.5 h-3.5 shrink-0",
-            isActive ? "text-[#E94560]" : "text-gray-300"
-          )} />
-        )}
-      </Link>
-    );
-  })}
-
-  <div className="border-t border-gray-100 mt-1 pt-1 px-4 py-2.5">
-    <Link
-      href={basePath}
-      onClick={close}
-      className="text-sm font-semibold text-[#0F3460] hover:text-[#E94560] transition-colors"
-    >
-      Voir tout →
-    </Link>
-  </div>
-</div>
+            <div className="border-t border-gray-100 mt-1 pt-1 px-4 py-2.5">
+              <Link
+                href={basePath}
+                onClick={close}
+                className="text-sm font-semibold text-[#0F3460] hover:text-[#E94560] transition-colors"
+              >
+                Voir tout →
+              </Link>
+            </div>
+          </div>
 
           {/* RIGHT mega panel */}
           {activeCategory?.children && activeCategory.children.length > 0 && (
@@ -181,16 +173,14 @@ const CategoryDropdown = ({
               >
                 {activeCategory.children.map((group) => (
                   <div key={group.slug}>
-                    {/* Group header */}
                     <Link
                       href={`${basePath}/${group.slug}`}
                       onClick={close}
                       className="block font-bold text-[#0F3460] uppercase text-xs tracking-wide pb-1.5 mb-2 border-b-2 border-amber-400 hover:text-[#E94560] transition-colors"
                     >
-                      {group.name}
+                      {getCategoryName(group)}
                     </Link>
 
-                    {/* Bullet list of children */}
                     {group.children && group.children.length > 0 && (
                       <ul className="space-y-1.5">
                         {group.children.map((child) => (
@@ -201,7 +191,7 @@ const CategoryDropdown = ({
                               onClick={close}
                               className="text-sm text-gray-600 hover:text-[#0F3460] hover:underline transition-colors leading-snug"
                             >
-                              {child.name}
+                              {getCategoryName(child)}
                             </Link>
                           </li>
                         ))}
