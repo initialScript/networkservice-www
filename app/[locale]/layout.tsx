@@ -12,26 +12,6 @@ const notoArabic = Noto_Sans_Arabic({ subsets: ['arabic'], variable: '--font-ara
 
 const locales = ['fr', 'ar'];
 
-interface Category {
-  id: number;
-  name_fr: string;
-  name_ar: string;
-  slug: string;
-  children?: Category[];
-}
-
-async function fetchCategories(): Promise<Category[]> {
-  try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/categories`, {
-      next: { revalidate: 3600 },
-    });
-    if (!res.ok) return [];
-    const data = await res.json();
-    return data.categories ?? data.data ?? data ?? [];
-  } catch {
-    return [];
-  }
-}
 
 interface Props {
   children: ReactNode;
@@ -41,7 +21,7 @@ interface Props {
 export default async function LocaleLayout({ children, params: { locale } }: Props) {
   if (!locales.includes(locale)) notFound();
 
-  const [messages, categories] = await Promise.all([getMessages(), fetchCategories()]);
+  const [messages] = await Promise.all([getMessages()]);
 
   const isArabic = locale === 'ar';
   const fontClass = isArabic
@@ -52,7 +32,7 @@ export default async function LocaleLayout({ children, params: { locale } }: Pro
     <NextIntlClientProvider messages={messages}>
       <CartDrawerProvider>
         <div lang={locale} dir={isArabic ? 'rtl' : 'ltr'} className={`${fontClass} bg-white antialiased`}>
-          <Header categories={categories} />
+          <Header />
           <main className="min-h-screen">{children}</main>
           <Footer />
           <CartDrawer />

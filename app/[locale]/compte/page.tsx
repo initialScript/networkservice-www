@@ -35,13 +35,12 @@ export default function ProfilePage() {
   const { toasts, success, error: toastError, dismiss } = useToast();
   const user = useAuthStore((s) => s.user);
   const loginStore = useAuthStore((s) => s.login);
-  const accessToken = useAuthStore((s) => s.accessToken);
-  const refreshToken = useAuthStore((s) => s.refreshToken);
+  const accessToken = useAuthStore((s) => s.token);
 
   // Profile edit state
   const [editMode, setEditMode] = useState(false);
-  const [firstName, setFirstName] = useState(user?.name?.split(' ')[0] ?? '');
-  const [lastName, setLastName] = useState(user?.name?.split(' ').slice(1).join(' ') ?? '');
+  const [firstName, setFirstName] = useState(user?.first_name ?? '');
+  const [lastName, setLastName] = useState(user?.last_name ?? '');
   const [phone, setPhone] = useState(user?.phone ?? '');
   const [profileLoading, setProfileLoading] = useState(false);
 
@@ -55,8 +54,8 @@ export default function ProfilePage() {
   const [pwError, setPwError] = useState('');
 
   const cancelEdit = () => {
-    setFirstName(user?.name?.split(' ')[0] ?? '');
-    setLastName(user?.name?.split(' ').slice(1).join(' ') ?? '');
+    setFirstName(user?.first_name ?? '');
+    setLastName(user?.last_name ?? '');
     setPhone(user?.phone ?? '');
     setEditMode(false);
   };
@@ -66,12 +65,13 @@ export default function ProfilePage() {
     setProfileLoading(true);
     try {
       const r = await api.patch('/api/me/profile', {
-        name: `${firstName} ${lastName}`.trim(),
+        first_name: firstName.trim(),
+        last_name: lastName.trim(),
         phone,
       });
       // Keep store in sync
-      if (accessToken && refreshToken) {
-        loginStore(r.data.user ?? r.data, accessToken, refreshToken);
+      if (accessToken) {
+        loginStore(r.data.user ?? r.data, accessToken);
       }
       success('Profil mis à jour avec succès');
       setEditMode(false);
@@ -174,7 +174,7 @@ export default function ProfilePage() {
             </form>
           ) : (
             <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
-              <InfoRow label="Nom complet" value={user.name} />
+              <InfoRow label="Nom complet" value={`${user.first_name} ${user.last_name}`.trim()} />
               <InfoRow label="E-mail" value={user.email} />
               {user.phone && <InfoRow label="Téléphone" value={user.phone} />}
               <div>

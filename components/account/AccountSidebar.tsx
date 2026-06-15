@@ -23,8 +23,9 @@ export default function AccountSidebar({ locale }: Props) {
   const router = useRouter();
   const { user, logout } = useAuthStore();
 
-  const initials = user?.name
-    ? user.name.split(' ').map((p) => p[0]).slice(0, 2).join('').toUpperCase()
+  const fullName = user ? `${user.first_name} ${user.last_name}`.trim() : '';
+  const initials = fullName
+    ? fullName.split(' ').map((p) => p[0]).slice(0, 2).join('').toUpperCase()
     : '?';
 
   const handleLogout = () => {
@@ -45,7 +46,7 @@ export default function AccountSidebar({ locale }: Props) {
           {initials}
         </div>
         <div className="min-w-0">
-          <p className="text-sm font-semibold text-gray-900 truncate">{user?.name ?? '—'}</p>
+          <p className="text-sm font-semibold text-gray-900 truncate">{fullName || '—'}</p>
           <p className="text-xs text-gray-500 truncate">{user?.email ?? '—'}</p>
         </div>
       </div>
