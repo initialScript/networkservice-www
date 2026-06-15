@@ -192,11 +192,12 @@ const handleSubmitOrder = async () => {
     };
     
     // Send to backend API
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/guest/orders`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
       body: JSON.stringify(orderData),
     });
     
