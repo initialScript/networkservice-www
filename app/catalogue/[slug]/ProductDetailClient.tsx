@@ -1,4 +1,3 @@
-// app/[locale]/catalogue/[slug]/ProductDetailClient
 'use client';
 
 import { AmountBtns } from "@/components/product/AmountBtns";
@@ -146,6 +145,10 @@ const ProductDetailClient = ({
 
   const mediaUrl = process.env.NEXT_PUBLIC_MEDIA_URL || '';
 
+  // Check if product has valid price (greater than 0)
+  const hasValidPrice = parseFloat(product.price) > 0;
+  const inStock = product.stock_qty > 0 && hasValidPrice;
+
   const galleryImages = [...product.images]
     .sort((a, b) => a.sort_order - b.sort_order)
     .map(image => ({
@@ -156,7 +159,6 @@ const ProductDetailClient = ({
     }));
 
   const addItem = useCartStore(state => state.addItem);
-  const inStock = product.stock_qty > 0;
 
 const handleAddToCart = async () => {
   if (!inStock) return;
@@ -199,7 +201,6 @@ const handleAddToCart = async () => {
 
   // Data derived from product
   const pct = product.compare_price ? discountPct(product.price, product.compare_price) : null;
-  const tags = parseTags(product.tags);
   const visibleSpecs = showAllSpecs ? product.specs : product.specs.slice(0, 6);
   const descriptionHtml = sanitizeDescriptionHtml(product.description || product.short_description || '');
   const shortDesc = product.short_description || '';
@@ -362,28 +363,34 @@ const handleAddToCart = async () => {
 
             <div className="w-full h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
 
-            {/* Price block */}
-            <div className="bg-gradient-to-r from-gray-50 to-white rounded-2xl p-4 sm:p-5 flex items-end gap-3 flex-wrap">
-              <div className="flex items-baseline gap-1.5">
-                <span className="text-3xl sm:text-4xl font-bold text-gray-900">
-                  {formatPrice(product.price)}
-                </span>
-                <span className="text-base sm:text-lg font-medium text-gray-500">DH</span>
-                <span className="text-xs text-gray-400">TTC</span>
-              </div>
-              {product.compare_price && parseFloat(product.compare_price) > parseFloat(product.price) && (
-                <div className="flex items-center gap-2">
-                  <span className="text-base text-gray-400 line-through">
-                    {formatPrice(product.compare_price)} DH
+            {/* Price block - Only show if price > 0 */}
+            {hasValidPrice ? (
+              <div className="bg-gradient-to-r from-gray-50 to-white rounded-2xl p-4 sm:p-5 flex items-end gap-3 flex-wrap">
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-3xl sm:text-4xl font-bold text-gray-900">
+                    {formatPrice(product.price)}
                   </span>
-                  {pct && (
-                    <span className="text-xs font-bold text-white bg-red-500 px-2 py-0.5 rounded-md">
-                      -{pct}%
-                    </span>
-                  )}
+                  <span className="text-base sm:text-lg font-medium text-gray-500">DH</span>
+                  <span className="text-xs text-gray-400">TTC</span>
                 </div>
-              )}
-            </div>
+                {product.compare_price && parseFloat(product.compare_price) > parseFloat(product.price) && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-base text-gray-400 line-through">
+                      {formatPrice(product.compare_price)} DH
+                    </span>
+                    {pct && (
+                      <span className="text-xs font-bold text-white bg-red-500 px-2 py-0.5 rounded-md">
+                        -{pct}%
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="bg-gray-50 rounded-2xl p-4 sm:p-5">
+                <span className="text-gray-500 font-medium">Prix non disponible</span>
+              </div>
+            )}
 
             {/* Trust tags row */}
             <div className="flex flex-wrap gap-2">
@@ -401,8 +408,8 @@ const handleAddToCart = async () => {
               )}
             </div>
 
-            {/* Stock */}
-            <StockBadge qty={product.stock_qty} />
+            {/* Stock - Only show if price > 0 */}
+            {hasValidPrice && <StockBadge qty={product.stock_qty} />}
 
             {/* Success/Error Messages */}
             {success && (
@@ -419,99 +426,107 @@ const handleAddToCart = async () => {
               </div>
             )}
 
-            {/* Quantity + CTA */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full">
-              {inStock && (
-                <div className="sm:shrink-0">
-                  <AmountBtns
-                    amount={quantity}
-                    onIncrease={handleIncrease}
-                    onDecrease={handleDecrease}
-                    minAmount={1}
-                    maxAmount={Math.min(99, product.stock_qty)}
-                  />
-                </div>
-              )}
-              <Button
-                onClick={handleAddToCart}
-                disabled={!inStock || isAddingToCart}
-                className={`flex-1 gap-2 rounded-xl py-3 sm:py-4 transition-all duration-200 shadow-md hover:shadow-lg text-sm sm:text-base font-semibold ${
-                  !inStock || isAddingToCart
-                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed shadow-none'
-                    : 'bg-gray-900 hover:bg-gray-800 text-white'
-                }`}
-              >
-                {isAddingToCart ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    Ajout en cours...
-                  </>
-                ) : (
-                  <>
-                    <ShoppingCart size={18} />
-                    {inStock ? 'Ajouter au panier' : 'Rupture de stock'}
-                    {inStock && <ArrowRight size={14} className="opacity-60" />}
-                  </>
+            {/* Quantity + CTA - Only show if price > 0 */}
+            {hasValidPrice ? (
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full">
+                {inStock && (
+                  <div className="sm:shrink-0">
+                    <AmountBtns
+                      amount={quantity}
+                      onIncrease={handleIncrease}
+                      onDecrease={handleDecrease}
+                      minAmount={1}
+                      maxAmount={Math.min(99, product.stock_qty)}
+                    />
+                  </div>
                 )}
-              </Button>
+                <Button
+                  onClick={handleAddToCart}
+                  disabled={!inStock || isAddingToCart}
+                  className={`flex-1 gap-2 rounded-xl py-3 sm:py-4 transition-all duration-200 shadow-md hover:shadow-lg text-sm sm:text-base font-semibold ${
+                    !inStock || isAddingToCart
+                      ? 'bg-gray-200 text-gray-400 cursor-not-allowed shadow-none'
+                      : 'bg-gray-900 hover:bg-gray-800 text-white'
+                  }`}
+                >
+                  {isAddingToCart ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      Ajout en cours...
+                    </>
+                  ) : (
+                    <>
+                      <ShoppingCart size={18} />
+                      {inStock ? 'Ajouter au panier' : 'Rupture de stock'}
+                      {inStock && <ArrowRight size={14} className="opacity-60" />}
+                    </>
+                  )}
+                </Button>
 
-              {/* WhatsApp Order Button */}
-  {inStock && (
-    <WhatsAppOrderButton 
-      product={{
-        id: product.id,
-        name_fr: product.name_fr,
-        sku: product.sku,
-        price: product.price,
-        quantity: quantity,
-        images: product.images,
-        media_url: mediaUrl
-      }}
-      className="flex-1"
-    />
-  )}
-            </div>
-
-            {/* Delivery options */}
-            <div className="space-y-2">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 bg-gray-50 rounded-xl gap-3 border border-gray-100">
-                <div className="flex items-start gap-3">
-                  <div className="p-2 bg-white rounded-full shadow-sm shrink-0">
-                    <Truck size={16} className="text-gray-700" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-gray-900 text-sm">Livraison partout au Maroc</p>
-                    <p className="text-xs text-gray-500 mt-0.5">40 DH TTC · Délai 1–3 jours ouvrés</p>
-                  </div>
-                </div>
-                <button className="text-xs font-medium text-amber-600 hover:text-amber-700 transition-colors self-end sm:self-auto">
-                  Détails
-                </button>
+                {/* WhatsApp Order Button - Only show if price > 0 and in stock */}
+                {inStock && (
+                  <WhatsAppOrderButton 
+                    product={{
+                      id: product.id,
+                      name_fr: product.name_fr,
+                      sku: product.sku,
+                      price: product.price,
+                      quantity: quantity,
+                      images: product.images,
+                      media_url: mediaUrl
+                    }}
+                    className="flex-1"
+                  />
+                )}
               </div>
+            ) : (
+              <div className="w-full bg-gray-100 rounded-xl p-4 text-center">
+                <p className="text-gray-500 font-medium">Ce produit n'est pas disponible à la vente</p>
+              </div>
+            )}
 
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 bg-emerald-50/40 rounded-xl gap-3 border border-emerald-100/60">
-                <div className="flex items-start gap-3">
-                  <div className="p-2 bg-white rounded-full shadow-sm shrink-0">
-                    <MapPin size={16} className="text-emerald-600" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-gray-900 text-sm">Retrait en magasin (Casablanca)</p>
-                    <div className="flex flex-wrap items-center gap-1.5 mt-1">
-                      <span className="inline-flex items-center gap-1 bg-emerald-100 text-emerald-700 text-xs font-medium px-2 py-0.5 rounded-full">
-                        <CircleCheck size={10} />
-                        {inStock ? 'En stock' : 'Rupture'}
-                      </span>
-                      <span className="text-xs text-gray-500">
-                        {inStock ? 'Retrait immédiat' : 'Délai à confirmer'}
-                      </span>
+            {/* Delivery options - Only show if price > 0 */}
+            {hasValidPrice && (
+              <div className="space-y-2">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 bg-gray-50 rounded-xl gap-3 border border-gray-100">
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 bg-white rounded-full shadow-sm shrink-0">
+                      <Truck size={16} className="text-gray-700" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-900 text-sm">Livraison partout au Maroc</p>
+                      <p className="text-xs text-gray-500 mt-0.5">40 DH TTC · Délai 1–3 jours ouvrés</p>
                     </div>
                   </div>
+                  <button className="text-xs font-medium text-amber-600 hover:text-amber-700 transition-colors self-end sm:self-auto">
+                    Détails
+                  </button>
                 </div>
-                <button className="text-xs font-medium text-amber-600 hover:text-amber-700 transition-colors flex items-center gap-1 self-end sm:self-auto">
-                  Horaires &amp; plan <Clock size={12} />
-                </button>
+
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 bg-emerald-50/40 rounded-xl gap-3 border border-emerald-100/60">
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 bg-white rounded-full shadow-sm shrink-0">
+                      <MapPin size={16} className="text-emerald-600" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-900 text-sm">Retrait en magasin (Casablanca)</p>
+                      <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                        <span className="inline-flex items-center gap-1 bg-emerald-100 text-emerald-700 text-xs font-medium px-2 py-0.5 rounded-full">
+                          <CircleCheck size={10} />
+                          {inStock ? 'En stock' : 'Rupture'}
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          {inStock ? 'Retrait immédiat' : 'Délai à confirmer'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <button className="text-xs font-medium text-amber-600 hover:text-amber-700 transition-colors flex items-center gap-1 self-end sm:self-auto">
+                    Horaires &amp; plan <Clock size={12} />
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
 
             
           </div>

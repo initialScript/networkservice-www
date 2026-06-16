@@ -133,18 +133,20 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
 
   return (
     <div className={cn("w-full max-w-6xl mx-auto px-4 py-8", className)}>
-      {/* Main Image Section */}
+      {/* Main Image Section - Perfect Square */}
       <div className="relative group mb-6">
-        <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-gray-100 shadow-lg">
-          <Image
-            src={selectedImage.src}
-            alt={selectedImage.alt}
-            fill
-            className="object-contain cursor-zoom-in transition-transform duration-300 hover:scale-105"
-            onClick={handleMainImageClick}
-            priority
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
-          />
+        <div className="relative w-full max-w-md mx-auto aspect-square overflow-hidden rounded-lg bg-gray-100 shadow-lg">
+          <div className="relative w-full h-full p-8 sm:p-12 md:p-16">
+            <Image
+              src={selectedImage.src}
+              alt={selectedImage.alt}
+              fill
+              className="object-contain bg-gray-100"
+              onClick={handleMainImageClick}
+              priority
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
+            />
+          </div>
           
           {/* Navigation Arrows on Main Image */}
           {images.length > 1 && (
@@ -185,8 +187,6 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
             </div>
           )}
         </div>
-
-        
       </div>
 
       {/* Thumbnail Carousel */}
@@ -229,7 +229,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
               id={`thumbnail-${index}`}
               onClick={() => handleThumbnailClick(index)}
               className={cn(
-                "relative flex-shrink-0 w-24 h-24 md:w-28 md:h-28 rounded-lg overflow-hidden transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500",
+                "relative flex-shrink-0 w-24 h-24 md:w-28 md:h-28 rounded-lg overflow-hidden transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-100",
                 selectedImageIndex === index
                   ? "ring-2 ring-blue-500 ring-offset-2 scale-95"
                   : "hover:ring-2 hover:ring-gray-300 hover:scale-95"
@@ -284,7 +284,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
             )}
 
             {/* Main Image in Modal */}
-            <div className="relative w-full h-full flex items-center justify-center p-8">
+            <div className="relative w-full h-full flex items-center justify-center p-8 bg-black">
               <Image
                 src={selectedImage.src}
                 alt={selectedImage.alt}

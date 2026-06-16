@@ -33,16 +33,18 @@ export default function Breadcrumb({ items }: Props) {
           {items.map((item, i) => {
             const isLast = i === items.length - 1;
             return (
-              <li key={i} className="flex items-center gap-1">
-                {i > 0 && <ChevronRight className="w-3.5 h-3.5 text-gray-300 rtl:rotate-180" />}
+              <li key={i} className="flex items-baseline gap-1">
+                {i > 0 && (
+                  <ChevronRight className="w-3.5 h-3.5 text-gray-300 flex-shrink-0" />
+                )}
                 {isLast || !item.href ? (
-                  <span className={isLast ? 'text-gray-800 font-medium truncate max-w-xs' : undefined}>
+                  <span className={isLast ? 'text-gray-800 font-medium truncate max-w-xs leading-none' : 'leading-none'}>
                     {item.label}
                   </span>
                 ) : (
                   <Link
                     href={item.href}
-                    className="hover:text-[#0F3460] hover:underline transition-colors  truncate max-w-sm"
+                    className="hover:text-[#0F3460] hover:underline transition-colors truncate max-w-sm leading-none inline-block"
                   >
                     {item.label}
                   </Link>
