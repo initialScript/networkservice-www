@@ -134,14 +134,11 @@ const [loading, setLoading] = useState(false);
 
   const currentCategoryName = categories.find((c: any) => c.slug === activeCategory)?.name_fr || 'Produits'
 
-  console.log("activeCategory", activeCategory);
-  console.log("categories", categories);
   
   const activeCategoryObj = categories.find(
   c => c.slug === activeCategory
 );
 
-console.log("activeCategoryObj", activeCategoryObj);
 
   return (
     <div className="w-full">

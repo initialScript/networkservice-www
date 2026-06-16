@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import { useState, useEffect } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { ChevronDown, ChevronUp, X } from 'lucide-react';
@@ -62,7 +63,8 @@ function Section({
   );
 }
 
-export default function FilterSidebar({ 
+// Component that uses useSearchParams
+function FilterSidebarContent({ 
   categories, 
   brands, 
   currentFilters, 
@@ -290,5 +292,29 @@ export default function FilterSidebar({
         </button>
       )}
     </aside>
+  );
+}
+
+// Main component with Suspense
+export default function FilterSidebar(props: Props) {
+  return (
+    <Suspense fallback={
+      <aside className="w-full">
+        <div className="space-y-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="border-b border-gray-100 py-4">
+              <div className="h-5 w-24 bg-gray-200 rounded animate-pulse mb-3" />
+              <div className="space-y-2">
+                {[1, 2, 3].map((j) => (
+                  <div key={j} className="h-8 w-full bg-gray-100 rounded animate-pulse" />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </aside>
+    }>
+      <FilterSidebarContent {...props} />
+    </Suspense>
   );
 }

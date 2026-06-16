@@ -1,56 +1,74 @@
-// app/[locale]/order/success/page.tsx
 'use client';
 
-import { Suspense } from 'react';
 import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { CheckCircle, Package, Truck, Mail, Home, ShoppingBag, ArrowLeft } from 'lucide-react';
+import { formatPrice } from '@/lib/utils';
 
-interface OrderDetails {
-  orderNumber: string;
-  paymentMethod: string;
-  date: string;
+interface OrderSummaryItem {
+  product_name: string | null;
+  sku: string | null;
+  slug: string | null;
+  quantity: number;
+  unit_price: string | number;
+  total_price: string | number;
 }
 
-// Component that uses useSearchParams
-function OrderSuccessContent() {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  
-  const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null);
+interface OrderSummary {
+  order_number: string;
+  status: string;
+  payment_method: string;
+  payment_status: string;
+  subtotal: string | number;
+  discount: string | number;
+  shipping_fee: string | number;
+  total: string | number;
+  created_at: string;
+  items: OrderSummaryItem[];
+}
+
+const paymentMethodLabel = (method: string) => {
+  switch (method) {
+    case 'cod': return 'Paiement à la livraison';
+    case 'card': return 'Carte bancaire';
+    case 'cih': return 'CIH Pay';
+    case 'bank_transfer': return 'Virement bancaire';
+    default: return method;
+  }
+};
+
+export default function OrderSuccessPage() {
+  const params = useParams<{ orderId: string }>();
+  const orderId = params.orderId;
+
+  const [order, setOrder] = useState<OrderSummary | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
-    // Simulate loading or fetch order details
-    const loadOrderDetails = async () => {
-      const order = searchParams.get('order');
-      const method = searchParams.get('method');
-      
-      if (order && method) {
-        // Simulate API call delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        setOrderDetails({
-          orderNumber: order,
-          paymentMethod: method,
-          date: new Date().toLocaleDateString('fr-FR', {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-          }),
-        });
-      }
-      setLoading(false);
-    };
-    
-    loadOrderDetails();
-  }, [searchParams]);
+    if (!orderId) return;
 
-  // Loading state
+    const loadOrder = async () => {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/guest/orders/${orderId}`);
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+          setError(true);
+        } else {
+          setOrder(result.data);
+        }
+      } catch {
+        setError(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadOrder();
+  }, [orderId]);
+
   if (loading) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
@@ -65,7 +83,7 @@ function OrderSuccessContent() {
     );
   }
 
-  if (!orderDetails) {
+  if (error || !order) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
         <div className="text-center">
@@ -110,12 +128,20 @@ function OrderSuccessContent() {
               <div>
                 <p className="text-blue-100 text-xs uppercase tracking-wider">Numéro de commande</p>
                 <p className="text-white font-mono text-lg font-semibold">
-                  {orderDetails.orderNumber}
+                  {order.order_number}
                 </p>
               </div>
               <div className="text-right">
                 <p className="text-blue-100 text-xs uppercase tracking-wider">Date</p>
-                <p className="text-white text-sm">{orderDetails.date}</p>
+                <p className="text-white text-sm">
+                  {new Date(order.created_at).toLocaleDateString('fr-FR', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}
+                </p>
               </div>
             </div>
           </div>
@@ -128,20 +154,50 @@ function OrderSuccessContent() {
               <span className="text-sm font-medium text-green-700">Commande confirmée</span>
             </div>
 
+            {/* Items */}
+            <div className="space-y-2">
+              {order.items.map((item, idx) => (
+                <div key={idx} className="flex justify-between text-sm">
+                  <span className="text-gray-600 truncate flex-1">
+                    {item.quantity} × {item.product_name ?? item.sku}
+                  </span>
+                  <span className="font-medium text-gray-900 ml-2">
+                    {formatPrice(Number(item.total_price))} DH
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            {/* Totals */}
+            <div className="border-t border-gray-100 pt-3 space-y-1">
+              <div className="flex justify-between text-sm text-gray-600">
+                <span>Sous-total</span>
+                <span>{formatPrice(Number(order.subtotal))} DH</span>
+              </div>
+              {Number(order.discount) > 0 && (
+                <div className="flex justify-between text-sm text-gray-600">
+                  <span>Remise</span>
+                  <span>-{formatPrice(Number(order.discount))} DH</span>
+                </div>
+              )}
+              <div className="flex justify-between text-sm text-gray-600">
+                <span>Livraison</span>
+                <span>{formatPrice(Number(order.shipping_fee))} DH</span>
+              </div>
+              <div className="flex justify-between text-base font-bold pt-1">
+                <span>Total</span>
+                <span className="text-[#0F3460] text-xl">{formatPrice(Number(order.total))} DH</span>
+              </div>
+            </div>
+
             {/* Payment Method */}
-            <div className="flex items-start gap-3">
+            <div className="flex items-start gap-3 border-t border-gray-100 pt-4">
               <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
                 <Package className="w-5 h-5 text-gray-600" />
               </div>
               <div>
                 <p className="text-sm font-semibold text-gray-900">Mode de paiement</p>
-                <p className="text-sm text-gray-600">
-                  {orderDetails.paymentMethod === 'cod' 
-                    ? 'Paiement à la livraison' 
-                    : orderDetails.paymentMethod === 'card' 
-                    ? 'Carte bancaire' 
-                    : 'Virement bancaire'}
-                </p>
+                <p className="text-sm text-gray-600">{paymentMethodLabel(order.payment_method)}</p>
                 <p className="text-xs text-gray-400 mt-1">
                   Vous payez à la réception de votre commande
                 </p>
@@ -214,24 +270,5 @@ function OrderSuccessContent() {
         </div>
       </div>
     </div>
-  );
-}
-
-// Main component with Suspense
-export default function OrderSuccessPage() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-[60vh] flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <div className="w-10 h-10 border-4 border-[#0F3460] border-t-transparent rounded-full animate-spin" />
-          </div>
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">Chargement...</h2>
-          <p className="text-gray-500">Veuillez patienter un instant</p>
-        </div>
-      </div>
-    }>
-      <OrderSuccessContent />
-    </Suspense>
   );
 }
