@@ -1,4 +1,3 @@
-// components/cart/CartItem.tsx
 'use client';
 
 import Image from 'next/image';
@@ -9,12 +8,28 @@ import { useState } from 'react';
 
 interface Props {
   item: CartItemType;
+  media_url?: string; // Add media_url prop
 }
 
-export default function CartItem({ item }: Props) {
+export default function CartItem({ item, media_url }: Props) {
   const updateItem = useCartStore((s) => s.updateItem);
   const removeItem = useCartStore((s) => s.removeItem);
   const [isUpdating, setIsUpdating] = useState(false);
+
+  // Build the full image URL
+  const getFullImageUrl = () => {
+    if (!item.image) return undefined;
+    
+    // If it's already a full URL, return it
+    if (item.image.startsWith('http://') || item.image.startsWith('https://')) {
+      return item.image;
+    }
+    
+    // Add the media_url prefix
+    return `${media_url || ''}${item.image.startsWith('/') ? item.image : `/${item.image}`}`;
+  };
+
+  const imageUrl = getFullImageUrl();
 
   const decrease = async () => {
     if (isUpdating) return;
@@ -60,9 +75,9 @@ export default function CartItem({ item }: Props) {
       
       {/* Image */}
       <div className="relative w-16 h-16 flex-shrink-0 rounded-lg bg-gray-50 border border-gray-100 overflow-hidden">
-        {item.image ? (
+        {imageUrl ? (
           <Image
-            src={item.image}
+            src={imageUrl}
             alt={item.name}
             fill
             className="object-contain p-1.5"

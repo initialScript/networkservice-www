@@ -15,7 +15,7 @@ export interface CartItem {
   slug: string;
   price: number;
   compare_price?: number;
-  image?: string;
+  image?: string; // Now stores only the path (e.g., /public/101/network_service/products/072f75c78c.webp)
   quantity: number;
 }
 
@@ -64,11 +64,40 @@ const toNumber = (value: unknown, fallback = 0) => {
 const getProductId = (item: any) =>
   String(item?.product_id ?? item?.productId ?? item?.product?.id ?? item?.Product?.id ?? item?.id ?? '');
 
+// Helper to extract just the image path (without base URL)
+const getImagePath = (imageUrl: string | undefined): string | undefined => {
+  if (!imageUrl) return undefined;
+  
+  // If it's already a full URL, extract just the path
+  if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+    try {
+      const url = new URL(imageUrl);
+      return url.pathname; // Returns: /public/101/network_service/products/072f75c78c.webp
+    } catch {
+      return imageUrl;
+    }
+  }
+  
+  // If it's already a path, return as-is
+  return imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`;
+};
+
 const normalizeCartItem = (item: any): CartItem | null => {
   const product = item?.product ?? item?.Product ?? {};
   const product_id = getProductId(item);
 
   if (!product_id) return null;
+
+  // Get the image URL and extract only the path
+  let imageUrl = item?.image ?? 
+                  item?.image_url ?? 
+                  product?.image ?? 
+                  product?.image_url ?? 
+                  product?.images?.find?.((image: any) => image?.is_primary)?.url ??
+                  product?.images?.[0]?.url;
+
+  // Store only the path (without base URL)
+  const imagePath = imageUrl ? getImagePath(imageUrl) : undefined;
 
   return {
     product_id,
@@ -79,13 +108,7 @@ const normalizeCartItem = (item: any): CartItem | null => {
       item?.compare_price ?? product?.compare_price
         ? toNumber(item?.compare_price ?? product?.compare_price)
         : undefined,
-    image:
-      item?.image ??
-      item?.image_url ??
-      product?.image ??
-      product?.image_url ??
-      product?.images?.find?.((image: any) => image?.is_primary)?.url ??
-      product?.images?.[0]?.url,
+    image: imagePath, // Store only the path
     quantity: Math.max(1, toNumber(item?.quantity ?? item?.qty, 1)),
   };
 };
@@ -122,10 +145,17 @@ const buildCartItem = (input: AddCartInput, quantity?: number): CartItem => {
     };
   }
 
+  // Store only the image path (without base URL)
+  let imagePath = input.image;
+  if (imagePath) {
+    imagePath = getImagePath(imagePath);
+  }
+
   return {
     ...input,
     product_id: String(input.product_id),
     price: toNumber(input.price),
+    image: imagePath, // Store only the path
     quantity: Math.max(1, quantity ?? input.quantity),
   };
 };
@@ -200,7 +230,7 @@ export const useCartStore = create<CartState>((set, get) => ({
       saveCartToLocal(optimisticItems);
       set(calculateTotals(optimisticItems));
 
-      // Refetch cart to get the latest server state when the API returns a usable shape.
+      // Refetch cart to get the latest server state
       await get().fetchCart();
 
       if (!get().items.some((item) => item.product_id === newItem.product_id)) {

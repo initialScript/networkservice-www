@@ -4,14 +4,13 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ShoppingCart, Check, Camera } from 'lucide-react';
-import { useLocale } from 'next-intl';
 import { useCartStore } from '@/store/useCartStore';
 import { cn, formatPrice } from '@/lib/utils';
 
 type Props = {
   media_url?: string,
   product: any,
-  priority?: boolean // Add priority prop
+  priority?: boolean
 }
 
 export default function ProductCard({ product, media_url, priority = false }: Props) {
@@ -29,14 +28,36 @@ export default function ProductCard({ product, media_url, priority = false }: Pr
     ? Math.round((1 - product.price / product.compare_price!) * 100)
     : 0;
 
-  // Get the primary image URL
-  const getImageUrl = (): string | undefined => {
+  // Get the image path (without base URL)
+  const getImagePath = (): string | undefined => {
     if (!product.images || product.images.length === 0) return undefined;
     const primaryImage = product.images.find((img: any) => img.is_primary) || product.images[0];
-    return `${media_url}${primaryImage.url}`;
+    const imagePath = primaryImage.url;
+    if (!imagePath) return undefined;
+    
+    // If it's a full URL, extract just the path
+    if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+      try {
+        const url = new URL(imagePath);
+        return url.pathname; // Returns: /public/101/network_service/products/072f75c78c.webp
+      } catch {
+        return imagePath;
+      }
+    }
+    
+    // Return as-is if it's already a path
+    return imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
   };
 
-  const imageUrl = getImageUrl();
+  // Get full URL for display
+  const getFullImageUrl = (): string | undefined => {
+    const path = getImagePath();
+    if (!path) return undefined;
+    return `${media_url}${path}`;
+  };
+
+  const imagePath = getImagePath();
+  const imageUrl = getFullImageUrl();
 
   // Lazy load images with Intersection Observer
   useEffect(() => {
@@ -78,12 +99,13 @@ export default function ProductCard({ product, media_url, priority = false }: Pr
     setIsAdding(true);
     
     try {
+      // Store ONLY the path (without base URL)
       await addItem({
         product_id: product.id,
         name: product.name_fr,
         slug: product.slug,
         price: parseFloat(product.price),
-        image: imageUrl,
+        image: imagePath, // Store only the path
         quantity: 1,
       });
       

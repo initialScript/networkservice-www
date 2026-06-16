@@ -1,4 +1,3 @@
-// components/cart/CartDrawer.tsx
 'use client';
 
 import Link from 'next/link';
@@ -12,7 +11,9 @@ import CartItem from './CartItem';
 export default function CartDrawer() {
   const { isOpen, close } = useCartDrawer();
   const { items, subtotal, items_count } = useCartStore();
-  const pathname = usePathname();
+  
+  // Get media_url from environment
+  const media_url = process.env.NEXT_PUBLIC_MEDIA_URL || '';
 
 
   return (
@@ -65,7 +66,7 @@ export default function CartDrawer() {
               </Link>
             </div>
           ) : (
-            items.map((item) => <CartItem key={item.product_id} item={item} />)
+            items.map((item) => <CartItem key={item.product_id} item={item} media_url={media_url} />)
           )}
         </div>
 
