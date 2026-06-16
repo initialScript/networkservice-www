@@ -15,19 +15,19 @@ const TopBar = () => {
       </span>
 
       <a
-        href="tel:+212600000000"
+        href="tel:+212524422813"
         className="flex items-center gap-1 shrink-0"
       >
         <Phone className="w-3 h-3" />
-        +212 6 00 00 00 00
+        +2125 24 422 813
       </a>
 
       <a
-        href="mailto:Contact@networkservice-info.com"
+        href="mailto:Contact@networkservice.ma"
         className="flex items-center gap-1 shrink-0"
       >
         <Mail className="w-3 h-3" />
-        Contact@networkservice-info.com
+        Contact@networkservice.ma
       </a>
 
       {/* duplicate for infinite loop */}
@@ -45,11 +45,11 @@ const TopBar = () => {
       </a>
 
       <a
-        href="mailto:contact@iris.ma"
+        href="mailto:Contact@networkservice.ma"
         className="flex items-center gap-1 shrink-0"
       >
         <Mail className="w-3 h-3" />
-        contact@iris.ma
+        Contact@networkservice.ma
       </a>
     </div>
   </div>
@@ -67,9 +67,9 @@ const TopBar = () => {
         +2125 24 422 813
       </a>
 
-      <a href="mailto:Contact@networkservice-info.com" className="flex items-center gap-1">
+      <a href="mailto:Contact@networkservice.ma" className="flex items-center gap-1">
         <Mail className="w-3 h-3" />
-        Contact@networkservice-info.com
+        Contact@networkservice.ma
       </a>
     </div>
   </div>

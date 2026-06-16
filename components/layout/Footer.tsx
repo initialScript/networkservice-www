@@ -6,12 +6,12 @@ export default function Footer() {
   return (
     <footer className="bg-[#5A7A99] text-gray-400">
       <div className="max-w-7xl mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
           {/* Brand */}
           <div>
             <div className="mb-4">
               <img
-                src="http://networkservice-info.com/wp-content/uploads/2025/02/networkservies-logo-1707919409.png"
+                src="/assets/main-logo.png"
                 alt="Network Service Info"
                 className="w-[160px] sm:w-[180px]"
               />
@@ -21,14 +21,15 @@ export default function Footer() {
             </p>
             <div className="flex gap-2">
               {[
-                { Icon: Facebook, href: '#', hover: 'hover:bg-[#1877f2]', label: 'Facebook' },
-                { Icon: Instagram, href: '#', hover: 'hover:bg-[#e4405f]', label: 'Instagram' },
-                { Icon: Linkedin, href: '#', hover: 'hover:bg-[#0077b5]', label: 'LinkedIn' },
+                { Icon: Facebook, href: 'https://www.facebook.com/NetworkServiceInfo/', hover: 'hover:bg-[#1877f2]', label: 'Facebook' },
+                { Icon: Instagram, href: 'https://www.instagram.com/network_service/', hover: 'hover:bg-[#e4405f]', label: 'Instagram' },
+                { Icon: Linkedin, href: 'https://www.linkedin.com/company/network-service-info', hover: 'hover:bg-[#0077b5]', label: 'LinkedIn' },
               ].map(({ Icon, href, hover, label }) => (
                 <a
                   key={label}
                   href={href}
                   aria-label={label}
+                  target='_blank'
                   className={`p-2 rounded-lg bg-white/10 ${hover} text-gray-300 text-white transition hover:text-gray-400 -all`}
                 >
                   <Icon className="w-4 h-4" />
@@ -57,7 +58,7 @@ export default function Footer() {
           </div>
 
           {/* Mon compte */}
-          <div>
+          {/* <div>
             <h3 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Mon compte</h3>
             <ul className="space-y-2.5 text-sm">
               {[
@@ -73,7 +74,7 @@ export default function Footer() {
                 </li>
               ))}
             </ul>
-          </div>
+          </div> */}
 
           {/* Contact */}
           <div>
@@ -83,16 +84,19 @@ export default function Footer() {
                 <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0 text-gray-100" />
                 <span className="text-gray-100">Marrakech, Maroc</span>
               </li>
-              <li>
-                <a href="tel:+212524000000" className="flex items-center gap-2.5 text-white transition hover:text-gray-400 ">
+              <li className='flex items-center gap-3'>
+                <a href="tel:+212661205448" className="flex items-center gap-2.5 text-white transition hover:text-gray-400 ">
                   <Phone className="w-4 h-4 flex-shrink-0 text-gray-100" />
-                  +212 5 24 XX XX XX
+                  +2126 61 205 448
+                </a>
+                <a href="tel:+212524422830" className="flex items-center gap-2.5 text-white transition hover:text-gray-400 ">
+                  +2125 24 422 830
                 </a>
               </li>
               <li>
-                <a href="mailto:contact@network-service-info.com" className="flex items-center gap-2.5 text-white transition hover:text-gray-400 ">
+                <a href="mailto:Contact@networkservice.ma" className="flex items-center gap-2.5 text-white transition hover:text-gray-400 ">
                   <Mail className="w-4 h-4 flex-shrink-0 text-gray-200" />
-                  contact@network-service-info.com
+                  Contact@networkservice.ma
                 </a>
               </li>
               <li className="flex items-center gap-2.5 text-gray-200">

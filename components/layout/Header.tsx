@@ -107,7 +107,7 @@ export default function Header() {
             className="flex-1 lg:flex-none flex justify-center lg:justify-start"
           >
             <img
-              src="http://networkservice-info.com/wp-content/uploads/2025/02/networkservies-logo-1707919409.png"
+              src="/assets/main-logo.png"
               alt="network service info logo"
               className="w-[140px] sm:w-[160px]"
             />
