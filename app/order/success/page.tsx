@@ -1,6 +1,7 @@
 // app/[locale]/order/success/page.tsx
 'use client';
 
+import { Suspense } from 'react';
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import Link from 'next/link';
@@ -12,7 +13,8 @@ interface OrderDetails {
   date: string;
 }
 
-export default function OrderSuccessPage() {
+// Component that uses useSearchParams
+function OrderSuccessContent() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -212,5 +214,24 @@ export default function OrderSuccessPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Main component with Suspense
+export default function OrderSuccessPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-10 h-10 border-4 border-[#0F3460] border-t-transparent rounded-full animate-spin" />
+          </div>
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">Chargement...</h2>
+          <p className="text-gray-500">Veuillez patienter un instant</p>
+        </div>
+      </div>
+    }>
+      <OrderSuccessContent />
+    </Suspense>
   );
 }

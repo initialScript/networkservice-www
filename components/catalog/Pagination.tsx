@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -12,7 +13,8 @@ interface Props {
   onPageChange?: (page: number) => void;
 }
 
-export default function Pagination({ page, totalPages, onPageChange }: Props) {
+// Component that uses useSearchParams
+function PaginationContent({ page, totalPages, onPageChange }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -20,9 +22,15 @@ export default function Pagination({ page, totalPages, onPageChange }: Props) {
   if (totalPages <= 1) return null;
 
   const goTo = (p: number) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set('page', String(p));
-    router.push(`${pathname}?${params.toString()}`);
+    if (onPageChange) {
+      // Use the callback if provided
+      onPageChange(p);
+    } else {
+      // Fallback to router navigation
+      const params = new URLSearchParams(searchParams.toString());
+      params.set('page', String(p));
+      router.push(`${pathname}?${params.toString()}`);
+    }
   };
 
   // Build visible page numbers: max 5 with ellipsis
@@ -83,5 +91,20 @@ export default function Pagination({ page, totalPages, onPageChange }: Props) {
         <ChevronRight className="w-4 h-4 rtl:rotate-180" />
       </button>
     </nav>
+  );
+}
+
+// Main component with Suspense
+export default function Pagination(props: Props) {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center gap-1 mt-8">
+        {[1, 2, 3, 4, 5].map((i) => (
+          <div key={i} className="w-9 h-9 bg-gray-200 rounded-lg animate-pulse" />
+        ))}
+      </div>
+    }>
+      <PaginationContent {...props} />
+    </Suspense>
   );
 }

@@ -21,12 +21,6 @@ const nextConfig = {
         pathname: '/**',
       },
       {
-        protocol: 'http',
-        hostname: '192.168.111.183',
-        port: '7000',
-        pathname: '*',
-      },
-      {
         protocol: 'https',
         hostname: 'media.yascript.com',
         pathname: '/**',
@@ -34,14 +28,6 @@ const nextConfig = {
     ],
   },
 
-  async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: 'http://localhost:7000/api/:path*',
-      },
-    ];
-  },
 };
 
 module.exports = withNextIntl(nextConfig);

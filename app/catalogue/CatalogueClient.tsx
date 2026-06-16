@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import MobileFilterDrawer from './MobileFilterDrawer';
@@ -32,7 +33,8 @@ interface CatalogueClientProps {
   media_url?: string
 }
 
-export default function CatalogueClient({
+// Component that uses useSearchParams
+function CatalogueContent({
   initialProducts,
   totalProducts,
   totalPages,
@@ -248,5 +250,20 @@ export default function CatalogueClient({
         onFilterChange={handleFilterChange}
       />
     </div>
+  );
+}
+
+// Main component with Suspense
+export default function CatalogueClient(props: CatalogueClientProps) {
+  return (
+    <Suspense fallback={
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="flex justify-center items-center py-12">
+          <div className="w-8 h-8 border-3 border-gray-200 border-t-[#E94560] rounded-full animate-spin" />
+        </div>
+      </div>
+    }>
+      <CatalogueContent {...props} />
+    </Suspense>
   );
 }
