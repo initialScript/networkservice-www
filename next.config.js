@@ -12,6 +12,7 @@ const nextConfig = {
       'localhost',
       'images.unsplash.com',
       '192.168.111.183',
+      '192.168.111.183',
     ],
     remotePatterns: [
       {
@@ -24,6 +25,11 @@ const nextConfig = {
         hostname: '192.168.111.183',
         port: '7000',
         pathname: '*',
+      },
+      {
+        protocol: 'https',
+        hostname: 'media.yascript.com',
+        pathname: '/**',
       },
     ],
   },
