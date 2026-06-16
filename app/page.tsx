@@ -32,7 +32,6 @@ const [recentProducts, categories, inStockProducts] =
   const media_url =process.env.NEXT_PUBLIC_MEDIA_URL
   process.env.NEXT_PUBLIC_MEDIA_URL
   
-  
 
   return (
     <div>
@@ -53,7 +52,7 @@ const [recentProducts, categories, inStockProducts] =
             <h3 className='text-center'>Découvrez nos produits <br /> par catégorie</h3>
           </div>
           
-        <ProductsByCategories products={inStockProducts} categories={categories} media_url={media_url} />
+        <ProductsByCategories  categories={categories} media_url={media_url} />
         </div>
           
         </div>

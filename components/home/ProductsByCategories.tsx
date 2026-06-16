@@ -6,12 +6,11 @@ import ProductCarousel from "../products/ProductCarousel"
 import { cn } from "@/lib/utils"
 
 type Props = {
-  products: any[] | { data: any[]; success?: boolean; pagination?: any }
   categories: any[]
   media_url?: string
 }
 
-const ProductsByCategories = ({ products, categories, media_url }: Props) => {
+const ProductsByCategories = ({ categories, media_url }: Props) => {
   const [activeCategory, setActiveCategory] = useState<string>('')
   const [filteredProducts, setFilteredProducts] = useState<any[]>([])
   const [scrollPosition, setScrollPosition] = useState(0)
@@ -19,21 +18,38 @@ const ProductsByCategories = ({ products, categories, media_url }: Props) => {
   const [isDragging, setIsDragging] = useState(false)
   const [startX, setStartX] = useState(0)
   const [scrollLeft, setScrollLeft] = useState(0)
+
+  const [products, setProducts] = useState<any[]>([]);
+const [loading, setLoading] = useState(false);
   
   const categoryScrollRef = useRef<HTMLDivElement>(null)
 
-  // Get products array from API response structure
-  const getProductsArray = () => {
-    if (Array.isArray(products)) {
-      return products
-    }
-    if (products && typeof products === 'object' && 'data' in products) {
-      return products.data || []
-    }
-    return []
-  }
+  const fetchProducts = async (slug: string) => {
+  setLoading(true);
 
-  const productsArray = getProductsArray()
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/products?category=${slug}&limit=8`
+    );
+
+    const data = await res.json();
+
+    setProducts(data.data ?? []);
+  } catch (error) {
+    console.error(error);
+    setProducts([]);
+  } finally {
+    setLoading(false);
+  }
+};
+
+  useEffect(() => {
+  if (activeCategory) {
+    fetchProducts(activeCategory);
+  }
+}, [activeCategory]);
+
+ 
 
   // Set first category as active when categories load
   useEffect(() => {
@@ -42,29 +58,7 @@ const ProductsByCategories = ({ products, categories, media_url }: Props) => {
     }
   }, [categories, activeCategory])
 
-  // Filter products when active category changes
-useEffect(() => {
-  if (activeCategory && productsArray.length > 0) {
-    const filtered = productsArray.filter(
-      (product: any) => {
-        // Check if product has categories array and if any category matches
-        if (product.categories && Array.isArray(product.categories)) {
-          return product.categories.some((category: any) => category.slug === activeCategory);
-        }
-        // Fallback for other possible structures
-        const categorySlug = product.category?.slug || product.Category?.slug;
-        return categorySlug === activeCategory;
-      }
-    );
-    setFilteredProducts(filtered);
-  } else if (!activeCategory && productsArray.length > 0) {
-    setFilteredProducts(productsArray);
-  } else {
-    setFilteredProducts([]);
-  }
 
-
-}, [activeCategory, productsArray]);
 
   // Handle category scroll position
   const checkCategoryScrollPosition = () => {
@@ -140,6 +134,15 @@ useEffect(() => {
 
   const currentCategoryName = categories.find((c: any) => c.slug === activeCategory)?.name_fr || 'Produits'
 
+  console.log("activeCategory", activeCategory);
+  console.log("categories", categories);
+  
+  const activeCategoryObj = categories.find(
+  c => c.slug === activeCategory
+);
+
+console.log("activeCategoryObj", activeCategoryObj);
+
   return (
     <div className="w-full">
       {/* Categories Carousel */}
@@ -199,18 +202,24 @@ useEffect(() => {
       </div>
 
       {/* Products Carousel */}
-      {filteredProducts.length > 0 ? (
-        <ProductCarousel 
-          key={activeCategory}
-          products={filteredProducts.slice(0, 8)} 
-          media_url={media_url} 
-          title={currentCategoryName}
-        />
-      ) : (
-        <div className="text-center py-12 bg-gray-50 rounded-lg mt-4">
-          <p className="text-gray-500">Aucun produit disponible dans cette catégorie</p>
-        </div>
-      )}
+      {loading ? (
+  <div className="py-12 text-center">
+    Chargement...
+  </div>
+) : products.length > 0 ? (
+  <ProductCarousel
+    key={activeCategory}
+    products={products}
+    media_url={media_url}
+    title={currentCategoryName}
+  />
+) : (
+  <div className="text-center py-12 bg-gray-50 rounded-lg mt-4">
+    <p className="text-gray-500">
+      Aucun produit disponible dans cette catégorie
+    </p>
+  </div>
+)}
     </div>
   )
 }
