@@ -101,7 +101,6 @@ export default function ReviewsSection({
   const handleSubmitReview = (e: React.FormEvent) => {
     e.preventDefault();
     // Handle review submission here
-    console.log({ productId, userRating, userName, reviewTitle, userReview });
     setShowWriteReview(false);
     setUserRating(0);
     setUserName('');
