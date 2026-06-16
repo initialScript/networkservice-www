@@ -98,7 +98,7 @@ const ClientOrderPage = () => {
       alert('Veuillez remplir tous les champs obligatoires');
       return;
     }
-    if (!customerInfo.address.full_name || !customerInfo.address.address_line || !customerInfo.address.city || !customerInfo.address.phone) {
+    if (!customerInfo.address.full_name || !customerInfo.address.address_line || !customerInfo.address.city || !customerInfo.address.postal_code || !customerInfo.address.phone) {
       alert('Veuillez remplir votre adresse principale');
       return;
     }
@@ -131,7 +131,7 @@ const ClientOrderPage = () => {
         alert('Veuillez remplir toutes vos informations');
         return;
       }
-      if (!customerInfo.address.full_name || !customerInfo.address.address_line || !customerInfo.address.city || !customerInfo.address.phone) {
+      if (!customerInfo.address.full_name || !customerInfo.address.address_line || !customerInfo.address.city || !customerInfo.address.postal_code || !customerInfo.address.phone) {
         alert('Veuillez remplir votre adresse principale');
         return;
       }
@@ -199,29 +199,31 @@ const handleSubmitOrder = async () => {
       credentials: 'include',
       body: JSON.stringify(orderData),
     });
-    
-    if (!response.ok) {
-      throw new Error('Failed to create order');
-    }
-    
+
     const result = await response.json();
-    
+
+    if (!response.ok || !result.success) {
+      throw new Error(result.errors?.[0]?.message || result.message || 'Failed to create order');
+    }
+
+    const orderNumber = result.data.order_number;
+
     // Save to localStorage as backup (with order number from backend)
     const existingOrders = JSON.parse(localStorage.getItem('user_orders') || '[]');
     localStorage.setItem('user_orders', JSON.stringify([{
       ...orderData,
-      order_number: result.order_number,
+      order_number: orderNumber,
       date: new Date().toISOString(),
     }, ...existingOrders]));
-    
+
     clearCart();
-    
+
     // Redirect to success page with order number from backend
-    router.push(`/order/success?order=${result.order_number}&method=${paymentMethod}`);
-    
+    router.push(`/order/success?order=${orderNumber}&method=${paymentMethod}`);
+
   } catch (error) {
     console.error(error);
-    alert('Une erreur est survenue');
+    alert(error instanceof Error ? error.message : 'Une erreur est survenue');
     setSubmitting(false);
   }
 };
@@ -441,11 +443,12 @@ const handleSubmitOrder = async () => {
                         type="text"
                         placeholder="Code postal"
                         value={customerInfo.address.postal_code}
-                        onChange={(e) => setCustomerInfo({ 
-                          ...customerInfo, 
+                        onChange={(e) => setCustomerInfo({
+                          ...customerInfo,
                           address: { ...customerInfo.address, postal_code: e.target.value }
                         })}
                         className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#0F3460]/20"
+                        required
                       />
                       <input
                         type="text"
