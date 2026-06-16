@@ -13,7 +13,6 @@ export default function CartDrawer() {
   const { isOpen, close } = useCartDrawer();
   const { items, subtotal, items_count } = useCartStore();
   const pathname = usePathname();
-  const locale = pathname.split('/')[1] || 'fr';
 
 
   return (
@@ -58,7 +57,7 @@ export default function CartDrawer() {
                 <p className="text-sm text-gray-400 mt-1">Découvrez notre catalogue de produits</p>
               </div>
               <Link
-                href={`/${locale}/catalogue`}
+                href={`/catalogue`}
                 onClick={close}
                 className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0F3460] text-white text-sm font-semibold rounded-xl hover:bg-[#0a2444] transition"
               >
@@ -80,14 +79,14 @@ export default function CartDrawer() {
             <p className="text-xs text-gray-400">Frais de livraison calculés à la commande</p>
             <div className="grid grid-cols-2 gap-2 pt-1">
               <Link
-                href={`/${locale}/panier`}
+                href={`/panier`}
                 onClick={close}
                 className="flex items-center justify-center py-2.5 rounded-xl border-2 border-[#0F3460] text-[#0F3460] text-sm font-semibold hover:bg-[#0F3460] hover:text-white transition"
               >
                 Voir le panier
               </Link>
               <Link
-                href={`/${locale}/order`}
+                href={`/order`}
                 onClick={close}
                 className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-[#E94560] text-white text-sm font-semibold hover:bg-[#c73350] transition"
               >

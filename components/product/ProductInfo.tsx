@@ -50,10 +50,10 @@ export default function ProductInfo({ product, locale }: Props) {
   const needsToggle = desc.length > 300;
 
   const breadcrumbItems: BreadcrumbItem[] = [
-    { label: 'Accueil', href: `/${locale}` },
-    { label: 'Catalogue', href: `/${locale}/catalogue` },
+    { label: 'Accueil', href: `/` },
+    { label: 'Catalogue', href: `/catalogue` },
     ...(product.category
-      ? [{ label: product.category.name_fr, href: `/${locale}/catalogue/${product.category.slug}` }]
+      ? [{ label: product.category.name_fr, href: `/catalogue/${product.category.slug}` }]
       : []),
     { label: name },
   ];

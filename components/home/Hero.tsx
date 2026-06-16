@@ -87,7 +87,7 @@ const Hero = ({locale}:{locale:string}) => {
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
               <Link
-                href={`/${locale}/catalogue`}
+                href={`/catalogue`}
                 className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#E94560] text-white font-semibold rounded-xl hover:bg-[#c73350] transition-all hover:scale-105 text-sm shadow-lg"
               >
                 Voir le catalogue <ArrowRight className="w-4 h-4" />

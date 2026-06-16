@@ -9,7 +9,6 @@ import { navigationBarLinks } from "@/utils/navigationBarLinks";
 import { Category } from "@/hooks/useCategories";
 
 interface NavigationBarProps {
-  locale: string;
   categories: Category[];
   categoryRef: RefObject<HTMLDivElement | null>;
   isCategoryOpen: boolean;
@@ -17,7 +16,6 @@ interface NavigationBarProps {
 }
 
 const NavigationBar = ({
-  locale,
   categories,
   categoryRef,
   isCategoryOpen,
@@ -31,7 +29,6 @@ const NavigationBar = ({
             categories={categories}
             triggerText="Tous nos produits"
             basePath="/catalogue"
-            locale={locale}
           />
           
           {navigationBarLinks.map((link) => (

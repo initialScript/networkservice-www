@@ -46,7 +46,6 @@ const PAYMENT_METHODS = [
 const ClientOrderPage = () => {
   const router = useRouter();
   const pathname = usePathname();
-  const locale = pathname.split('/')[1] ?? 'fr';
   const { items, subtotal, clearCart, hydrate } = useCartStore();
 
   const [currentStep, setCurrentStep] = useState(1);
@@ -218,7 +217,7 @@ const handleSubmitOrder = async () => {
     clearCart();
     
     // Redirect to success page with order number from backend
-    router.push(`/${locale}/order/success?order=${result.order_number}&method=${paymentMethod}`);
+    router.push(`/order/success?order=${result.order_number}&method=${paymentMethod}`);
     
   } catch (error) {
     console.error(error);
@@ -237,7 +236,7 @@ const handleSubmitOrder = async () => {
           <h2 className="text-xl font-bold text-gray-900 mb-2">Panier vide</h2>
           <p className="text-gray-500 mb-4">Ajoutez des produits avant de passer commande</p>
           <button
-            onClick={() => router.push(`/${locale}/catalogue`)}
+            onClick={() => router.push(`/catalogue`)}
             className="bg-[#0F3460] text-white px-6 py-2 rounded-lg"
           >
             Voir les produits

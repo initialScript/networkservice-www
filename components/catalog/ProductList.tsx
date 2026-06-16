@@ -4,7 +4,7 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ShoppingCart, Check, Eye } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useCartStore } from '@/store/useCartStore';
 import { cn, formatPrice } from '@/lib/utils';
 
@@ -40,8 +40,6 @@ export default function ProductList({ products, media_url }: ProductListProps) {
     }
   };
 
-   
-
   if (products.length === 0) {
     return (
       <div className="py-20 text-center">
@@ -52,7 +50,7 @@ export default function ProductList({ products, media_url }: ProductListProps) {
 
   return (
     <div className="space-y-4">
-      {products.map((product) => {
+      {products.map((product, index) => {
         const isOutOfStock = product.stock_qty === 0;
         const isLowStock = product.stock_qty > 0 && product.stock_qty <= 5;
         const hasDiscount = !!product.compare_price && product.compare_price > product.price;
@@ -75,6 +73,7 @@ export default function ProductList({ products, media_url }: ProductListProps) {
                 <ProductImage
                   src={`${media_url}${product.images[0].url}`}
                   alt={product.name_fr}
+                  priority={index < 2} // Priority for first 2 images
                 />
               ) : (
                 <div className="absolute inset-0 flex items-center justify-center text-gray-300">
@@ -210,14 +209,49 @@ export default function ProductList({ products, media_url }: ProductListProps) {
 function ProductImage({
   src,
   alt,
+  priority = false,
 }: {
   src: string;
   alt: string;
+  priority?: boolean;
 }) {
   const [loaded, setLoaded] = useState(false);
+  const [shouldLoad, setShouldLoad] = useState(false);
+  const imgRef = useRef<HTMLDivElement>(null);
+
+  // Intersection Observer for lazy loading
+  useEffect(() => {
+    if (priority) {
+      setShouldLoad(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setShouldLoad(true);
+            observer.disconnect();
+          }
+        });
+      },
+      {
+        rootMargin: '200px', // Start loading when image is 200px from viewport
+        threshold: 0.01,
+      }
+    );
+
+    if (imgRef.current) {
+      observer.observe(imgRef.current);
+    }
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [priority]);
 
   return (
-    <>
+    <div ref={imgRef} className="relative w-full h-full">
       {!loaded && (
         <div className="absolute inset-0 animate-pulse bg-gray-200">
           <div className="flex h-full items-center justify-center">
@@ -226,16 +260,22 @@ function ProductImage({
         </div>
       )}
 
-      <Image
-        src={src}
-        alt={alt}
-        fill
-        onLoad={() => setLoaded(true)}
-        className={cn(
-          'object-contain p-2 group-hover:scale-105 transition-all duration-300',
-          loaded ? 'opacity-100' : 'opacity-0'
-        )}
-      />
-    </>
+      {shouldLoad && (
+        <Image
+          src={src}
+          alt={alt}
+          fill
+          loading={priority ? 'eager' : 'lazy'}
+          priority={priority}
+          quality={priority ? 80 : 70} // Lower quality for non-priority images
+          sizes="(max-width: 480px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
+          onLoad={() => setLoaded(true)}
+          className={cn(
+            'object-contain p-2 transition-all duration-300',
+            loaded ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+          )}
+        />
+      )}
+    </div>
   );
 }

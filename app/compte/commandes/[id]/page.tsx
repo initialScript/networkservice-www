@@ -101,7 +101,7 @@ export default function OrderDetailPage({ params: { locale, id } }: Props) {
     return (
       <div className="py-20 text-center">
         <p className="text-gray-500">Commande introuvable.</p>
-        <Link href={`/${locale}/compte/commandes`} className="mt-4 inline-block text-sm text-[#0F3460] hover:underline">
+        <Link href={`/compte/commandes`} className="mt-4 inline-block text-sm text-[#0F3460] hover:underline">
           ← Mes commandes
         </Link>
       </div>
@@ -116,9 +116,9 @@ export default function OrderDetailPage({ params: { locale, id } }: Props) {
   return (
     <div>
       <Breadcrumb items={[
-        { label: 'Accueil', href: `/${locale}` },
-        { label: 'Compte', href: `/${locale}/compte` },
-        { label: 'Mes commandes', href: `/${locale}/compte/commandes` },
+        { label: 'Accueil', href: `/` },
+        { label: 'Compte', href: `/compte` },
+        { label: 'Mes commandes', href: `/compte/commandes` },
         { label: `#${order.order_number}` },
       ]} />
 

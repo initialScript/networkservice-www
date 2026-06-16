@@ -223,7 +223,7 @@ const ProductsCarouselSection = ({
                   </p>
                 </div>
                 <Link
-                  href={`/${locale}/catalogue/${activeCategory}`}
+                  href={`/catalogue/${activeCategory}`}
                   className="flex items-center gap-2 bg-white text-[#0F3460] px-5 py-2.5 rounded-xl font-semibold hover:bg-gray-100 transition-colors"
                 >
                   Tout voir <ArrowRight className="w-4 h-4" />
@@ -272,7 +272,7 @@ const ProductsCarouselSection = ({
         {/* View All Button */}
         <div className="w-full grid place-items-center mt-8">
           <Link
-            href={`/${locale}/catalogue`}
+            href={`/catalogue`}
             className="bg-[#0F3460] text-white px-12 py-3 shadow-md rounded-xl hover:bg-[#0a2444] transition-colors"
           >
             Voir tous les produits

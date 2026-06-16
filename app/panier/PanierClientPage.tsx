@@ -15,7 +15,6 @@ import { cn } from '@/lib/utils';
 const PanierClientPage = () => {
   const router = useRouter();
   const pathname = usePathname();
-  const locale = pathname.split('/')[1] ?? 'fr';
   const { items, subtotal, updateItem, removeItem, clearCart, hydrate, isLoading: isCartLoading } = useCartStore();
   
   const [couponCode, setCouponCode] = useState('');
@@ -81,7 +80,7 @@ const PanierClientPage = () => {
   const handleCheckout = () => {
     if (items.length === 0) return;
     setIsCheckoutLoading(true);
-    router.push(`/${locale}/order`);
+    router.push(`/order`);
   };
 
   if (!isHydrated || (isCartLoading && items.length === 0)) {
@@ -100,7 +99,7 @@ const PanierClientPage = () => {
             Découvrez nos produits et ajoutez-les à votre panier.
           </p>
           <Link
-            href={`/${locale}/catalogue`}
+            href={`/catalogue`}
             className="inline-flex items-center gap-2 px-6 py-3 bg-[#0F3460] text-white rounded-lg font-semibold hover:bg-[#0a2444] transition"
           >
             Découvrir nos produits
@@ -158,7 +157,7 @@ const PanierClientPage = () => {
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <Link href={`/${locale}/catalogue/${item.slug}`}>
+                        <Link href={`/catalogue/${item.slug}`}>
                           <h3 className="font-semibold text-gray-800 hover:text-[#0F3460] transition text-sm line-clamp-2">
                             {item.name}
                           </h3>
@@ -242,7 +241,7 @@ const PanierClientPage = () => {
                       
                       {/* Info */}
                       <div className="flex-1 min-w-0">
-                        <Link href={`/${locale}/products/${item.slug}`}>
+                        <Link href={`/products/${item.slug}`}>
                           <h3 className="font-semibold text-gray-800 text-sm line-clamp-2">
                             {item.name}
                           </h3>
@@ -300,7 +299,7 @@ const PanierClientPage = () => {
             {/* Action Buttons */}
             <div className="px-4 py-4 bg-gray-50 border-t border-gray-100 flex flex-col sm:flex-row justify-between gap-3">
               <Link
-                href={`/${locale}/catalogue`}
+                href={`/catalogue`}
                 className="inline-flex items-center justify-center gap-2 px-4 py-2.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition"
               >
                 <ShoppingBag className="w-4 h-4" />

@@ -18,7 +18,6 @@ import { Category } from '@/hooks/useCategories';
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  locale: string;
   categories: Category[];
 }
 
@@ -44,12 +43,10 @@ const categoryIcons: Record<string, React.ReactNode> = {
 function CategoryRow({
   cat,
   onClose,
-  locale,
   depth = 0,
 }: {
   cat: Category;
   onClose: () => void;
-  locale: string;
   depth?: number;
 }) {
   const [open, setOpen] = useState(false);
@@ -57,7 +54,7 @@ function CategoryRow({
   const icon = categoryIcons[cat.slug] ?? <LayoutGrid className="w-4 h-4 shrink-0" />;
   
   // Get localized name
-  const categoryName = locale === 'ar' && cat.name_ar ? cat.name_ar : cat.name_fr;
+  const categoryName = cat.name_fr;
 
   const rowBase = 'w-full flex items-center gap-3 rounded-lg transition-colors text-sm';
   const depthStyles = depth === 0
@@ -114,7 +111,6 @@ function CategoryRow({
               key={child.slug}
               cat={child}
               onClose={onClose}
-              locale={locale}
               depth={depth + 1}
             />
           ))}
@@ -124,7 +120,7 @@ function CategoryRow({
   );
 }
 
-export default function MobileMenu({ isOpen, onClose, locale, categories }: Props) {
+export default function MobileMenu({ isOpen, onClose, categories }: Props) {
   const { isAuthenticated, logout } = useAuthStore();
   const items_count = useCartStore((s) => s.items_count);
   const { open: openCart } = useCartDrawer();
@@ -145,25 +141,26 @@ export default function MobileMenu({ isOpen, onClose, locale, categories }: Prop
       {/* Slide-in panel */}
       <div className="fixed inset-y-0 left-0 z-50 w-80 max-w-[85vw] bg-white shadow-2xl flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 bg-[#0F3460] shrink-0">
-          <img
-            src="http://networkservice-info.com/wp-content/uploads/2025/02/networkservies-logo-1707919409.png"
-            alt="Network Service Info"
-            className="h-8 brightness-0 invert"
-          />
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+        {/* Header */}
+<div className="flex items-center justify-between px-5 py-4 bg-white border-b border-gray-100 shrink-0">
+  <img
+    src="/assets/main-logo.png"
+    alt="Network Service Info"
+    className="h-8"
+  />
+  <button
+    onClick={onClose}
+    className="p-1.5 rounded-lg text-gray-400 hover:text-[#0F3460] hover:bg-gray-50 transition"
+  >
+    <X className="w-5 h-5" />
+  </button>
+</div>
 
         {/* Scrollable nav */}
         <nav className="flex-1 overflow-y-auto py-3 px-3 space-y-0.5 text-sm">
           {/* Accueil */}
           <Link
-            href={`/${locale}`}
+            href={`/`}
             onClick={onClose}
             className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-700 hover:bg-gray-50 hover:text-[#0F3460] transition"
           >
@@ -192,7 +189,6 @@ export default function MobileMenu({ isOpen, onClose, locale, categories }: Prop
                   key={cat.slug}
                   cat={cat}
                   onClose={onClose}
-                  locale={locale}
                   depth={0}
                 />
               ))}
@@ -237,10 +233,10 @@ export default function MobileMenu({ isOpen, onClose, locale, categories }: Prop
           </button>
 
           {/* Auth */}
-          {isAuthenticated ? (
+          {/* {isAuthenticated ? (
             <>
               <Link
-                href={`/${locale}/compte`}
+                href={`/compte`}
                 onClick={onClose}
                 className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-700 hover:bg-gray-50 hover:text-[#0F3460] transition"
               >
@@ -248,7 +244,7 @@ export default function MobileMenu({ isOpen, onClose, locale, categories }: Prop
                 Mon compte
               </Link>
               <Link
-                href={`/${locale}/compte/wishlist`}
+                href={`/compte/wishlist`}
                 onClick={onClose}
                 className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-700 hover:bg-gray-50 hover:text-[#0F3460] transition"
               >
@@ -265,38 +261,17 @@ export default function MobileMenu({ isOpen, onClose, locale, categories }: Prop
             </>
           ) : (
             <Link
-              href={`/${locale}/auth/login`}
+              href={`/auth/login`}
               onClick={onClose}
               className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-700 hover:bg-gray-50 hover:text-[#0F3460] transition"
             >
               <User className="w-4 h-4 shrink-0 text-gray-400" />
               Se connecter
             </Link>
-          )}
+          )} */}
         </nav>
 
-        {/* Locale switcher */}
-        <div className="px-5 py-4 border-t border-gray-100 flex items-center gap-2 text-sm shrink-0">
-          <span className="text-gray-400">Langue :</span>
-          <Link
-            href={`/${locale === 'fr' ? 'fr' : 'fr'}`}
-            onClick={onClose}
-            className={`px-2.5 py-1 rounded-md font-medium transition ${
-              locale === 'fr' ? 'bg-[#0F3460] text-white' : 'text-gray-600 hover:bg-gray-100'
-            }`}
-          >
-            FR
-          </Link>
-          <Link
-            href={`/${locale === 'ar' ? 'ar' : 'ar'}`}
-            onClick={onClose}
-            className={`px-2.5 py-1 rounded-md font-medium transition ${
-              locale === 'ar' ? 'bg-[#0F3460] text-white' : 'text-gray-600 hover:bg-gray-100'
-            }`}
-          >
-            AR
-          </Link>
-        </div>
+        
       </div>
     </>
   );

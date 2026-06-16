@@ -49,7 +49,6 @@ export default function CatalogueClient({
   const [products, setProducts] = useState(initialProducts);
   const [isLoading, setIsLoading] = useState(false);
   const [layout, setLayout] = useState('grid');
-  
 
   // Helper function to get numeric price
   const getNumericPrice = (price: string | number): number => {
@@ -82,7 +81,6 @@ export default function CatalogueClient({
           return dateB - dateA;
         });
       case 'rating':
-        // If you have rating data, implement here
         return productsCopy;
       default:
         return productsCopy;
@@ -140,10 +138,9 @@ export default function CatalogueClient({
     router.push(window.location.pathname);
   };
 
-  
-
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
+      {/* Active Filters Display */}
       {(currentFilters.search || 
         currentFilters.category || 
         currentFilters.brand || 
@@ -185,6 +182,7 @@ export default function CatalogueClient({
       )}
 
       <div className="flex gap-8">
+        {/* Desktop Sidebar */}
         <div className="hidden lg:block w-[260px] flex-shrink-0">
           <FilterSidebar
             categories={categories}
@@ -195,6 +193,7 @@ export default function CatalogueClient({
           />
         </div>
 
+        {/* Main Content */}
         <div className="flex-1 min-w-0">
           <SortBar 
             total={totalProducts} 
@@ -240,6 +239,7 @@ export default function CatalogueClient({
         </div>
       </div>
 
+      {/* Mobile Filter Drawer - Auto-managed */}
       <MobileFilterDrawer
         categories={categories}
         brands={brands}

@@ -7,7 +7,6 @@ import { Home, ShoppingBag, ArrowLeft, AlertCircle } from 'lucide-react';
 
 export default function NotFound() {
   const pathname = usePathname();
-  const locale = pathname.split('/')[1] ?? 'fr';
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-4 py-16">
@@ -38,14 +37,14 @@ export default function NotFound() {
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-12">
           <Link
-            href={`/${locale}`}
+            href={`/`}
             className="inline-flex items-center gap-2 px-6 py-3 bg-[#0F3460] text-white rounded-xl font-semibold hover:bg-[#0a2444] transition-all duration-200 shadow-md hover:shadow-lg"
           >
             <Home className="w-4 h-4" />
             Accueil
           </Link>
           <Link
-            href={`/${locale}/catalogue`}
+            href={`/catalogue`}
             className="inline-flex items-center gap-2 px-6 py-3 border-2 border-gray-200 text-gray-700 rounded-xl font-semibold hover:border-[#0F3460] hover:text-[#0F3460] transition-all duration-200"
           >
             <ShoppingBag className="w-4 h-4" />
@@ -62,7 +61,7 @@ export default function NotFound() {
 
         {/* Help text */}
         <p className="text-xs text-gray-400 mt-8">
-          Besoin d'aide ? <Link href={`/${locale}/contact`} className="text-[#E94560] hover:underline">Contactez-nous</Link>
+          Besoin d'aide ? <Link href={`/contact`} className="text-[#E94560] hover:underline">Contactez-nous</Link>
         </p>
       </div>
     </div>

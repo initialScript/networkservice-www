@@ -38,7 +38,6 @@ export default function Header() {
   const categoryRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
-  const locale = pathname.split('/')[1] || 'fr';
 
   const handleSearch = useCallback(() => {
     const q = searchQuery.trim();
@@ -47,9 +46,9 @@ export default function Header() {
     if (selectedCategory) params.append('category', selectedCategory);
     
     if (q || selectedCategory) {
-      router.push(`/${locale}/catalogue?${params.toString()}`);
+      router.push(`/catalogue?${params.toString()}`);
     }
-  }, [searchQuery, selectedCategory, router, locale]);
+  }, [searchQuery, selectedCategory, router]);
 
   const handleSearchInput = (value: string) => {
     setSearchQuery(value);
@@ -59,7 +58,7 @@ export default function Header() {
         const params = new URLSearchParams();
         params.append('search', value.trim());
         if (selectedCategory) params.append('category', selectedCategory);
-        router.push(`/${locale}/catalogue?${params.toString()}`);
+        router.push(`/catalogue?${params.toString()}`);
       }
     }, 300);
   };
@@ -77,7 +76,7 @@ export default function Header() {
   const handleLogout = () => {
     logout();
     setIsUserMenuOpen(false);
-    router.push(`/${locale}/auth/login`);
+    router.push(`/auth/login`);
   };
 
   // Show loading state or error if needed
@@ -103,7 +102,7 @@ export default function Header() {
 
           {/* Logo */}
           <Link
-            href={`/${locale}`}
+            href={`/`}
             className="flex-1 lg:flex-none flex justify-center lg:justify-start"
           >
             <img
@@ -125,7 +124,7 @@ export default function Header() {
                 <option value="">Toutes les catégories</option>
                 {categories.map((cat) => (
                   <option key={cat.slug} value={cat.slug}>
-                    {locale === 'ar' && cat.name_ar ? cat.name_ar : cat.name_fr}
+                    {cat.name_fr}
                   </option>
                 ))}
               </select>
@@ -169,7 +168,7 @@ export default function Header() {
             {/* Wishlist — desktop + authenticated */}
             {isAuthenticated && (
               <Link
-                href={`/${locale}/compte/wishlist`}
+                href={`/compte/wishlist`}
                 className="hidden lg:flex p-2 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-[#E94560] transition"
                 aria-label="Ma wishlist"
               >
@@ -191,10 +190,10 @@ export default function Header() {
                   </button>
                   {isUserMenuOpen && (
                     <div className="absolute right-0 top-full mt-1.5 w-52 bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 z-50">
-                      <Link href={`/${locale}/compte`} onClick={() => setIsUserMenuOpen(false)} className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
+                      <Link href={`/compte`} onClick={() => setIsUserMenuOpen(false)} className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
                         <User className="w-4 h-4 text-gray-400" /> Mon compte
                       </Link>
-                      <Link href={`/${locale}/compte/commandes`} onClick={() => setIsUserMenuOpen(false)} className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
+                      <Link href={`/compte/commandes`} onClick={() => setIsUserMenuOpen(false)} className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
                         <Package className="w-4 h-4 text-gray-400" /> Mes commandes
                       </Link>
                       <hr className="my-1 border-gray-100" />
@@ -206,7 +205,7 @@ export default function Header() {
                 </>
               ) : (
                 <Link
-                  href={`/${locale}/auth/login`}
+                  href={`/auth/login`}
                   className="flex items-center gap-1.5 px-3 py-2 rounded-lg hover:bg-gray-100 text-gray-600 hover:text-[#0F3460] transition text-sm"
                 >
                   <User className="w-5 h-5" />
@@ -299,7 +298,7 @@ export default function Header() {
                     selectedCategory === cat.slug ? 'font-semibold text-[#0F3460] bg-blue-50' : 'text-gray-700'
                   }`}
                 >
-                  {locale === 'ar' && cat.name_ar ? cat.name_ar : cat.name_fr}
+                  {cat.name_fr}
                 </button>
               ))}
             </div>
@@ -309,7 +308,6 @@ export default function Header() {
 
       {/* ── Navigation bar ── */}
       <NavigationBar
-        locale={locale}
         categories={categories}
         categoryRef={categoryRef}
         isCategoryOpen={isCategoryOpen}
@@ -321,7 +319,7 @@ export default function Header() {
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}
         categories={categories}
-        locale={locale}
+        
       />
     </header>
   );

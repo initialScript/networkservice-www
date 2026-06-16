@@ -232,7 +232,7 @@ const [recentProducts, categories, inStockProducts] =
               <h2 className="text-xl font-bold text-gray-900">Disponible immédiatement</h2>
               <p className="text-sm text-gray-500 mt-0.5">Expédition sous 24–48h</p>
             </div>
-            <Link href={`/${locale}/catalogue?in_stock=true`} className="text-sm font-medium text-[#0F3460] hover:underline flex items-center gap-1">
+            <Link href={`/catalogue?in_stock=true`} className="text-sm font-medium text-[#0F3460] hover:underline flex items-center gap-1">
               Tout voir <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>

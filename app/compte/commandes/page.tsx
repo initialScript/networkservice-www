@@ -44,7 +44,6 @@ function StatusBadge({ status }: { status: string }) {
 
 export default function OrdersPage() {
   const pathname = usePathname();
-  const locale = pathname.split('/')[1] ?? 'fr';
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -83,7 +82,7 @@ export default function OrdersPage() {
             <p className="text-sm text-gray-400 mt-1">Vos achats apparaîtront ici</p>
           </div>
           <Link
-            href={`/${locale}/catalogue`}
+            href={`/catalogue`}
             className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0F3460] text-white text-sm font-semibold rounded-xl hover:bg-[#0a2444] transition"
           >
             Commencer vos achats <ArrowRight className="w-4 h-4" />
@@ -121,7 +120,7 @@ export default function OrdersPage() {
                 <div className="flex items-center justify-between">
                   <span className="text-base font-bold text-[#0F3460]">{formatPrice(order.total)}</span>
                   <Link
-                    href={`/${locale}/compte/commandes/${order.id}`}
+                    href={`/compte/commandes/${order.id}`}
                     className="flex items-center gap-1.5 text-sm font-semibold text-[#0F3460] hover:underline"
                   >
                     Voir le détail <ArrowRight className="w-3.5 h-3.5" />

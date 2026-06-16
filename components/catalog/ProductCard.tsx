@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ShoppingCart, Check, Camera } from 'lucide-react';
@@ -10,17 +10,18 @@ import { cn, formatPrice } from '@/lib/utils';
 
 type Props = {
   media_url?: string,
-  product: any
+  product: any,
+  priority?: boolean // Add priority prop
 }
 
-export default function ProductCard({ product, media_url }: Props) {
-  const locale = useLocale();
+export default function ProductCard({ product, media_url, priority = false }: Props) {
   const addItem = useCartStore((s) => s.addItem);
   const [isAdding, setIsAdding] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
+  const [shouldLoad, setShouldLoad] = useState(false);
+  const imgRef = useRef<HTMLDivElement>(null);
 
-  const name = locale === 'ar' ? product.name_ar : product.name_fr;
   const isOutOfStock = product.stock_qty === 0;
   const isLowStock = product.stock_qty > 0 && product.stock_qty <= 5;
   const hasDiscount = !!product.compare_price && product.compare_price > product.price;
@@ -28,7 +29,7 @@ export default function ProductCard({ product, media_url }: Props) {
     ? Math.round((1 - product.price / product.compare_price!) * 100)
     : 0;
 
-  // Get the primary image URL - return undefined instead of null
+  // Get the primary image URL
   const getImageUrl = (): string | undefined => {
     if (!product.images || product.images.length === 0) return undefined;
     const primaryImage = product.images.find((img: any) => img.is_primary) || product.images[0];
@@ -37,8 +38,39 @@ export default function ProductCard({ product, media_url }: Props) {
 
   const imageUrl = getImageUrl();
 
+  // Lazy load images with Intersection Observer
+  useEffect(() => {
+    if (priority) {
+      setShouldLoad(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setShouldLoad(true);
+            observer.disconnect();
+          }
+        });
+      },
+      {
+        rootMargin: '200px',
+        threshold: 0.01,
+      }
+    );
+
+    if (imgRef.current) {
+      observer.observe(imgRef.current);
+    }
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [priority]);
+
   const handleAddToCart = async (e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent navigating to product page
+    e.preventDefault();
     e.stopPropagation();
     
     if (isOutOfStock || isAdding || isAdded) return;
@@ -52,7 +84,7 @@ export default function ProductCard({ product, media_url }: Props) {
         slug: product.slug,
         price: parseFloat(product.price),
         image: imageUrl,
-        quantity: 1, // Default quantity for card
+        quantity: 1,
       });
       
       setIsAdded(true);
@@ -66,11 +98,11 @@ export default function ProductCard({ product, media_url }: Props) {
 
   return (
     <Link
-      href={`/${locale}/catalogue/${product.slug}`}
-      className="group flex flex-col bg-white rounded-xl border border-gray-100 hover:shadow-md hover:border-gray-200 transition-all duration-200 overflow-hidden"
+      href={`/catalogue/${product.slug}`}
+      className="group flex flex-col bg-white rounded-xl border border-gray-100 hover:shadow-md hover:border-gray-200 transition-all duration-200 overflow-hidden h-full"
     >
-      {/* Image Container - isolate the hover effect */}
-      <div className="relative h-40 sm:h-48 md:h-52 bg-gray-100 overflow-hidden">
+      {/* Image Container */}
+      <div ref={imgRef} className="relative aspect-square w-full bg-gray-100 overflow-hidden">
         {imageUrl ? (
           <>
             {imageLoading && (
@@ -81,45 +113,51 @@ export default function ProductCard({ product, media_url }: Props) {
               </div>
             )}
 
-            <div className="relative w-full h-full overflow-hidden">
-              <Image
-                src={imageUrl}
-                alt={product.name_fr}
-                fill
-                className={cn(
-                  'object-contain p-2 transition-all duration-300',
-                  'group-hover:scale-105', // Only scale on hover of the parent Link
-                  imageLoading ? 'opacity-0' : 'opacity-100'
-                )}
-                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                onLoad={() => setImageLoading(false)}
-              />
-            </div>
+            {shouldLoad && (
+              <div className="relative w-full h-full overflow-hidden">
+                <Image
+                  src={imageUrl}
+                  alt={product.name_fr}
+                  fill
+                  loading={priority ? 'eager' : 'lazy'}
+                  priority={priority}
+                  quality={priority ? 80 : 70}
+                  className={cn(
+                    'object-contain p-2 transition-all duration-300',
+                    'group-hover:scale-105',
+                    imageLoading ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
+                  )}
+                  sizes="(max-width: 480px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
+                  onLoad={() => setImageLoading(false)}
+                />
+              </div>
+            )}
           </>
         ) : (
           <div className="absolute inset-0 flex items-center justify-center text-gray-200">
-            <Camera className="w-8 h-8" />
+            <Camera className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12" />
           </div>
         )}
       </div>
 
       {/* Body */}
-      <div className="flex flex-col flex-1 p-3 gap-2">
-        <p className="text-sm font-medium text-gray-800 line-clamp-2 leading-snug min-h-[2.5rem]">
+      <div className="flex flex-col flex-1 p-2 sm:p-3 gap-1.5 sm:gap-2">
+        {/* Product Name */}
+        <p className="text-xs sm:text-sm font-medium text-gray-800 line-clamp-2 leading-snug min-h-[2rem] sm:min-h-[2.5rem]">
           {product.name_fr}
         </p>
 
         {/* Price */}
-        <div className="flex items-end gap-1.5 flex-wrap">
-          <span className="text-base font-bold text-[#0F3460]">
+        <div className="flex items-end gap-1 flex-wrap">
+          <span className="text-sm sm:text-base font-bold text-[#0F3460]">
             {formatPrice(product.price)} MAD
           </span>
           {hasDiscount && (
             <>
-              <span className="text-xs text-gray-400 line-through leading-relaxed">
+              <span className="text-[10px] sm:text-xs text-gray-400 line-through leading-relaxed">
                 {formatPrice(product.compare_price!)} MAD
               </span>
-              <span className="text-[10px] font-bold text-[#E94560] bg-orange-50 px-1 py-0.5 rounded">
+              <span className="text-[8px] sm:text-[10px] font-bold text-[#E94560] bg-orange-50 px-1 py-0.5 rounded">
                 -{discountPct}%
               </span>
             </>
@@ -127,24 +165,27 @@ export default function ProductCard({ product, media_url }: Props) {
         </div>
 
         {/* Stock */}
-        <div className="flex items-center gap-1.5 text-xs">
+        <div className="flex items-center gap-1.5 text-[10px] sm:text-xs">
           <span className={cn(
             'w-1.5 h-1.5 rounded-full flex-shrink-0',
             isOutOfStock ? 'bg-red-500' : isLowStock ? 'bg-orange-400' : 'bg-green-500',
           )} />
           <span className={cn(
             isOutOfStock ? 'text-red-500' : isLowStock ? 'text-orange-500' : 'text-green-600',
+            'truncate'
           )}>
             {isOutOfStock ? 'Rupture de stock' : isLowStock ? `Stock limité (${product.stock_qty})` : 'En stock'}
           </span>
         </div>
 
-        {/* CTA */}
+        {/* CTA Button - Responsive */}
         <button
           onClick={handleAddToCart}
           disabled={isOutOfStock || isAdding}
           className={cn(
-            'mt-auto flex items-center justify-center gap-2 w-full py-2 rounded-lg text-sm font-semibold transition-all duration-200',
+            'mt-auto w-full py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200',
+            'flex items-center justify-center gap-1 sm:gap-2',
+            'min-h-[2rem] sm:min-h-[2.5rem]',
             isAdded
               ? 'bg-green-500 text-white'
               : isOutOfStock
@@ -153,11 +194,22 @@ export default function ProductCard({ product, media_url }: Props) {
           )}
         >
           {isAdded ? (
-            <><Check className="w-4 h-4" /> Ajouté !</>
+            <>
+              <Check className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+              <span className="hidden xs:inline">Ajouté !</span>
+              <span className="inline xs:hidden">✓</span>
+            </>
           ) : isAdding ? (
-            <span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+            <span className="w-3 h-3 sm:w-4 sm:h-4 rounded-full border-2 border-white/30 border-t-white animate-spin flex-shrink-0" />
+          ) : isOutOfStock ? (
+            <span className="text-[10px] sm:text-xs">Indisponible</span>
           ) : (
-            <><ShoppingCart className="w-4 h-4" /> Ajouter au panier</>
+            <>
+              <ShoppingCart className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+              <span className="hidden xs:inline">Ajouter</span>
+              <span className="hidden sm:inline"> au panier</span>
+              <span className="inline xs:hidden">+</span>
+            </>
           )}
         </button>
       </div>

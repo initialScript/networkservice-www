@@ -39,8 +39,13 @@ export default function ProductGrid({ products, isLoading, columns = 'default', 
 
   return (
     <div className={gridCls}>
-      {products.map((product) => (
-        <ProductCard key={product.id} product={product} media_url={media_url} />
+      {products.map((product, index) => (
+        <ProductCard 
+          key={product.id} 
+          product={product} 
+          media_url={media_url}
+          priority={index < 4} // Load first 4 images with priority
+        />
       ))}
     </div>
   );

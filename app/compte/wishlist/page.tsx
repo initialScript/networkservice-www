@@ -26,7 +26,6 @@ interface WishlistProduct {
 
 export default function WishlistPage() {
   const pathname = usePathname();
-  const locale = pathname.split('/')[1] ?? 'fr';
   const addItem = useCartStore((s) => s.addItem);
   const { toasts, success, error: toastError, dismiss } = useToast();
 
@@ -112,7 +111,7 @@ export default function WishlistPage() {
             <p className="text-sm text-gray-400 mt-1">Sauvegardez les produits qui vous intéressent</p>
           </div>
           <Link
-            href={`/${locale}/catalogue`}
+            href={`/catalogue`}
             className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0F3460] text-white text-sm font-semibold rounded-xl hover:bg-[#0a2444] transition"
           >
             Découvrir le catalogue <ArrowRight className="w-4 h-4" />
@@ -121,7 +120,7 @@ export default function WishlistPage() {
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
           {items.map((item) => {
-            const name = locale === 'ar' && item.name_ar ? item.name_ar : item.name_fr;
+            const name = item.name_fr;
             const isOutOfStock = item.stock_qty === 0;
             const hasDiscount = !!item.compare_price && item.compare_price > item.price;
             const discountPct = hasDiscount
@@ -145,7 +144,7 @@ export default function WishlistPage() {
                 </button>
 
                 {/* Image */}
-                <Link href={`/${locale}/produits/${item.slug}`} className="relative aspect-square bg-gray-50">
+                <Link href={`/produits/${item.slug}`} className="relative aspect-square bg-gray-50">
                   {item.image ? (
                     <Image
                       src={getImageUrl(item.image.url)}
@@ -168,7 +167,7 @@ export default function WishlistPage() {
 
                 {/* Body */}
                 <div className="flex flex-col flex-1 p-3 gap-2">
-                  <Link href={`/${locale}/produits/${item.slug}`}>
+                  <Link href={`/produits/${item.slug}`}>
                     <p className="text-sm font-medium text-gray-800 line-clamp-2 leading-snug hover:text-[#0F3460] transition-colors min-h-[2.5rem]">
                       {name}
                     </p>

@@ -16,7 +16,6 @@ export default function OrderSuccessPage() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const locale = pathname.split('/')[1] ?? 'fr';
   
   const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null);
   const [loading, setLoading] = useState(true);
@@ -74,7 +73,7 @@ export default function OrderSuccessPage() {
           <h2 className="text-xl font-semibold text-gray-800 mb-2">Commande non trouvée</h2>
           <p className="text-gray-500 mb-4">Impossible de charger les détails de votre commande</p>
           <Link
-            href={`/${locale}`}
+            href={`/`}
             className="inline-flex items-center gap-2 px-6 py-2 bg-[#0F3460] text-white rounded-lg hover:bg-[#0a2444] transition"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -184,14 +183,14 @@ export default function OrderSuccessPage() {
         {/* Action Buttons */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
           <Link
-            href={`/${locale}`}
+            href={`/`}
             className="flex items-center justify-center gap-2 px-4 py-3 bg-[#0F3460] text-white rounded-xl font-semibold hover:bg-[#0a2444] transition-all duration-200 group"
           >
             <Home className="w-4 h-4 group-hover:scale-110 transition-transform" />
             Retour à l'accueil
           </Link>
           <Link
-            href={`/${locale}/catalogue`}
+            href={`/catalogue`}
             className="flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition-all duration-200 group"
           >
             <ShoppingBag className="w-4 h-4 group-hover:scale-110 transition-transform" />
@@ -205,7 +204,7 @@ export default function OrderSuccessPage() {
             Une question sur votre commande ?
           </p>
           <Link
-            href={`/${locale}/contact`}
+            href={`/contact`}
             className="text-sm text-[#0F3460] font-medium hover:underline inline-flex items-center gap-1 mt-1"
           >
             Contactez notre service client

@@ -11,7 +11,7 @@ interface Props {
 export default function AccountLayout({ children, params: { locale } }: Props) {
   const cookieStore = cookies();
   const token = cookieStore.get('accessToken')?.value;
-  if (!token) redirect(`/${locale}/auth/login?redirect=/compte`);
+  if (!token) redirect(`/auth/login?redirect=/compte`);
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">

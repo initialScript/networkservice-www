@@ -30,11 +30,11 @@ export default function AccountSidebar({ locale }: Props) {
 
   const handleLogout = () => {
     logout();
-    router.push(`/${locale}`);
+    router.push(`/`);
   };
 
   const isActive = (href: string, exact?: boolean) => {
-    const full = `/${locale}${href}`;
+    const full = `/${href}`;
     return exact ? pathname === full : pathname.startsWith(full);
   };
 
@@ -55,7 +55,7 @@ export default function AccountSidebar({ locale }: Props) {
       <nav className="flex lg:flex-col gap-1">
         {NAV.map(({ href, label, icon: Icon, exact }) => {
           const active = isActive(href, exact);
-          const fullHref = href.startsWith('/b2b') ? `/${locale}/b2b` : `/${locale}${href}`;
+          const fullHref = href.startsWith('/b2b') ? `/b2b` : `/${href}`;
           return (
             <Link
               key={href}

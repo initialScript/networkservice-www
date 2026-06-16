@@ -66,7 +66,6 @@ export default function FilterSidebar({
   categories, 
   brands, 
   currentFilters, 
-  locale = 'fr',
   onFilterChange 
 }: Props) {
   const router = useRouter();
@@ -153,7 +152,7 @@ export default function FilterSidebar({
       <Section title="Catégories">
         <ul className="space-y-1">
           {categories.map((cat) => {
-            const name = locale === 'ar' ? cat.name_ar : cat.name_fr;
+            const name = cat.name_fr;
             const isActive = currentFilters.category === cat.slug;
             return (
               <li key={cat.slug}>
