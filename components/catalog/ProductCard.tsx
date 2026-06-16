@@ -21,6 +21,8 @@ export default function ProductCard({ product, media_url, priority = false }: Pr
   const [shouldLoad, setShouldLoad] = useState(false);
   const imgRef = useRef<HTMLDivElement>(null);
 
+  // Check if product has a valid price (greater than 0)
+  const hasValidPrice = product.price > 0;
   const isOutOfStock = product.stock_qty === 0;
   const isLowStock = product.stock_qty > 0 && product.stock_qty <= 5;
   const hasDiscount = !!product.compare_price && product.compare_price > product.price;
@@ -39,7 +41,7 @@ export default function ProductCard({ product, media_url, priority = false }: Pr
     if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
       try {
         const url = new URL(imagePath);
-        return url.pathname; // Returns: /public/101/network_service/products/072f75c78c.webp
+        return url.pathname;
       } catch {
         return imagePath;
       }
@@ -94,7 +96,7 @@ export default function ProductCard({ product, media_url, priority = false }: Pr
     e.preventDefault();
     e.stopPropagation();
     
-    if (isOutOfStock || isAdding || isAdded) return;
+    if (isOutOfStock || isAdding || isAdded || !hasValidPrice) return;
     
     setIsAdding(true);
     
@@ -105,7 +107,7 @@ export default function ProductCard({ product, media_url, priority = false }: Pr
         name: product.name_fr,
         slug: product.slug,
         price: parseFloat(product.price),
-        image: imagePath, // Store only the path
+        image: imagePath,
         quantity: 1,
       });
       
@@ -169,22 +171,28 @@ export default function ProductCard({ product, media_url, priority = false }: Pr
           {product.name_fr}
         </p>
 
-        {/* Price */}
-        <div className="flex items-end gap-1 flex-wrap">
-          <span className="text-sm sm:text-base font-bold text-[#0F3460]">
-            {formatPrice(product.price)} MAD
-          </span>
-          {hasDiscount && (
-            <>
-              <span className="text-[10px] sm:text-xs text-gray-400 line-through leading-relaxed">
-                {formatPrice(product.compare_price!)} MAD
-              </span>
-              <span className="text-[8px] sm:text-[10px] font-bold text-[#E94560] bg-orange-50 px-1 py-0.5 rounded">
-                -{discountPct}%
-              </span>
-            </>
-          )}
-        </div>
+        {/* Price - Only show if price > 0 */}
+        {hasValidPrice ? (
+          <div className="flex items-end gap-1 flex-wrap">
+            <span className="text-sm sm:text-base font-bold text-[#0F3460]">
+              {formatPrice(product.price)} MAD
+            </span>
+            {hasDiscount && (
+              <>
+                <span className="text-[10px] sm:text-xs text-gray-400 line-through leading-relaxed">
+                  {formatPrice(product.compare_price!)} MAD
+                </span>
+                <span className="text-[8px] sm:text-[10px] font-bold text-[#E94560] bg-orange-50 px-1 py-0.5 rounded">
+                  -{discountPct}%
+                </span>
+              </>
+            )}
+          </div>
+        ) : (
+          <div className="text-sm sm:text-base text-gray-400 font-medium">
+            Prix non disponible
+          </div>
+        )}
 
         {/* Stock */}
         <div className="flex items-center gap-1.5 text-[10px] sm:text-xs">
@@ -200,17 +208,17 @@ export default function ProductCard({ product, media_url, priority = false }: Pr
           </span>
         </div>
 
-        {/* CTA Button - Responsive */}
+        {/* CTA Button - Disabled if price is 0 or out of stock */}
         <button
           onClick={handleAddToCart}
-          disabled={isOutOfStock || isAdding}
+          disabled={isOutOfStock || isAdding || !hasValidPrice}
           className={cn(
             'mt-auto w-full py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200',
             'flex items-center justify-center gap-1 sm:gap-2',
             'min-h-[2rem] sm:min-h-[2.5rem]',
             isAdded
               ? 'bg-green-500 text-white'
-              : isOutOfStock
+              : (isOutOfStock || !hasValidPrice)
               ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
               : 'bg-[#E94560] text-white hover:bg-[#c73350] active:scale-[0.97]',
           )}
@@ -223,6 +231,8 @@ export default function ProductCard({ product, media_url, priority = false }: Pr
             </>
           ) : isAdding ? (
             <span className="w-3 h-3 sm:w-4 sm:h-4 rounded-full border-2 border-white/30 border-t-white animate-spin flex-shrink-0" />
+          ) : !hasValidPrice ? (
+            <span className="text-[10px] sm:text-xs">Prix non disponible</span>
           ) : isOutOfStock ? (
             <span className="text-[10px] sm:text-xs">Indisponible</span>
           ) : (
