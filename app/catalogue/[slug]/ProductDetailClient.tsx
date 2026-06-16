@@ -464,7 +464,8 @@ const handleAddToCart = async () => {
                 </Button>
 
                 {/* WhatsApp Order Button - Only show if price > 0 and in stock */}
-                {inStock && (
+                {/*
+                {inStock && ( 
                   <WhatsAppOrderButton 
                     product={{
                       id: product.id,
@@ -478,6 +479,7 @@ const handleAddToCart = async () => {
                     className="flex-1"
                   />
                 )}
+                */}
               </div>
             ) : (
               <div className="w-full bg-gray-100 rounded-xl p-4 text-center">
