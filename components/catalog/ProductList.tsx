@@ -22,8 +22,8 @@ export default function ProductList({ products, media_url }: ProductListProps) {
     e.stopPropagation();
     if (addingProductId) return;
     
-    // Check if product has valid price
-    if (product.price <= 0) return;
+    // Check if product has valid price and is in stock
+    if (product.price <= 0 || product.stock_qty === 0) return;
     
     setAddingProductId(product.id);
     try {
@@ -58,10 +58,8 @@ export default function ProductList({ products, media_url }: ProductListProps) {
     <div className="space-y-4">
       {products.map((product, index) => {
         const hasValidPrice = product.price > 0;
-        // const isOutOfStock = product.stock_qty === 0;
-        const isOutOfStock = false; // Always in stock
-        // const isLowStock = product.stock_qty > 0 && product.stock_qty <= 5;
-        const isLowStock = false; // Always in stock
+        const isOutOfStock = product.stock_qty === 0;
+        const isLowStock = product.stock_qty > 0 && product.stock_qty <= 5;
         const hasDiscount = !!product.compare_price && product.compare_price > product.price;
         const discountPct = hasDiscount
           ? Math.round((1 - product.price / product.compare_price!) * 100)
@@ -96,11 +94,11 @@ export default function ProductList({ products, media_url }: ProductListProps) {
                   -{discountPct}%
                 </span>
               )}
-              {/* {isOutOfStock && (
+              {isOutOfStock && (
                 <span className="absolute top-1 right-1 bg-red-100 text-red-600 text-[9px] font-semibold px-1.5 py-0.5 rounded">
                   Rupture
                 </span>
-              )} */}
+              )}
             </div>
 
             {/* Product Info */}
@@ -163,30 +161,27 @@ export default function ProductList({ products, media_url }: ProductListProps) {
                   <span
                     className={cn(
                       'w-1.5 h-1.5 rounded-full',
-                      // isOutOfStock
-                      //   ? 'bg-red-500'
-                      //   : isLowStock
-                      //   ? 'bg-orange-400'
-                      //   : 'bg-green-500'
-                      'bg-green-500' // Always green
+                      isOutOfStock
+                        ? 'bg-red-500'
+                        : isLowStock
+                        ? 'bg-orange-400'
+                        : 'bg-green-500'
                     )}
                   />
                   <span
                     className={cn(
-                      // isOutOfStock
-                      //   ? 'text-red-500'
-                      //   : isLowStock
-                      //   ? 'text-orange-500'
-                      //   : 'text-green-600'
-                      'text-green-600' // Always green
+                      isOutOfStock
+                        ? 'text-red-500'
+                        : isLowStock
+                        ? 'text-orange-500'
+                        : 'text-green-600'
                     )}
                   >
-                    {/* {isOutOfStock
+                    {isOutOfStock
                       ? 'Rupture de stock'
                       : isLowStock
                       ? `Plus que ${product.stock_qty}`
-                      : 'En stock'} */}
-                    En stock ({product.stock_qty} disponible{product.stock_qty > 1 ? 's' : ''})
+                      : 'En stock'}
                   </span>
                 </div>
 
@@ -194,12 +189,10 @@ export default function ProductList({ products, media_url }: ProductListProps) {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={(e) => handleAddToCart(e, product)}
-                    // disabled={isOutOfStock || !hasValidPrice}
-                    disabled={!hasValidPrice} // Only disabled if no valid price
+                    disabled={isOutOfStock || !hasValidPrice}
                     className={cn(
                       'flex items-center justify-center gap-1.5 px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200',
-                      // (isOutOfStock || !hasValidPrice)
-                      (!hasValidPrice)
+                      (isOutOfStock || !hasValidPrice)
                         ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                         : 'bg-[#E94560] text-white hover:bg-[#c73350] active:scale-95'
                     )}
@@ -211,13 +204,12 @@ export default function ProductList({ products, media_url }: ProductListProps) {
                         <ShoppingCart size={16} />
                         Indisponible
                       </>
-                    ) : // isOutOfStock ? (
-                    //   <>
-                    //     <ShoppingCart size={16} />
-                    //     Rupture
-                    //   </>
-                    // ) : 
-                    (
+                    ) : isOutOfStock ? (
+                      <>
+                        <ShoppingCart size={16} />
+                        Rupture
+                      </>
+                    ) : (
                       <>
                         <ShoppingCart size={16} />
                         Ajouter

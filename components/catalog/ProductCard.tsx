@@ -24,9 +24,9 @@ export default function ProductCard({ product, media_url, priority = false }: Pr
   // Check if product has a valid price (greater than 0)
   const hasValidPrice = product.price > 0;
   
-  // FORCE all products to be "in stock" - ignore actual stock_qty
-  const isOutOfStock = false; // Always false - all products are in stock
-  const isLowStock = false; // Always false - no low stock warning
+  // Check stock status
+  const isOutOfStock = product.stock_qty === 0;
+  const isLowStock = product.stock_qty > 0 && product.stock_qty <= 5;
   const hasDiscount = !!product.compare_price && product.compare_price > product.price;
   const discountPct = hasDiscount
     ? Math.round((1 - product.price / product.compare_price!) * 100)
@@ -98,7 +98,7 @@ export default function ProductCard({ product, media_url, priority = false }: Pr
     e.preventDefault();
     e.stopPropagation();
     
-    if (isAdding || isAdded || !hasValidPrice) return; // Removed isOutOfStock check
+    if (isAdding || isAdded || !hasValidPrice || isOutOfStock) return;
     
     setIsAdding(true);
     
@@ -196,25 +196,35 @@ export default function ProductCard({ product, media_url, priority = false }: Pr
           </div>
         )}
 
-        {/* Stock - Always show "En stock" with green indicator */}
+        {/* Stock Status */}
         <div className="flex items-center gap-1.5 text-[10px] sm:text-xs">
-          <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 bg-green-500" />
-          <span className="text-green-600 truncate">
-            En stock
+          <span className={cn(
+            'w-1.5 h-1.5 rounded-full flex-shrink-0',
+            isOutOfStock ? 'bg-red-500' : isLowStock ? 'bg-orange-400' : 'bg-green-500'
+          )} />
+          <span className={cn(
+            'truncate',
+            isOutOfStock ? 'text-red-500' : isLowStock ? 'text-orange-500' : 'text-green-600'
+          )}>
+            {isOutOfStock 
+              ? 'Rupture de stock' 
+              : isLowStock 
+              ? `Plus que ${product.stock_qty}` 
+              : 'En stock'}
           </span>
         </div>
 
-        {/* CTA Button - Always enabled if price > 0 */}
+        {/* CTA Button */}
         <button
           onClick={handleAddToCart}
-          disabled={isAdding || !hasValidPrice}
+          disabled={isAdding || !hasValidPrice || isOutOfStock}
           className={cn(
             'mt-auto w-full py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200',
             'flex items-center justify-center gap-1 sm:gap-2',
             'min-h-[2rem] sm:min-h-[2.5rem]',
             isAdded
               ? 'bg-green-500 text-white'
-              : !hasValidPrice
+              : !hasValidPrice || isOutOfStock
               ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
               : 'bg-[#E94560] text-white hover:bg-[#c73350] active:scale-[0.97]',
           )}
@@ -228,6 +238,8 @@ export default function ProductCard({ product, media_url, priority = false }: Pr
             <span className="w-3 h-3 sm:w-4 sm:h-4 rounded-full border-2 border-white/30 border-t-white animate-spin flex-shrink-0" />
           ) : !hasValidPrice ? (
             <span className="text-[10px] sm:text-xs">Prix non disponible</span>
+          ) : isOutOfStock ? (
+            <span className="text-[10px] sm:text-xs">Rupture de stock</span>
           ) : (
             <>
               <ShoppingCart className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />

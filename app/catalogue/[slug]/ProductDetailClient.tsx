@@ -111,12 +111,27 @@ const discountPct = (price: string, compare: string) => {
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-const StockBadge = ({ qty }: { qty: number }) =>
-  <span className="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full">
-    <CircleCheck size={14} />
-    En stock
-    {qty > 0 && ` (${qty} disponible${qty > 1 ? 's' : ''})`}
-  </span>
+const StockBadge = ({ qty }: { qty: number }) => {
+  const isOutOfStock = qty === 0;
+  const isLowStock = qty > 0 && qty <= 5;
+  
+  if (isOutOfStock) {
+    return (
+      <span className="inline-flex items-center gap-1.5 text-sm font-medium text-red-600 bg-red-50 px-3 py-1 rounded-full">
+        <Package size={14} />
+        Rupture de stock
+      </span>
+    );
+  }
+  
+  return (
+    <span className="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full">
+      <CircleCheck size={14} />
+      En stock
+      {isLowStock ? ` (Plus que ${qty})` : ` (${qty} disponible${qty > 1 ? 's' : ''})`}
+    </span>
+  );
+};
 
 // ─── WhatsApp Button Component ──────────────────────────────────────────────
 
@@ -183,7 +198,8 @@ const ProductDetailClient = ({
 
   // Check if product has valid price (greater than 0)
   const hasValidPrice = parseFloat(product.price) > 0;
-  const inStock = hasValidPrice; // Always in stock if price is valid
+  const isOutOfStock = product.stock_qty === 0;
+  const inStock = hasValidPrice && !isOutOfStock;
 
   const galleryImages = [...product.images]
     .sort((a, b) => a.sort_order - b.sort_order)
@@ -228,7 +244,7 @@ const handleAddToCart = async () => {
 };
 
   const handleIncrease = () => {
-    if (quantity < 99) setQuantity(q => q + 1); // Always allow up to 99
+    if (quantity < Math.min(99, product.stock_qty)) setQuantity(q => q + 1);
   };
   
   const handleDecrease = () => {
@@ -291,11 +307,13 @@ const handleAddToCart = async () => {
           {/* RIGHT: Product Info */}
           <div className="flex flex-col space-y-4 sm:space-y-5">
 
-            {/* Delivery badge */}
-            <div className="inline-flex w-fit items-center gap-1.5 bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium">
-              <Truck size={14} className="stroke-emerald-600" />
-              Livraison express sous 1-3 jours
-            </div>
+            {/* Delivery badge - Hide if out of stock */}
+            {!isOutOfStock && (
+              <div className="inline-flex w-fit items-center gap-1.5 bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium">
+                <Truck size={14} className="stroke-emerald-600" />
+                Livraison express sous 1-3 jours
+              </div>
+            )}
 
             {/* Title & meta */}
             <div className="space-y-2">
@@ -464,23 +482,23 @@ const handleAddToCart = async () => {
 
             {/* Quantity + CTAs - Only show if price > 0 */}
             {hasValidPrice ? (
-              <div className="flex flex-row items-stretch sm:items-center gap-3 w-full">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full">
                 {inStock && (
-                  <div className="shrink-0">
+                  <div className="sm:shrink-0">
                     <AmountBtns
                       amount={quantity}
                       onIncrease={handleIncrease}
                       onDecrease={handleDecrease}
                       minAmount={1}
-                      maxAmount={99}
+                      maxAmount={Math.min(99, product.stock_qty)}
                     />
                   </div>
                 )}
-                <div className="flex flex-col  gap-3 w-full">
+                <div className="flex flex-1 flex-col gap-3 w-full">
                   <Button
                     onClick={handleAddToCart}
                     disabled={!inStock || isAddingToCart}
-                    className={`flex-1 gap-2 rounded-xl pyy-2 transition-all duration-200 shadow-md hover:shadow-lg text-sm sm:text-base font-semibold ${
+                    className={`w-full gap-2 rounded-xl py-3 sm:py-4 transition-all duration-200 shadow-md hover:shadow-lg text-sm sm:text-base font-semibold ${
                       !inStock || isAddingToCart
                         ? 'bg-gray-200 text-gray-400 cursor-not-allowed shadow-none'
                         : 'bg-gray-900 hover:bg-gray-800 text-white'
@@ -517,8 +535,8 @@ const handleAddToCart = async () => {
               </div>
             )}
 
-            {/* Delivery options - Only show if price > 0 */}
-            {hasValidPrice && (
+            {/* Delivery options - Only show if in stock and price > 0 */}
+            {hasValidPrice && inStock && (
               <div className="space-y-2">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 bg-gray-50 rounded-xl gap-3 border border-gray-100">
                   <div className="flex items-start gap-3">
@@ -559,8 +577,6 @@ const handleAddToCart = async () => {
                 </div>
               </div>
             )}
-
-            
           </div>
         </div>
 
