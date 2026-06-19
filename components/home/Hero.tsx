@@ -62,7 +62,7 @@ const Hero = ({locale}:{locale:string}) => {
               />
             </div>
             {/* Gradient overlay for better text readability */}
-            <div className="absolute inset-0 bg-black/30" />
+            <div className="absolute inset-0 bg-black/20" />
           </div>
         ))}
       </div>

@@ -112,21 +112,53 @@ const discountPct = (price: string, compare: string) => {
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
 const StockBadge = ({ qty }: { qty: number }) =>
-  // qty > 0 ? (
-  //   <span className="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full">
-  //     <CircleCheck size={14} />
-  //     En stock ({qty} disponible{qty > 1 ? 's' : ''})
-  //   </span>
-  // ) : (
-  //   <span className="inline-flex items-center gap-1.5 text-sm font-medium text-red-600 bg-red-50 px-3 py-1 rounded-full">
-  //     <Package size={14} />
-  //     Rupture de stock
-  //   </span>
-  // )
   <span className="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full">
     <CircleCheck size={14} />
-    En stock ({qty} disponible{qty > 1 ? 's' : ''})
-  </span>;
+    En stock
+    {qty > 0 && ` (${qty} disponible${qty > 1 ? 's' : ''})`}
+  </span>
+
+// ─── WhatsApp Button Component ──────────────────────────────────────────────
+
+const WhatsAppButton = ({ 
+  productName, 
+  productPrice, 
+  quantity,
+  sku
+}: { 
+  productName: string; 
+  productPrice: string; 
+  quantity: number;
+  sku: string;
+}) => {
+  const phoneNumber = "212750974849"; // Remove the + sign for the link
+  const message = `Bonjour, je souhaite passer une commande :\n\n` +
+    `🛒 Produit : ${productName}\n` +
+    `📦 SKU : ${sku}\n` +
+    `💰 Prix : ${formatPrice(productPrice)} DH\n` +
+    `🔢 Quantité : ${quantity}\n\n` +
+    `Merci de me confirmer la disponibilité et le total.`;
+
+  const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+
+  return (
+    <a
+      href={whatsappUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl py-2 px-4 transition-all duration-200 shadow-md hover:shadow-lg text-sm sm:text-base font-semibold bg-[#25D366] hover:bg-[#1da851] text-white"
+    >
+      <svg 
+        viewBox="0 0 24 24" 
+        className="w-5 h-5 fill-current"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+      </svg>
+      Commander via WhatsApp
+    </a>
+  );
+};
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
@@ -151,7 +183,6 @@ const ProductDetailClient = ({
 
   // Check if product has valid price (greater than 0)
   const hasValidPrice = parseFloat(product.price) > 0;
-  // const inStock = product.stock_qty > 0 && hasValidPrice;
   const inStock = hasValidPrice; // Always in stock if price is valid
 
   const galleryImages = [...product.images]
@@ -197,7 +228,6 @@ const handleAddToCart = async () => {
 };
 
   const handleIncrease = () => {
-    // if (quantity < Math.min(99, product.stock_qty)) setQuantity(q => q + 1);
     if (quantity < 99) setQuantity(q => q + 1); // Always allow up to 99
   };
   
@@ -432,61 +462,54 @@ const handleAddToCart = async () => {
               </div>
             )}
 
-            {/* Quantity + CTA - Only show if price > 0 */}
+            {/* Quantity + CTAs - Only show if price > 0 */}
             {hasValidPrice ? (
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full">
+              <div className="flex flex-row items-stretch sm:items-center gap-3 w-full">
                 {inStock && (
-                  <div className="sm:shrink-0">
+                  <div className="shrink-0">
                     <AmountBtns
                       amount={quantity}
                       onIncrease={handleIncrease}
                       onDecrease={handleDecrease}
                       minAmount={1}
-                      // maxAmount={Math.min(99, product.stock_qty)}
-                      maxAmount={99} // Always allow up to 99
+                      maxAmount={99}
                     />
                   </div>
                 )}
-                <Button
-                  onClick={handleAddToCart}
-                  disabled={!inStock || isAddingToCart}
-                  className={`flex-1 gap-2 rounded-xl py-3 sm:py-4 transition-all duration-200 shadow-md hover:shadow-lg text-sm sm:text-base font-semibold ${
-                    !inStock || isAddingToCart
-                      ? 'bg-gray-200 text-gray-400 cursor-not-allowed shadow-none'
-                      : 'bg-gray-900 hover:bg-gray-800 text-white'
-                  }`}
-                >
-                  {isAddingToCart ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      Ajout en cours...
-                    </>
-                  ) : (
-                    <>
-                      <ShoppingCart size={18} />
-                      {inStock ? 'Ajouter au panier' : 'Rupture de stock'}
-                      {inStock && <ArrowRight size={14} className="opacity-60" />}
-                    </>
-                  )}
-                </Button>
+                <div className="flex flex-col  gap-3 w-full">
+                  <Button
+                    onClick={handleAddToCart}
+                    disabled={!inStock || isAddingToCart}
+                    className={`flex-1 gap-2 rounded-xl pyy-2 transition-all duration-200 shadow-md hover:shadow-lg text-sm sm:text-base font-semibold ${
+                      !inStock || isAddingToCart
+                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed shadow-none'
+                        : 'bg-gray-900 hover:bg-gray-800 text-white'
+                    }`}
+                  >
+                    {isAddingToCart ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        Ajout en cours...
+                      </>
+                    ) : (
+                      <>
+                        <ShoppingCart size={18} />
+                        {inStock ? 'Ajouter au panier' : 'Rupture de stock'}
+                        {inStock && <ArrowRight size={14} className="opacity-60" />}
+                      </>
+                    )}
+                  </Button>
 
-                {/* WhatsApp Order Button - Only show if price > 0 and in stock */}
-                {/*
-                {inStock && ( 
-                  <WhatsAppOrderButton 
-                    product={{
-                      id: product.id,
-                      name_fr: product.name_fr,
-                      sku: product.sku,
-                      price: product.price,
-                      quantity: quantity,
-                      images: product.images,
-                      media_url: mediaUrl
-                    }}
-                    className="flex-1"
-                  />
-                )}
-                */}
+                  {/* WhatsApp Button - Only show if in stock */}
+                  {inStock && (
+                    <WhatsAppButton 
+                      productName={product.name_fr}
+                      productPrice={product.price}
+                      quantity={quantity}
+                      sku={product.sku}
+                    />
+                  )}
+                </div>
               </div>
             ) : (
               <div className="w-full bg-gray-100 rounded-xl p-4 text-center">
@@ -522,11 +545,9 @@ const handleAddToCart = async () => {
                       <div className="flex flex-wrap items-center gap-1.5 mt-1">
                         <span className="inline-flex items-center gap-1 bg-emerald-100 text-emerald-700 text-xs font-medium px-2 py-0.5 rounded-full">
                           <CircleCheck size={10} />
-                          {/* {inStock ? 'En stock' : 'Rupture'} */}
                           En stock
                         </span>
                         <span className="text-xs text-gray-500">
-                          {/* {inStock ? 'Retrait immédiat' : 'Délai à confirmer'} */}
                           Retrait immédiat
                         </span>
                       </div>

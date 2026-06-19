@@ -125,36 +125,50 @@ export default function MobileMenu({ isOpen, onClose, categories }: Props) {
   const items_count = useCartStore((s) => s.items_count);
   const { open: openCart } = useCartDrawer();
   const [catsOpen, setCatsOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     document.body.style.overflow = isOpen ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
   }, [isOpen]);
 
-  if (!isOpen) return null;
+  if (!isMounted) return null;
 
   return (
     <>
-      {/* Backdrop */}
-      <div className="fixed inset-0 z-40 bg-black/50" onClick={onClose} />
+      {/* Backdrop with fade animation */}
+      <div 
+        className={`fixed inset-0 z-40 transition-opacity duration-300 ease-in-out ${
+          isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
+        style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
+        onClick={isOpen ? onClose : undefined}
+      />
 
-      {/* Slide-in panel */}
-      <div className="fixed inset-y-0 left-0 z-50 w-80 max-w-[85vw] bg-white shadow-2xl flex flex-col">
+      {/* Slide-in panel with smooth animation */}
+      <div 
+        className={`fixed inset-y-0 left-0 z-50 w-80 max-w-[85vw] bg-white shadow-2xl flex flex-col transition-transform duration-300 ease-in-out ${
+          isOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
         {/* Header */}
-        {/* Header */}
-<div className="flex items-center justify-between px-5 py-4 bg-white border-b border-gray-100 shrink-0">
-  <img
-    src="/assets/main-logo.png"
-    alt="Network Service Info"
-    className="h-8"
-  />
-  <button
-    onClick={onClose}
-    className="p-1.5 rounded-lg text-gray-400 hover:text-[#0F3460] hover:bg-gray-50 transition"
-  >
-    <X className="w-5 h-5" />
-  </button>
-</div>
+        <div className="flex items-center justify-between px-5 py-4 bg-white border-b border-gray-100 shrink-0">
+          <img
+            src="/assets/main-logo.png"
+            alt="Network Service Info"
+            className="h-8"
+          />
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-lg text-gray-400 hover:text-[#0F3460] hover:bg-gray-50 transition"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
 
         {/* Scrollable nav */}
         <nav className="flex-1 overflow-y-auto py-3 px-3 space-y-0.5 text-sm">
@@ -182,8 +196,13 @@ export default function MobileMenu({ isOpen, onClose, categories }: Props) {
             />
           </button>
 
-          {catsOpen && (
-            <div className="space-y-0.5 pb-1">
+          {/* Category children with smooth expand animation */}
+          <div
+            className={`overflow-hidden transition-all duration-300 ease-in-out ${
+              catsOpen ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
+            }`}
+          >
+            <div className="space-y-0.5 pb-1 pt-1">
               {categories.map((cat) => (
                 <CategoryRow
                   key={cat.slug}
@@ -200,7 +219,7 @@ export default function MobileMenu({ isOpen, onClose, categories }: Props) {
                 Voir tout le catalogue →
               </Link>
             </div>
-          )}
+          </div>
 
           <hr className="border-gray-100 !my-2" />
 
@@ -232,6 +251,7 @@ export default function MobileMenu({ isOpen, onClose, categories }: Props) {
             )}
           </button>
 
+          {/* Auth - Commented out as per original */}
           {/* Auth */}
           {/* {isAuthenticated ? (
             <>
@@ -270,8 +290,6 @@ export default function MobileMenu({ isOpen, onClose, categories }: Props) {
             </Link>
           )} */}
         </nav>
-
-        
       </div>
     </>
   );

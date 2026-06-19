@@ -122,9 +122,12 @@ export default function Footer() {
                   +212 750-974849 (WhatsApp)
                 </a>
               </li>
-              <li className="flex items-center gap-2.5 text-gray-200">
+              <li className="flex items-start gap-2.5 text-gray-200">
                 <Clock className="w-4 h-4 flex-shrink-0 text-gray-200" />
-                Lun–Ven : 9h–18h
+                <div className='grid '>
+                  <p className="text-sm ">Lun-Ven, 8:30 AM–6:30 PM</p>
+                  <p className="text-sm ">Sam, 8:30 AM–12:30 PM</p>
+                </div>
               </li>
             </ul>
           </div>

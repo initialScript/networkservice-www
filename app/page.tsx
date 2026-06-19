@@ -89,9 +89,9 @@ const [recentProducts, categories, brands, inStockProducts] =
       <Services />
 
       {/* Contact */}
-          <section id='contact' className="w-full max-w-7xl mx-auto px-4 lg:px-0">
+          <section id='contact' className="w-full max-w-7xl mx-auto px-4 lg:px-0 pb-4">
               {/* Contact Section */}
-        <div className=" bg-gradient-to-br from-gray-50 to-white rounded-2xl p-8 md:p-12 border border-gray-100">
+        <div className=" bg-gradient-to-br from-gray-50 to-white rounded-2xl lg:p-12 border border-gray-100">
           <div className="text-center max-w-2xl mx-auto mb-10">
             <h2 className="text-sm font-semibold text-[#0a9099] uppercase tracking-wider mb-2">
               Contactez Nous
@@ -116,8 +116,11 @@ const [recentProducts, categories, brands, inStockProducts] =
                 </div>
                 <div>
                   <h4 className="font-semibold text-gray-900">Téléphone</h4>
-                  <p className="text-gray-600">+212 5 24 XX XX XX</p>
-                  <p className="text-sm text-gray-400">Lun-Ven, 9h-18h</p>
+                  <p className="text-gray-600 grid">
+                    <span>+2125 24 422 830</span>
+                    <span>+2126 61 205 448</span>
+                  </p>
+                  
                 </div>
               </div>
 
@@ -129,8 +132,7 @@ const [recentProducts, categories, brands, inStockProducts] =
                 </div>
                 <div>
                   <h4 className="font-semibold text-gray-900">Email</h4>
-                  <p className="text-gray-600">contact@network-service-info.com</p>
-                  <p className="text-sm text-gray-400">Réponse sous 24h</p>
+                  <p className="text-gray-600">Contact@networkservice.ma</p>
                 </div>
               </div>
 
@@ -143,8 +145,10 @@ const [recentProducts, categories, brands, inStockProducts] =
                 </div>
                 <div>
                   <h4 className="font-semibold text-gray-900">Adresse</h4>
-                  <p className="text-gray-600">Marrakech, Maroc</p>
-                  <p className="text-sm text-gray-400">Sur rendez-vous</p>
+                  <p className="text-gray-600">mmeuble Achourouk Bureau N°4, 2ème Étage Lotissement,</p>
+                  <p className="text-sm text-gray-400">Marrakech</p>
+                  <p className="text-sm text-gray-400">Lun-Ven, 8:30 AM–6:30 PM</p>
+                  <p className="text-sm text-gray-400">Sam, 8:30 AM–12:30 PM</p>
                 </div>
               </div>
             </div>

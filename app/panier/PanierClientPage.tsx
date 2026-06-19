@@ -24,6 +24,7 @@ const PanierClientPage = () => {
   const [deliveryFee, setDeliveryFee] = useState(40);
   const [isHydrated, setIsHydrated] = useState(false);
   const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
+  
 
   // Valid coupons
   const validCoupons: Record<string, { discount: number; type: 'fixed' | 'percentage' }> = {
@@ -144,7 +145,7 @@ const PanierClientPage = () => {
                       <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
                         {item.image ? (
                           <Image
-                            src={item.image}
+                            src={process.env.NEXT_PUBLIC_MEDIA_URL + item.image}
                             alt={item.name}
                             width={64}
                             height={64}

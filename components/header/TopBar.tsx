@@ -7,7 +7,7 @@ const TopBar = () => {
       {/* ── Top bar (desktop) ── */}
       <div className="bg-gray-100 border-b border-gray-200">
   {/* Mobile */}
-  <div className="md:hidden overflow-hidden py-1.5">
+  <div className="md:hidden overflow-hidden ">
     <div className="animate-marquee whitespace-nowrap flex items-center gap-12 text-xs text-gray-600">
       <span className="flex items-center gap-1.5 shrink-0">
         <Truck className="w-3.5 h-3.5 text-[#E94560]" />

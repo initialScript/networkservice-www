@@ -44,12 +44,9 @@ const HomeBadge = () => {
                 {item.title}
               </h2>
 
-              <button className="mt-4 rounded-md bg-slate-800 px-4 py- text-sm font-semibold text-white">
-                EN SAVOIR PLUS
-              </button>
             </div>
 
-            <div className={`relative w-[180px] h-[180px] shrink-0 ${item.title === 'Partout au Maroc' ? 'w-[180px] h-[180px]' : 'w-[150px] h-[150px]'}`}>
+            <div className={`relative w-[140px] h-[140px] shrink-0 ${item.title === 'Partout au Maroc' ? 'w-[180px] h-[180px]' : 'w-[150px] h-[150px]'}`}>
               <Image
                 src={item.img}
                 alt={item.title}

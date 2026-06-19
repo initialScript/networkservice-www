@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { ChevronLeft, ChevronRight, X, ZoomIn } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X, ZoomIn, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface ImageGalleryProps {
@@ -22,11 +22,17 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
+  const [isImageLoading, setIsImageLoading] = useState(true);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(true);
 
   const selectedImage = images[selectedImageIndex];
+
+  // Reset loading state when image changes
+  useEffect(() => {
+    setIsImageLoading(true);
+  }, [selectedImageIndex]);
 
   // Thumbnail carousel scroll handlers
   const checkScrollPosition = () => {
@@ -117,6 +123,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
     if (e) {
       e.stopPropagation();
     }
+    setIsImageLoading(true);
     setSelectedImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
   };
 
@@ -124,6 +131,7 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
     if (e) {
       e.stopPropagation();
     }
+    setIsImageLoading(true);
     setSelectedImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
   };
 
@@ -131,19 +139,38 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
     setIsZoomOpen(true);
   };
 
+  const handleImageLoad = () => {
+    setIsImageLoading(false);
+  };
+
   return (
     <div className={cn("w-full max-w-6xl mx-auto px-4 py-8", className)}>
       {/* Main Image Section - Perfect Square */}
       <div className="relative group mb-6">
         <div className="relative w-full max-w-md mx-auto aspect-square overflow-hidden rounded-lg bg-gray-100 shadow-lg">
+          {/* Loader */}
+          {isImageLoading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">
+              <div className="flex flex-col items-center gap-3">
+                <Loader2 className="w-12 h-12 text-blue-500 animate-spin" />
+                <span className="text-sm text-gray-500 font-medium">Chargement...</span>
+              </div>
+            </div>
+          )}
+          
           <div className="relative w-full h-full p-8 sm:p-12 md:p-16">
             <Image
               src={selectedImage.src}
               alt={selectedImage.alt}
               fill
-              className="object-contain bg-gray-100"
+              className={cn(
+                "object-contain bg-gray-100 transition-opacity duration-300",
+                isImageLoading ? "opacity-0" : "opacity-100"
+              )}
               onClick={handleMainImageClick}
               priority
+              onLoad={handleImageLoad}
+              onError={() => setIsImageLoading(false)}
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
             />
           </div>
@@ -283,14 +310,29 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
               </>
             )}
 
+            {/* Loader for Modal */}
+            {isImageLoading && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black z-10">
+                <div className="flex flex-col items-center gap-3">
+                  <Loader2 className="w-16 h-16 text-white animate-spin" />
+                  <span className="text-sm text-gray-300 font-medium">Chargement...</span>
+                </div>
+              </div>
+            )}
+
             {/* Main Image in Modal */}
             <div className="relative w-full h-full flex items-center justify-center p-8 bg-black">
               <Image
                 src={selectedImage.src}
                 alt={selectedImage.alt}
                 fill
-                className="object-contain"
+                className={cn(
+                  "object-contain transition-opacity duration-300",
+                  isImageLoading ? "opacity-0" : "opacity-100"
+                )}
                 priority
+                onLoad={handleImageLoad}
+                onError={() => setIsImageLoading(false)}
                 sizes="95vw"
               />
             </div>
