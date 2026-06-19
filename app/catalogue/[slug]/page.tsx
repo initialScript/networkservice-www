@@ -88,9 +88,10 @@ export default async function ProductDetailPage({ params }: Props) {
         "@type": "Offer",
         price: product.price,
         priceCurrency: "MAD",
-        availability: product.stock_qty > 0
-          ? "https://schema.org/InStock"
-          : "https://schema.org/OutOfStock",
+        // availability: product.stock_qty > 0
+        //   ? "https://schema.org/InStock"
+        //   : "https://schema.org/OutOfStock",
+        availability: "https://schema.org/InStock", // Always in stock
       },
     };
 

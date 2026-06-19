@@ -14,5 +14,6 @@ export async function getBrands() {
     );
   }
 
-  return res.json();
+  const data = await res.json();
+  return data.data || [];
 }

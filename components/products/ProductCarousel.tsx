@@ -8,10 +8,11 @@ import { cn } from '@/lib/utils';
 interface ProductCarouselProps {
   products: any[];
   title?: string;
+  subTitle?: string;
   media_url?: string;
 }
 
-export default function ProductCarousel({ products, title, media_url }: ProductCarouselProps) {
+export default function ProductCarousel({ products, title, subTitle, media_url }: ProductCarouselProps) {
   const [scrollPosition, setScrollPosition] = useState(0);
   const [maxScroll, setMaxScroll] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
@@ -20,11 +21,13 @@ export default function ProductCarousel({ products, title, media_url }: ProductC
   const [itemsPerPage, setItemsPerPage] = useState(4);
   const carouselRef = useRef<HTMLDivElement>(null);
 
+  
+
   // Calculate items per page based on screen size
   useEffect(() => {
     const updateItemsPerPage = () => {
       const width = window.innerWidth;
-      if (width < 640) setItemsPerPage(1);      // mobile
+      if (width < 640) setItemsPerPage(2);      // mobile - changed from 1 to 2
       else if (width < 768) setItemsPerPage(2); // tablet
       else if (width < 1024) setItemsPerPage(3); // small desktop
       else setItemsPerPage(4);                   // large desktop
@@ -114,14 +117,19 @@ export default function ProductCarousel({ products, title, media_url }: ProductC
   if (!products || products.length === 0) return null;
 
   return (
-    <div className="w-full py-4 md:py-6">
-      {/* Header with title */}
-      <div className="flex items-center justify-between mb-3 md:mb-4 px-2">
-        {title && (
-          <h2 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900">
-            {title}
+    <div className="w-full ">
+
+      <div className="flex items-center justify-between mb-6 md:mb-8">
+        <div>
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900">
+             {title}
           </h2>
-        )}
+          {subTitle && (
+            <p className="text-gray-500 text-sm md:text-base mt-1">
+            {subTitle}
+          </p>
+          )}
+        </div>
       </div>
 
       {/* Carousel Container with overlay navigation buttons */}
@@ -177,7 +185,7 @@ export default function ProductCarousel({ products, title, media_url }: ProductC
               key={product.id}
               className={cn(
                 "flex-shrink-0 snap-start",
-                "w-full",
+                "w-[calc(50%-0.5rem)]", // Changed from w-full to show 2 cards
                 "sm:w-[calc(50%-0.5rem)]",
                 "md:w-[calc(33.333%-1rem)]",
                 "lg:w-[calc(25%-0.75rem)]"

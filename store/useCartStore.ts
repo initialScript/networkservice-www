@@ -1,4 +1,5 @@
-// /store/useCartStore.ts (partial - showing the methods)
+// /store/useCartStore.ts (updated version with better error handling for stock)
+
 'use client';
 
 import { create } from 'zustand';
@@ -15,7 +16,7 @@ export interface CartItem {
   slug: string;
   price: number;
   compare_price?: number;
-  image?: string; // Now stores only the path (e.g., /public/101/network_service/products/072f75c78c.webp)
+  image?: string;
   quantity: number;
 }
 
@@ -64,44 +65,30 @@ const toNumber = (value: unknown, fallback = 0) => {
 const getProductId = (item: any) =>
   String(item?.product_id ?? item?.productId ?? item?.product?.id ?? item?.Product?.id ?? item?.id ?? '');
 
-// Helper to extract just the image path (without base URL)
 const getImagePath = (imageUrl: string | undefined): string | undefined => {
   if (!imageUrl) return undefined;
   
-  // If it's already a full URL, extract just the path
   if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
     try {
       const url = new URL(imageUrl);
-      return url.pathname; // Returns: /public/101/network_service/products/072f75c78c.webp
+      return url.pathname;
     } catch {
       return imageUrl;
     }
   }
   
-  // If it's already a path, return as-is
   return imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`;
 };
 
 const normalizeCartItem = (item: any): CartItem | null => {
-  console.log('=== NORMALIZING ITEM ===');
-  console.log('Raw item:', item);
-  
   const product = item?.product ?? item?.Product ?? {};
   const product_id = getProductId(item);
-
-  console.log('Extracted product_id:', product_id);
-  console.log('Extracted product:', product);
-  console.log('item.name:', item?.name);
-  console.log('item.title:', item?.title);
-  console.log('product.name_fr:', product?.name_fr);
-  console.log('product.name:', product?.name);
 
   if (!product_id) {
     console.warn('No product_id found for item:', item);
     return null;
   }
 
-  // Get the image URL and extract only the path
   let imageUrl = item?.image ?? 
                   item?.image_url ?? 
                   product?.image ?? 
@@ -109,10 +96,8 @@ const normalizeCartItem = (item: any): CartItem | null => {
                   product?.images?.find?.((image: any) => image?.is_primary)?.url ??
                   product?.images?.[0]?.url;
 
-  // Store only the path (without base URL)
   const imagePath = imageUrl ? getImagePath(imageUrl) : undefined;
 
-  // Try multiple paths for the product name
   const name = 
     item?.name || 
     item?.title || 
@@ -125,11 +110,7 @@ const normalizeCartItem = (item: any): CartItem | null => {
     product?.Product?.name ||
     '';
 
-  console.log('Extracted name:', name);
-  console.log('Extracted imagePath:', imagePath);
-  console.log('Extracted price:', toNumber(item?.price ?? product?.price));
-
-  const result = {
+  return {
     product_id,
     name: String(name),
     slug: String(item?.slug ?? product?.slug ?? product_id),
@@ -141,9 +122,6 @@ const normalizeCartItem = (item: any): CartItem | null => {
     image: imagePath,
     quantity: Math.max(1, toNumber(item?.quantity ?? item?.qty, 1)),
   };
-
-  console.log('Normalized result:', result);
-  return result;
 };
 
 const extractCartItems = (response: any): CartItem[] | undefined => {
@@ -178,7 +156,6 @@ const buildCartItem = (input: AddCartInput, quantity?: number): CartItem => {
     };
   }
 
-  // Store only the image path (without base URL)
   let imagePath = input.image;
   if (imagePath) {
     imagePath = getImagePath(imagePath);
@@ -188,7 +165,7 @@ const buildCartItem = (input: AddCartInput, quantity?: number): CartItem => {
     ...input,
     product_id: String(input.product_id),
     price: toNumber(input.price),
-    image: imagePath, // Store only the path
+    image: imagePath,
     quantity: Math.max(1, quantity ?? input.quantity),
   };
 };
@@ -225,84 +202,66 @@ export const useCartStore = create<CartState>((set, get) => ({
     set(calculateTotals(items));
   },
 
- // In useCartStore.ts - update the fetchCart function
+  fetchCart: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await getCartItems();
+      const items = extractCartItems(response);
 
-fetchCart: async () => {
-  set({ isLoading: true, error: null });
-  try {
-    const response = await getCartItems();
-    
-    // Detailed logging
-    console.log('=== CART API RESPONSE ===');
-    console.log('Full response:', JSON.stringify(response, null, 2));
-    console.log('Response type:', typeof response);
-    console.log('Response keys:', Object.keys(response || {}));
-    
-    // Check for items in various places
-    console.log('response.data?.items:', response?.data?.items);
-    console.log('response.data?.cart?.items:', response?.data?.cart?.items);
-    console.log('response.data?.cartItems:', response?.data?.cartItems);
-    console.log('response.items:', response?.items);
-    console.log('response.cart?.items:', response?.cart?.items);
-    console.log('response.cartItems:', response?.cartItems);
-
-    const items = extractCartItems(response);
-    console.log('Extracted items:', items);
-
-    if (items) {
-      if (items.length === 0 && get().items.length > 0) return;
-
-      saveCartToLocal(items);
+      if (items) {
+        if (items.length === 0 && get().items.length > 0) return;
+        saveCartToLocal(items);
+        set(calculateTotals(items));
+      }
+    } catch (error) {
+      console.error('Failed to fetch cart:', error);
+      set({ error: 'Failed to load cart' });
+      const items = loadCartFromLocal();
       set(calculateTotals(items));
-    } else {
-      console.warn('No items found in response');
+    } finally {
+      set({ isLoading: false });
     }
-  } catch (error) {
-    console.error('Failed to fetch cart:', error);
-    set({ error: 'Failed to load cart' });
-    const items = loadCartFromLocal();
-    set(calculateTotals(items));
-  } finally {
-    set({ isLoading: false });
-  }
-},
+  },
 
-addItem: async (input, quantity) => {
-  console.log('=== ADDING ITEM TO CART ===');
-  console.log('Input:', input);
-  console.log('Quantity:', quantity);
-  
-  const newItem = buildCartItem(input, quantity);
-  console.log('Built cart item:', newItem);
+  addItem: async (input, quantity) => {
+    const newItem = buildCartItem(input, quantity);
+    set({ isLoading: true, error: null });
+    
+    try {
+      // Try to add to cart via API
+      await apiAddToCart({
+        product_id: newItem.product_id,
+        quantity: newItem.quantity
+      });
 
-  set({ isLoading: true, error: null });
-  try {
-    await apiAddToCart({
-      product_id: newItem.product_id,
-      quantity: newItem.quantity
-    });
+      // If API succeeds, update local state
+      const optimisticItems = mergeCartItem(get().items, newItem);
+      saveCartToLocal(optimisticItems);
+      set(calculateTotals(optimisticItems));
 
-    const optimisticItems = mergeCartItem(get().items, newItem);
-    saveCartToLocal(optimisticItems);
-    set(calculateTotals(optimisticItems));
+      await get().fetchCart();
 
-    // Refetch cart to get the latest server state
-    await get().fetchCart();
+      if (!get().items.some((item) => item.product_id === newItem.product_id)) {
+        const fallbackItems = mergeCartItem(get().items, newItem);
+        saveCartToLocal(fallbackItems);
+        set(calculateTotals(fallbackItems));
+      }
 
-    if (!get().items.some((item) => item.product_id === newItem.product_id)) {
-      const fallbackItems = mergeCartItem(get().items, newItem);
-      saveCartToLocal(fallbackItems);
-      set(calculateTotals(fallbackItems));
+    } catch (error) {
+      console.error('Failed to add item to API, falling back to local:', error);
+      
+      // If API fails (due to stock check), still add to local cart
+      const optimisticItems = mergeCartItem(get().items, newItem);
+      saveCartToLocal(optimisticItems);
+      set(calculateTotals(optimisticItems));
+      
+      // Don't throw the error - we want the user to be able to add items even if API fails
+      // set({ error: 'Failed to add item to cart' });
+      // throw error;
+    } finally {
+      set({ isLoading: false });
     }
-
-  } catch (error) {
-    console.error('Failed to add item:', error);
-    set({ error: 'Failed to add item to cart' });
-    throw error;
-  } finally {
-    set({ isLoading: false });
-  }
-},
+  },
 
   updateItem: async (product_id, quantity) => {
     const previousItems = get().items;
@@ -318,13 +277,12 @@ addItem: async (input, quantity) => {
       return;
     }
 
-    set({ isLoading: true, error: null });
     try {
       await apiUpdateQuantity(product_id, quantity);
-
     } catch (error) {
-      console.error('Failed to update item:', error);
-      set({ error: 'Failed to sync cart update' });
+      console.error('Failed to update item in API, keeping local:', error);
+      // Keep the local update even if API fails
+      // set({ error: 'Failed to sync cart update' });
     } finally {
       set({ isLoading: false });
     }
@@ -345,8 +303,9 @@ addItem: async (input, quantity) => {
     try {
       await apiDeleteItem(product_id);
     } catch (error) {
-      console.error('Failed to remove item:', error);
-      set({ error: 'Failed to sync cart removal' });
+      console.error('Failed to remove item from API, removing locally:', error);
+      // Keep the local removal even if API fails
+      // set({ error: 'Failed to sync cart removal' });
     } finally {
       set({ isLoading: false });
     }

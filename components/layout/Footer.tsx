@@ -3,6 +3,30 @@ import { Facebook, Instagram, Linkedin, MapPin, Phone, Mail, Clock } from 'lucid
 import Image from 'next/image';
 
 export default function Footer() {
+  const whatsappNumber = '212750974849'; // Remove the + and special characters
+  const whatsappMessage = 'Bonjour, je souhaite obtenir plus d\'informations sur vos produits et services.';
+  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
+
+  // WhatsApp SVG Icon Component
+  const WhatsAppIcon = ({ className = "w-4 h-4" }) => (
+    <svg 
+      xmlns="http://www.w3.org/2000/svg" 
+      width={24} 
+      height={24} 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      stroke="currentColor" 
+      strokeWidth={2} 
+      strokeLinecap="round" 
+      strokeLinejoin="round" 
+      className={className}
+    >
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M3 21l1.65 -3.8a9 9 0 1 1 3.4 2.9l-5.05 .9" />
+      <path d="M9 10a.5 .5 0 0 0 1 0v-1a.5 .5 0 0 0 -1 0v1a5 5 0 0 0 5 5h1a.5 .5 0 0 0 0 -1h-1a.5 .5 0 0 0 0 1" />
+    </svg>
+  );
+
   return (
     <footer className="bg-[#5A7A99] text-gray-400">
       <div className="max-w-7xl mx-auto px-4 py-12">
@@ -24,15 +48,21 @@ export default function Footer() {
                 { Icon: Facebook, href: 'https://www.facebook.com/NetworkServiceInfo/', hover: 'hover:bg-[#1877f2]', label: 'Facebook' },
                 { Icon: Instagram, href: 'https://www.instagram.com/network_service/', hover: 'hover:bg-[#e4405f]', label: 'Instagram' },
                 { Icon: Linkedin, href: 'https://www.linkedin.com/company/network-service-info', hover: 'hover:bg-[#0077b5]', label: 'LinkedIn' },
-              ].map(({ Icon, href, hover, label }) => (
+                { Icon: WhatsAppIcon, href: whatsappUrl, hover: 'hover:bg-[#25D366]', label: 'WhatsApp', custom: true },
+              ].map(({ Icon, href, hover, label, custom }) => (
                 <a
                   key={label}
                   href={href}
                   aria-label={label}
                   target='_blank'
-                  className={`p-2 rounded-lg bg-white/10 ${hover} text-gray-300 text-white transition hover:text-gray-400 -all`}
+                  rel="noopener noreferrer"
+                  className={`p-2 rounded-lg bg-white/10 ${hover} text-white transition hover:text-gray-400 -all`}
                 >
-                  <Icon className="w-4 h-4" />
+                  {custom ? (
+                    <Icon className="w-4 h-4" />
+                  ) : (
+                    <Icon className="w-4 h-4" />
+                  )}
                 </a>
               ))}
             </div>
@@ -57,25 +87,6 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Mon compte */}
-          {/* <div>
-            <h3 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Mon compte</h3>
-            <ul className="space-y-2.5 text-sm">
-              {[
-                { label: 'Se connecter', href: '/fr/auth/login' },
-                { label: 'Créer un compte', href: '/fr/auth/register' },
-                { label: 'Mes commandes', href: '/fr/compte/commandes' },
-                { label: 'Panier', href: '/fr/panier' },
-              ].map(({ label, href }) => (
-                <li key={label}>
-                  <Link href={href} className="text-white transition hover:text-gray-400 ">
-                    {label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div> */}
-
           {/* Contact */}
           <div>
             <h3 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Contact</h3>
@@ -97,6 +108,18 @@ export default function Footer() {
                 <a href="mailto:Contact@networkservice.ma" className="flex items-center gap-2.5 text-white transition hover:text-gray-400 ">
                   <Mail className="w-4 h-4 flex-shrink-0 text-gray-200" />
                   Contact@networkservice.ma
+                </a>
+              </li>
+              {/* WhatsApp Contact Item */}
+              <li>
+                <a 
+                  href={whatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2.5 text-white transition hover:text-gray-400 "
+                >
+                  <WhatsAppIcon className="w-4 h-4 flex-shrink-0 " />
+                  +212 750-974849 (WhatsApp)
                 </a>
               </li>
               <li className="flex items-center gap-2.5 text-gray-200">

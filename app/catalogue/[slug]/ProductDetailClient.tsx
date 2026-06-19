@@ -112,17 +112,21 @@ const discountPct = (price: string, compare: string) => {
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
 const StockBadge = ({ qty }: { qty: number }) =>
-  qty > 0 ? (
-    <span className="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full">
-      <CircleCheck size={14} />
-      En stock ({qty} disponible{qty > 1 ? 's' : ''})
-    </span>
-  ) : (
-    <span className="inline-flex items-center gap-1.5 text-sm font-medium text-red-600 bg-red-50 px-3 py-1 rounded-full">
-      <Package size={14} />
-      Rupture de stock
-    </span>
-  );
+  // qty > 0 ? (
+  //   <span className="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full">
+  //     <CircleCheck size={14} />
+  //     En stock ({qty} disponible{qty > 1 ? 's' : ''})
+  //   </span>
+  // ) : (
+  //   <span className="inline-flex items-center gap-1.5 text-sm font-medium text-red-600 bg-red-50 px-3 py-1 rounded-full">
+  //     <Package size={14} />
+  //     Rupture de stock
+  //   </span>
+  // )
+  <span className="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full">
+    <CircleCheck size={14} />
+    En stock ({qty} disponible{qty > 1 ? 's' : ''})
+  </span>;
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
@@ -147,7 +151,8 @@ const ProductDetailClient = ({
 
   // Check if product has valid price (greater than 0)
   const hasValidPrice = parseFloat(product.price) > 0;
-  const inStock = product.stock_qty > 0 && hasValidPrice;
+  // const inStock = product.stock_qty > 0 && hasValidPrice;
+  const inStock = hasValidPrice; // Always in stock if price is valid
 
   const galleryImages = [...product.images]
     .sort((a, b) => a.sort_order - b.sort_order)
@@ -192,7 +197,8 @@ const handleAddToCart = async () => {
 };
 
   const handleIncrease = () => {
-    if (quantity < Math.min(99, product.stock_qty)) setQuantity(q => q + 1);
+    // if (quantity < Math.min(99, product.stock_qty)) setQuantity(q => q + 1);
+    if (quantity < 99) setQuantity(q => q + 1); // Always allow up to 99
   };
   
   const handleDecrease = () => {
@@ -436,7 +442,8 @@ const handleAddToCart = async () => {
                       onIncrease={handleIncrease}
                       onDecrease={handleDecrease}
                       minAmount={1}
-                      maxAmount={Math.min(99, product.stock_qty)}
+                      // maxAmount={Math.min(99, product.stock_qty)}
+                      maxAmount={99} // Always allow up to 99
                     />
                   </div>
                 )}
@@ -515,10 +522,12 @@ const handleAddToCart = async () => {
                       <div className="flex flex-wrap items-center gap-1.5 mt-1">
                         <span className="inline-flex items-center gap-1 bg-emerald-100 text-emerald-700 text-xs font-medium px-2 py-0.5 rounded-full">
                           <CircleCheck size={10} />
-                          {inStock ? 'En stock' : 'Rupture'}
+                          {/* {inStock ? 'En stock' : 'Rupture'} */}
+                          En stock
                         </span>
                         <span className="text-xs text-gray-500">
-                          {inStock ? 'Retrait immédiat' : 'Délai à confirmer'}
+                          {/* {inStock ? 'Retrait immédiat' : 'Délai à confirmer'} */}
+                          Retrait immédiat
                         </span>
                       </div>
                     </div>

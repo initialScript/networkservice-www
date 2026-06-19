@@ -7,23 +7,19 @@ import Image from 'next/image'
 const Hero = ({locale}:{locale:string}) => {
   const backgroundImages = [
     {
-      url: "https://images.unsplash.com/photo-1587831990711-23ca6441447b?w=1920&h=1080&fit=crop",
+      url: "/assets/desktop.jpg",
       alt: "Ordinateurs gaming et PC"
     },
     {
-      url: "https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?w=1920&h=1080&fit=crop",
+      url: "/assets/phones.jpg",
+      alt: "phones"
+    },
+    {
+      url: "/assets/impression.jpg",
       alt: "Imprimantes professionnelles"
     },
     {
-      url: "https://images.unsplash.com/photo-1622979135225-d2ba269cf1ac?w=1920&h=1080&fit=crop",
-      alt: "Accessoires informatiques"
-    },
-    {
-      url: "https://images.unsplash.com/photo-1587826080692-f439cd0b70da?w=1920&h=1080&fit=crop",
-      alt: "Caméras et périphériques"
-    },
-    {
-      url: "https://images.unsplash.com/photo-1499951360447-b19be8fe80f5?w=1920&h=1080&fit=crop",
+      url: "/assets/laptop.png",
       alt: "Bureau informatique complet"
     }
   ]

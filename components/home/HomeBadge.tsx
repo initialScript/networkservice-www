@@ -16,13 +16,14 @@ const badges = [
   },
   {
     id: 3,
-    desc: "Assistance disponible",
-    title: "Service 7j/7",
-    img: "/images/service-clients.png",
+     desc: "Service professionnel",
+    title: "Installation & Conseil",
+    img: "/images/services.png",
   },
 ];
 
 const HomeBadge = () => {
+
   return (
     <section className="bg-[#F8F9FA]">
       <div className="max-w-7xl mx-auto px-4 py-14 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

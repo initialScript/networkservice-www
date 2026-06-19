@@ -1,9 +1,10 @@
 import Link from 'next/link';
-import { ArrowRight} from 'lucide-react';
+import { ArrowRight, ChevronRight, CreditCard} from 'lucide-react';
 import ProductCard from '@/components/catalog/ProductCard';
 import Hero from '@/components/home/Hero';
 import HomeBadge from '@/components/home/HomeBadge';
 import Services from '@/components/home/Services';
+import { Truck, Headphones, Building2 } from 'lucide-react';
 import {
   getAllProducts,
   getCategories,
@@ -11,6 +12,12 @@ import {
 } from '@/lib/api/products';
 import ProductCarousel from '@/components/products/ProductCarousel';
 import ProductsByCategories from '@/components/home/ProductsByCategories';
+import BrandsMarquee from '@/components/home/BrandsMarquee';
+import { getBrands } from '@/lib/api/brands';
+import CategoriesGrid from '@/components/home/CategoriesGrid';
+import { services } from '@/utils/data/constants';
+import Image from 'next/image';
+import Featured from '@/components/home/featured';
 
 export const revalidate = 3600;
 
@@ -19,10 +26,11 @@ interface Props {
 }
 
 export default async function HomePage({ params: { locale } }: Props) {
-const [recentProducts, categories, inStockProducts] =
+const [recentProducts, categories, brands, inStockProducts] =
   await Promise.all([
     getRecentProducts(),
     getCategories(),
+    getBrands(),
     getAllProducts({
       in_stock: "true",
       limit: "100",
@@ -33,81 +41,49 @@ const [recentProducts, categories, inStockProducts] =
   process.env.NEXT_PUBLIC_MEDIA_URL
   
 
+
   return (
     <div>
       {/* ── Hero ── */}
       <Hero locale={locale} />
 
+      <BrandsMarquee brands={brands} />
+
       <HomeBadge />
 
       {/* Recent PRODUCTS */}
-      <div className='w-full max-w-7xl mx-auto px-4 lg:px-0'>
-        <ProductCarousel products={recentProducts.slice(0, 8)} media_url={media_url} title='Nouveaux produits' />
+      <div className='w-full max-w-7xl mx-auto px-4 lg:px-0 mt-4'>
+        <ProductCarousel products={recentProducts.slice(0, 8)} media_url={media_url} title='Nouveaux produits' subTitle='Découvrez nos nouveaux produits' />
       </div>
+
+      <CategoriesGrid />
       
         {/* PRODUCTS BY CATEGORIES */}
-      <div className=' bg-[#6082B6] py-6'>
+      <div className='mt-6 lg:mt-12'>
         <div className='w-full max-w-7xl mx-auto px-4 lg:px-0'>
-          <div className='mb-6 lg:mb-9 text-white font-semibold text-3xl lg:text-3xl max-w-2xl mx-auto grid place-items-center'>
-            <h3 className='text-center'>Découvrez nos produits <br /> par catégorie</h3>
-          </div>
+          <div className="flex items-center justify-between mb-6 md:mb-8">
+        <div>
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900">
+            Découvrez nos produits par catégorie
+          </h2>
+          <p className="text-gray-500 text-sm md:text-base mt-1">
+            Découvrez nos produits par catégorie
+          </p>
+        </div>
+        <Link 
+          href="/catalogue" 
+          className="text-sm font-medium text-[#0F3460] hover:underline flex items-center gap-1"
+        >
+          Tout voir
+          <ChevronRight className="w-4 h-4" />
+        </Link>
+      </div>
           
         <ProductsByCategories  categories={categories} media_url={media_url} />
         </div>
-          
         </div>
 
-      
-      
-
-      <div className="w-full max-w-7xl mx-auto px-4 lg:px-0">
-        {/* Features Section */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 my-16">
-        {/* Feature 1 - Livraison Gratuite */}
-        <div className="group bg-white rounded-2xl p-6 text-center border border-gray-100 hover:shadow-lg hover:border-gray-200 transition-all duration-300">
-            <div className="w-14 h-14 bg-[#0a9099]/10 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-[#0a9099] transition-colors duration-300">
-            <svg className="w-7 h-7 text-[#0a9099] group-hover:text-white transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 13l4 4L19 7" />
-            </svg>
-            </div>
-            <h4 className="text-lg font-bold text-gray-900 mb-2">LIVRAISON GRATUITE</h4>
-            <p className="text-sm text-gray-500">Livraison gratuite sur toutes les commandes</p>
-        </div>
-
-        {/* Feature 2 - Retour */}
-        <div className="group bg-white rounded-2xl p-6 text-center border border-gray-100 hover:shadow-lg hover:border-gray-200 transition-all duration-300">
-            <div className="w-14 h-14 bg-[#0a9099]/10 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-[#0a9099] transition-colors duration-300">
-            <svg className="w-7 h-7 text-[#0a9099] group-hover:text-white transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-            </div>
-            <h4 className="text-lg font-bold text-gray-900 mb-2">RETOUR</h4>
-            <p className="text-sm text-gray-500">Garantie de remboursement sous 7 jours</p>
-        </div>
-
-        {/* Feature 3 - Assistance 24h/24 */}
-        <div className="group bg-white rounded-2xl p-6 text-center border border-gray-100 hover:shadow-lg hover:border-gray-200 transition-all duration-300">
-            <div className="w-14 h-14 bg-[#0a9099]/10 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-[#0a9099] transition-colors duration-300">
-            <svg className="w-7 h-7 text-[#0a9099] group-hover:text-white transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M18.364 5.636L16.95 7.05M7.05 16.95l-1.414 1.414M12 4a8 8 0 100 16 8 8 0 000-16zM9.879 14.121a3 3 0 104.242-4.242 3 3 0 00-4.242 4.242z" />
-            </svg>
-            </div>
-            <h4 className="text-lg font-bold text-gray-900 mb-2">ASSISTANCE 24H/24</h4>
-            <p className="text-sm text-gray-500">Assistance en ligne 24 heures sur 24</p>
-        </div>
-
-        {/* Feature 4 - Paiements */}
-        <div className="group bg-white rounded-2xl p-6 text-center border border-gray-100 hover:shadow-lg hover:border-gray-200 transition-all duration-300">
-            <div className="w-14 h-14 bg-[#0a9099]/10 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-[#0a9099] transition-colors duration-300">
-            <svg className="w-7 h-7 text-[#0a9099] group-hover:text-white transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-            </svg>
-            </div>
-            <h4 className="text-lg font-bold text-gray-900 mb-2">PAIEMENTS</h4>
-            <p className="text-sm text-gray-500">Paiement sécurisé à 100%</p>
-        </div>
-        </div>
-      </div>
+          <Featured />
 
       {/* SERVICES */}
       <Services />

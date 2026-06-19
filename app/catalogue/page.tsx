@@ -35,7 +35,7 @@ export default async function CataloguePage({ params: { locale }, searchParams }
   const brand = str(searchParams.brand);
   const min_price = str(searchParams.min_price);
   const max_price = str(searchParams.max_price);
-  const in_stock = str(searchParams.in_stock);
+  // const in_stock = str(searchParams.in_stock);
   const sort = str(searchParams.sort) ?? 'newest';
   const page = Number(str(searchParams.page) ?? '1');
 
@@ -52,12 +52,12 @@ if (category) params.category = category;
 if (brand) params.brand = brand;
 if (min_price) params.min_price = min_price;
 if (max_price) params.max_price = max_price;
-if (in_stock) params.in_stock = in_stock;
+// if (in_stock) params.in_stock = in_stock;
 if (sort) params.sort = sort;
 
   const categories = await getCategories()
   const { data: products, pagination } = await getAllProducts(params);
-  const {data:brands} = await getBrands()
+const brands = await getBrands()
 
   const currentFilters = { 
     search, 
@@ -65,7 +65,6 @@ if (sort) params.sort = sort;
     brand, 
     min_price, 
     max_price, 
-    in_stock, 
     sort, 
     page 
   };
@@ -82,7 +81,9 @@ if (sort) params.sort = sort;
         (c: any) => c.slug === category
       )
     )
-  : products;
+    : products;
+  
+  
 
   return (
     <CatalogueClient

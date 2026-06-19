@@ -23,7 +23,6 @@ interface CatalogueClientProps {
     brand?: string;
     min_price?: string;
     max_price?: string;
-    in_stock?: string;
     sort: string;
     page: number;
   };
