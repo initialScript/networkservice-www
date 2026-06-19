@@ -15,21 +15,34 @@ export default function CartDrawer() {
   // Get media_url from environment
   const media_url = process.env.NEXT_PUBLIC_MEDIA_URL || '';
 
+  // Handle navigation with drawer close
+  const handleNavigate = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault();
+    close();
+    // Use setTimeout to ensure drawer closes before navigation
+    setTimeout(() => {
+      window.location.href = href;
+    }, 150);
+  };
 
   return (
     <>
       {/* Overlay */}
       <div
-        className={`fixed inset-0 z-50 bg-black/50 transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+        className={`fixed inset-0 z-50 bg-black/50 transition-opacity duration-300 ${
+          isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        }`}
         onClick={close}
       />
 
       {/* Panel */}
       <div
-        className={`fixed inset-y-0 end-0 z-50 w-96 max-w-[90vw] bg-white shadow-2xl flex flex-col transform transition-transform duration-300 ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}
+        className={`fixed inset-y-0 end-0 z-50 w-96 max-w-[90vw] bg-white shadow-2xl flex flex-col transform transition-transform duration-300 ${
+          isOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 flex-shrink-0">
           <div className="flex items-center gap-2">
             <ShoppingBag className="w-5 h-5 text-[#0F3460]" />
             <span className="font-semibold text-gray-900">Mon panier</span>
@@ -58,21 +71,27 @@ export default function CartDrawer() {
                 <p className="text-sm text-gray-400 mt-1">Découvrez notre catalogue de produits</p>
               </div>
               <Link
-                href={`/catalogue`}
-                onClick={close}
+                href="/catalogue"
+                onClick={() => close()}
                 className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0F3460] text-white text-sm font-semibold rounded-xl hover:bg-[#0a2444] transition"
               >
                 Voir le catalogue <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
           ) : (
-            items.map((item) => <CartItem key={item.product_id} item={item} media_url={media_url} />)
+            items.map((item) => (
+              <CartItem 
+                key={item.product_id} 
+                item={item} 
+                media_url={media_url} 
+              />
+            ))
           )}
         </div>
 
         {/* Footer */}
         {items.length > 0 && (
-          <div className="border-t border-gray-100 px-5 py-4 space-y-3 bg-gray-50/80">
+          <div className="border-t border-gray-100 px-5 py-4 space-y-3 bg-gray-50/80 flex-shrink-0">
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-500">Sous-total</span>
               <span className="text-lg font-bold text-gray-900">{formatPrice(subtotal)}</span>
@@ -80,15 +99,15 @@ export default function CartDrawer() {
             <p className="text-xs text-gray-400">Frais de livraison calculés à la commande</p>
             <div className="grid grid-cols-2 gap-2 pt-1">
               <Link
-                href={`/panier`}
-                onClick={close}
+                href="/panier"
+                onClick={() => close()}
                 className="flex items-center justify-center py-2.5 rounded-xl border-2 border-[#0F3460] text-[#0F3460] text-sm font-semibold hover:bg-[#0F3460] hover:text-white transition"
               >
                 Voir le panier
               </Link>
               <Link
-                href={`/order`}
-                onClick={close}
+                href="/order"
+                onClick={() => close()}
                 className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-[#E94560] text-white text-sm font-semibold hover:bg-[#c73350] transition"
               >
                 Commander <ArrowRight className="w-3.5 h-3.5" />

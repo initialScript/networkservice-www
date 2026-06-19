@@ -31,37 +31,38 @@ export default function CartItem({ item, media_url }: Props) {
 
   const imageUrl = getFullImageUrl();
 
-  const decrease = async () => {
+  const decrease = () => {
     if (isUpdating) return;
     setIsUpdating(true);
     try {
       if (item.quantity > 1) {
-        await updateItem(item.product_id, item.quantity - 1);
+        updateItem(item.product_id, item.quantity - 1);
       } else {
-        await removeItem(item.product_id);
+        removeItem(item.product_id);
       }
     } finally {
-      setIsUpdating(false);
+      // Use setTimeout to avoid flash of loading state
+      setTimeout(() => setIsUpdating(false), 300);
     }
   };
 
-  const increase = async () => {
+  const increase = () => {
     if (isUpdating) return;
     setIsUpdating(true);
     try {
-      await updateItem(item.product_id, item.quantity + 1);
+      updateItem(item.product_id, item.quantity + 1);
     } finally {
-      setIsUpdating(false);
+      setTimeout(() => setIsUpdating(false), 300);
     }
   };
 
-  const handleRemove = async () => {
+  const handleRemove = () => {
     if (isUpdating) return;
     setIsUpdating(true);
     try {
-      await removeItem(item.product_id);
+      removeItem(item.product_id);
     } finally {
-      setIsUpdating(false);
+      setTimeout(() => setIsUpdating(false), 300);
     }
   };
 

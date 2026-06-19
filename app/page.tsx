@@ -1,10 +1,9 @@
 import Link from 'next/link';
-import { ArrowRight, ChevronRight, CreditCard} from 'lucide-react';
+import { ArrowRight, ChevronRight} from 'lucide-react';
 import ProductCard from '@/components/catalog/ProductCard';
 import Hero from '@/components/home/Hero';
 import HomeBadge from '@/components/home/HomeBadge';
 import Services from '@/components/home/Services';
-import { Truck, Headphones, Building2 } from 'lucide-react';
 import {
   getAllProducts,
   getCategories,
@@ -15,8 +14,7 @@ import ProductsByCategories from '@/components/home/ProductsByCategories';
 import BrandsMarquee from '@/components/home/BrandsMarquee';
 import { getBrands } from '@/lib/api/brands';
 import CategoriesGrid from '@/components/home/CategoriesGrid';
-import { services } from '@/utils/data/constants';
-import Image from 'next/image';
+
 import Featured from '@/components/home/featured';
 
 export const revalidate = 3600;

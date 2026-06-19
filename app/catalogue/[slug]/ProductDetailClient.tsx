@@ -13,7 +13,6 @@ import {
 import Link from "next/link";
 import { useState } from "react";
 import Breadcrumb from "@/components/ui/Breadcrumb";
-import { WhatsAppOrderButton } from "@/components/product/WhatsAppOrderButton";
 
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -212,36 +211,40 @@ const ProductDetailClient = ({
 
   const addItem = useCartStore(state => state.addItem);
 
-const handleAddToCart = async () => {
-  if (!inStock) return;
+  const handleAddToCart = () => {
+    if (!inStock) return;
 
-  
-  setIsAddingToCart(true);
-  setError(null);
-  setSuccess(null);
-  
-  try {
-    // Only use the store's addItem - it will handle both API and local state
-    await addItem({
-      product_id: product.id,
-      name: product.name_fr,
-      slug: product.slug,
-      price: parseFloat(product.price),
-      image: `${mediaUrl}${product.images.find(i => i.is_primary)?.url ?? product.images[0]?.url}`,
-      quantity,
-    });
+    setIsAddingToCart(true);
+    setError(null);
+    setSuccess(null);
     
-    setSuccess('Produit ajouté au panier avec succès !');
-    setTimeout(() => setSuccess(null), 3000);
-    
-  } catch (err) {
-    console.error('Full error details:', err);
-    setError(`Erreur: ${err instanceof Error ? err.message : 'Erreur inconnue'}`);
-    setTimeout(() => setError(null), 3000);
-  } finally {
-    setIsAddingToCart(false);
-  }
-};
+    try {
+      // Get the primary image or first image
+      const primaryImage = product.images.find(i => i.is_primary) || product.images[0];
+      const imagePath = primaryImage?.url ? `${mediaUrl}${primaryImage.url}` : undefined;
+
+      // Add item to cart - synchronous operation
+      addItem({
+        product_id: product.id,
+        name: product.name_fr,
+        slug: product.slug,
+        price: parseFloat(product.price),
+        compare_price: product.compare_price ? parseFloat(product.compare_price) : undefined,
+        image: imagePath,
+        quantity: quantity,
+      });
+      
+      setSuccess('Produit ajouté au panier avec succès !');
+      setTimeout(() => setSuccess(null), 3000);
+      
+    } catch (err) {
+      console.error('Error adding to cart:', err);
+      setError(`Erreur: ${err instanceof Error ? err.message : 'Erreur inconnue'}`);
+      setTimeout(() => setError(null), 3000);
+    } finally {
+      setIsAddingToCart(false);
+    }
+  };
 
   const handleIncrease = () => {
     if (quantity < Math.min(99, product.stock_qty)) setQuantity(q => q + 1);

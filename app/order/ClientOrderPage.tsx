@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { 
   MapPin, CreditCard, CheckCircle, ChevronRight, ChevronLeft, 
   Truck, ArrowRight, Edit, Trash2, Plus,
@@ -53,8 +53,7 @@ const PAYMENT_METHODS = [
 
 const ClientOrderPage = () => {
   const router = useRouter();
-  const pathname = usePathname();
-  const { items, subtotal, clearCart, hydrate } = useCartStore();
+  const { items, subtotal, clearCart } = useCartStore();
 
   const [currentStep, setCurrentStep] = useState(1);
   
@@ -93,11 +92,6 @@ const ClientOrderPage = () => {
   const [errors, setErrors] = useState<FormErrors>({});
   const [showDeliveryForm, setShowDeliveryForm] = useState(false);
 
-  // Hydrate cart
-  useEffect(() => {
-    hydrate();
-  }, [hydrate]);
-
   const total = Math.max(0, subtotal);
 
   const validateStep1 = (): boolean => {
@@ -116,7 +110,7 @@ const ClientOrderPage = () => {
     if (!customerInfo.phone.trim()) {
       newErrors.phone = 'Le téléphone est requis';
     } else if (!/^[0-9]{9,10}$/.test(customerInfo.phone.replace(/\s/g, ''))) {
-      newErrors.phone = 'Numéro de téléphone invalide';
+      newErrors.phone = 'Numéro de téléphone invalide (9-10 chiffres)';
     }
     
     if (!customerInfo.address.address_line.trim()) {
@@ -218,133 +212,25 @@ const ClientOrderPage = () => {
     setSelectedDeliveryOption(option);
   };
 
-// In ClientOrderPage component - update the handleSubmitOrder function
-
-const handleSubmitOrder = async () => {
-  if (items.length === 0) {
-    alert('Votre panier est vide');
-    return;
-  }
-  
-  setSubmitting(true);
-  
-  try {
-    // Determine which address to use for delivery
-    const useDeliveryAddress = selectedDeliveryOption === 'delivery' && showDeliveryAddress;
-    
-    const orderData = {
-      customer: {
-        full_name: customerInfo.full_name,
-        email: customerInfo.email,
-        phone: customerInfo.phone,
-        company: customerInfo.company || null,
-        ice: customerInfo.ice || null,
-        address: {
-          address_line: customerInfo.address.address_line,
-          city: customerInfo.address.city,
-          postal_code: customerInfo.address.postal_code || null,
-        }
-      },
-      delivery_address: useDeliveryAddress ? {
-        address_line: deliveryAddress.address_line,
-        city: deliveryAddress.city,
-        postal_code: deliveryAddress.postal_code || null,
-      } : null,
-      payment_method: paymentMethod,
-      notes: notes || null,
-      // Add a flag to bypass stock validation if the backend supports it
-      // bypass_stock_check: true, // Uncomment if your API has this parameter
-    };
-    
-    // Send to backend API
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/guest/orders`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
-      body: JSON.stringify(orderData),
-    });
-
-    const result = await response.json();
-
-    // Handle 400 error - likely out of stock
-    if (response.status === 400) {
-      console.error('Order validation error:', result);
-      
-      // Check if the error is about stock
-      const errorMessage = result.message || result.errors?.[0]?.message || '';
-      if (errorMessage.toLowerCase().includes('stock') || errorMessage.toLowerCase().includes('quantity')) {
-        // Show a more user-friendly message but still allow the order
-        const shouldContinue = confirm(
-          'Certains produits peuvent être en rupture de stock. ' +
-          'Voulez-vous quand même passer la commande ? ' +
-          'Notre équipe vous contactera pour confirmer la disponibilité.'
-        );
-        
-        if (!shouldContinue) {
-          setSubmitting(false);
-          return;
-        }
-        
-        // Try to create order with local backup instead of failing
-        // This will save the order locally and redirect to success
-        const orderNumber = 'LOCAL-' + Date.now().toString().slice(-8);
-        
-        // Save to localStorage as backup
-        const existingOrders = JSON.parse(localStorage.getItem('user_orders') || '[]');
-        localStorage.setItem('user_orders', JSON.stringify([{
-          ...orderData,
-          order_number: orderNumber,
-          date: new Date().toISOString(),
-          status: 'pending_validation',
-        }, ...existingOrders]));
-
-        clearCart();
-        router.push(`/order/success?order=${orderNumber}&method=${paymentMethod}&status=pending`);
-        return;
-      }
-      
-      // For other 400 errors, show the error message
-      throw new Error(result.message || result.errors?.[0]?.message || 'Erreur de validation');
+  const handleSubmitOrder = () => {
+    if (items.length === 0) {
+      alert('Votre panier est vide');
+      return;
     }
-
-    if (!response.ok || !result.success) {
-      throw new Error(result.errors?.[0]?.message || result.message || 'Failed to create order');
-    }
-
-    const orderNumber = result.data.order_number;
-
-    // Save to localStorage as backup (with order number from backend)
-    const existingOrders = JSON.parse(localStorage.getItem('user_orders') || '[]');
-    localStorage.setItem('user_orders', JSON.stringify([{
-      ...orderData,
-      order_number: orderNumber,
-      date: new Date().toISOString(),
-      status: 'confirmed',
-    }, ...existingOrders]));
-
-    clearCart();
-
-    // Redirect to success page with order number from backend
-    router.push(`/order/success?order=${orderNumber}&method=${paymentMethod}&status=confirmed`);
-
-  } catch (error) {
-    console.error('Order error:', error);
     
-    // If the API fails, offer to save order locally
-    const shouldSaveLocally = confirm(
-      'Nous rencontrons un problème technique. ' +
-      'Souhaitez-vous sauvegarder votre commande localement ? ' +
-      'Notre équipe vous contactera pour finaliser la commande.'
-    );
+    setSubmitting(true);
     
-    if (shouldSaveLocally) {
-      // Save order locally as fallback
-      const orderNumber = 'LOCAL-' + Date.now().toString().slice(-8);
+    try {
+      // Determine which address to use for delivery
       const useDeliveryAddress = selectedDeliveryOption === 'delivery' && showDeliveryAddress;
       
+      // Generate a random order number
+      const orderNumber = 'ORD-' + Date.now().toString().slice(-8) + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
+      
+      // Build the complete order object
       const orderData = {
+        order_number: orderNumber,
+        date: new Date().toISOString(),
         customer: {
           full_name: customerInfo.full_name,
           email: customerInfo.email,
@@ -364,27 +250,49 @@ const handleSubmitOrder = async () => {
         } : null,
         payment_method: paymentMethod,
         notes: notes || null,
-        items: items, // Save cart items
+        items: items.map(item => ({
+          product_id: item.product_id,
+          name: item.name,
+          slug: item.slug,
+          price: item.price,
+          compare_price: item.compare_price || null,
+          image: item.image || null,
+          quantity: item.quantity,
+          total: item.price * item.quantity
+        })),
+        subtotal: subtotal,
         total: total,
+        status: 'confirmed',
       };
-      
-      const existingOrders = JSON.parse(localStorage.getItem('user_orders') || '[]');
-      localStorage.setItem('user_orders', JSON.stringify([{
-        ...orderData,
-        order_number: orderNumber,
-        date: new Date().toISOString(),
-        status: 'pending_local',
-      }, ...existingOrders]));
-      
-      clearCart();
-      router.push(`/order/success?order=${orderNumber}&method=${paymentMethod}&status=pending`);
-    } else {
-      alert(error instanceof Error ? error.message : 'Une erreur est survenue');
-    }
-    setSubmitting(false);
-  }
-};
 
+      // Log the complete order JSON
+      console.log('📦 ORDER COMPLETE JSON:');
+      console.log(JSON.stringify(orderData, null, 2));
+      
+      // Log individual sections for better readability
+      console.log('👤 Customer Info:', orderData.customer);
+      console.log('📍 Delivery Address:', orderData.delivery_address);
+      console.log('🛒 Items:', orderData.items);
+      console.log('💰 Total:', orderData.total);
+      
+      // Save to localStorage as backup
+      const existingOrders = JSON.parse(localStorage.getItem('user_orders') || '[]');
+      localStorage.setItem('user_orders', JSON.stringify([orderData, ...existingOrders]));
+      
+      // Clear the cart
+      clearCart();
+      
+      // Redirect to success page
+      router.push(`/order/success?order=${orderNumber}&method=${paymentMethod}`);
+      
+    } catch (error) {
+      console.error('Order error:', error);
+      alert('Une erreur est survenue lors de la création de la commande');
+      setSubmitting(false);
+    }
+  };
+
+  // Show empty cart state
   if (items.length === 0) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
@@ -395,8 +303,8 @@ const handleSubmitOrder = async () => {
           <h2 className="text-xl font-bold text-gray-900 mb-2">Panier vide</h2>
           <p className="text-gray-500 mb-4">Ajoutez des produits avant de passer commande</p>
           <button
-            onClick={() => router.push(`/catalogue`)}
-            className="bg-[#0F3460] text-white px-6 py-2 rounded-lg"
+            onClick={() => router.push('/catalogue')}
+            className="bg-[#0F3460] text-white px-6 py-2 rounded-lg hover:bg-[#0a2444] transition"
           >
             Voir les produits
           </button>
@@ -464,7 +372,7 @@ const handleSubmitOrder = async () => {
               </h2>
               
               <form onSubmit={handleCustomerInfoSubmit} className="space-y-4">
-                {/* Full Name - Single field */}
+                {/* Full Name */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Nom complet <span className="text-red-500">*</span>
@@ -623,7 +531,6 @@ const handleSubmitOrder = async () => {
                           address: { ...customerInfo.address, postal_code: e.target.value }
                         })}
                         className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#0F3460]/20"
-                        required
                       />
                       <div>
                         <input
