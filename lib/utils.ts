@@ -6,12 +6,13 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatPrice(amount: number): string {
-  return new Intl.NumberFormat('fr-MA', {
-    style: 'currency',
-    currency: 'MAD',
+export function formatPrice(amount: number, currency: string = 'DH'): string {
+  const formatted = new Intl.NumberFormat('fr-MA', {
     minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   }).format(amount);
+  
+  return `${formatted} ${currency}`;
 }
 
 export function truncate(str: string, n: number): string {

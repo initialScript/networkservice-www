@@ -141,11 +141,10 @@ export default function ProductList({ products, media_url }: ProductListProps) {
                       <span className="text-xl font-bold text-[#0F3460]">
                         {formatPrice(product.price)}
                       </span>
-                      <span className="text-xs text-gray-500">DH</span>
                     </div>
                     {hasDiscount && (
                       <div className="text-xs text-gray-400 line-through">
-                        {formatPrice(product.compare_price!)} DH
+                        {formatPrice(product.compare_price!)} 
                       </div>
                     )}
                   </div>

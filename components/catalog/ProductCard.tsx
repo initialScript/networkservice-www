@@ -21,7 +21,6 @@ export default function ProductCard({ product, media_url, priority = false }: Pr
   const [shouldLoad, setShouldLoad] = useState(false);
   const imgRef = useRef<HTMLDivElement>(null);
 
-  console.log(product);
   
 
   const hasValidPrice = product.price > 0;
@@ -140,12 +139,12 @@ export default function ProductCard({ product, media_url, priority = false }: Pr
         {hasValidPrice ? (
           <div className="flex items-end gap-1 flex-wrap">
             <span className="text-sm sm:text-base font-bold text-[#0F3460]">
-              {formatPrice(product.price)} MAD
+              {formatPrice(product.price)} 
             </span>
             {hasDiscount && (
               <>
                 <span className="text-[10px] sm:text-xs text-gray-400 line-through leading-relaxed">
-                  {formatPrice(product.compare_price!)} MAD
+                  {formatPrice(product.compare_price!)} 
                 </span>
                 <span className="text-[8px] sm:text-[10px] font-bold text-[#E94560] bg-orange-50 px-1 py-0.5 rounded">
                   -{discountPct}%
