@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { useCartStore } from '@/store/useCartStore';
 import { formatPrice } from '@/lib/utils';
+import { toast } from 'react-toastify';
 
 const PanierClientPage = () => {
   const router = useRouter();
@@ -28,6 +29,7 @@ const PanierClientPage = () => {
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number } | null>(null);
   const [deliveryFee, setDeliveryFee] = useState(40);
   const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
+  const [showClearModal, setShowClearModal] = useState(false);
 
   // Valid coupons
   const validCoupons: Record<string, { discount: number; type: 'fixed' | 'percentage' }> = {
@@ -35,6 +37,19 @@ const PanierClientPage = () => {
     'SAVE20': { discount: 20, type: 'percentage' },
     'IRIS15': { discount: 150, type: 'fixed' },
   };
+
+  // Lock scroll when modal is open
+  useEffect(() => {
+    if (showClearModal) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    // Cleanup function
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [showClearModal]);
 
   // Update delivery fee based on subtotal (free delivery over 500 MAD)
   useEffect(() => {
@@ -93,6 +108,12 @@ const PanierClientPage = () => {
     if (items.length === 0) return;
     setIsCheckoutLoading(true);
     router.push('/order');
+  };
+
+  const handleClearCart = () => {
+    clearCart();
+    setShowClearModal(false);
+    toast.success('Panier vidé avec succès');
   };
 
   // Show empty cart state
@@ -238,7 +259,10 @@ const PanierClientPage = () => {
                       {/* Remove */}
                       <div className="col-span-1 text-center">
                         <button
-                          onClick={() => removeItemFromCart(item.product_id)}
+                          onClick={() => {
+                            removeItemFromCart(item.product_id)
+                            toast.error('Produit retiré du panier.')
+                          }}
                           className="p-1.5 text-gray-400 hover:text-red-500 transition"
                           aria-label="Supprimer l'article"
                         >
@@ -247,17 +271,17 @@ const PanierClientPage = () => {
                       </div>
                     </div>
 
-                    {/* Mobile Layout */}
+                    {/* Mobile Layout - Improved */}
                     <div className="md:hidden">
                       <div className="flex gap-3">
                         {/* Image */}
-                        <div className="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                        <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
                           {getImageUrl() ? (
                             <Image
                               src={getImageUrl()!}
                               alt={item.name || 'Produit'}
-                              width={80}
-                              height={80}
+                              width={96}
+                              height={96}
                               className="w-full h-full object-cover"
                             />
                           ) : (
@@ -270,56 +294,74 @@ const PanierClientPage = () => {
                         {/* Info */}
                         <div className="flex-1 min-w-0">
                           <Link href={`/catalogue/${item.slug}`}>
-                            <h3 className="font-semibold text-gray-800 text-sm line-clamp-2">
+                            <h3 className="font-semibold text-gray-800 text-sm sm:text-base line-clamp-2">
                               {item.name || `Produit ${item.product_id}`}
                             </h3>
                           </Link>
-                          <div className="flex items-center justify-between mt-2">
-                            <div>
-                              <span className="text-base font-bold text-[#0F3460]">
-                                {formatPrice(item.price)} 
-                              </span>
-                              {hasDiscount && (
-                                <span className="text-xs text-gray-400 line-through ml-2">
+                          
+                          <div className="mt-1 flex items-center gap-2 flex-wrap">
+                            <span className="text-base sm:text-lg font-bold text-[#0F3460]">
+                              {formatPrice(item.price)} 
+                            </span>
+                            {hasDiscount && (
+                              <>
+                                <span className="text-xs sm:text-sm text-gray-400 line-through">
                                   {formatPrice(item.compare_price!)} 
                                 </span>
-                              )}
-                            </div>
-                            <button
-                              onClick={() => removeItemFromCart(item.product_id)}
-                              className="p-1.5 text-gray-400 hover:text-red-500 transition"
-                              aria-label="Supprimer l'article"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
+                                <span className="text-xs bg-red-100 text-red-600 px-1.5 py-0.5 rounded">
+                                  -{discountPct}%
+                                </span>
+                              </>
+                            )}
                           </div>
                           
-                          {/* Quantity controls mobile */}
-                          <div className="flex items-center justify-between mt-3 pt-2 border-t border-gray-100">
-                            <span className="text-xs text-gray-500">Quantité</span>
-                            <div className="flex items-center gap-3">
-                              <button
-                                onClick={() => updateQuantity(item.product_id, item.quantity - 1)}
-                                className="w-7 h-7 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 transition"
-                                aria-label="Diminuer la quantité"
-                              >
-                                <Minus className="w-3 h-3 text-gray-600" />
-                              </button>
-                              <span className="w-8 text-center text-sm font-medium text-gray-800">
-                                {item.quantity}
-                              </span>
-                              <button
-                                onClick={() => updateQuantity(item.product_id, item.quantity + 1)}
-                                className="w-7 h-7 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 transition"
-                                aria-label="Augmenter la quantité"
-                              >
-                                <Plus className="w-3 h-3 text-gray-600" />
-                              </button>
-                              <span className="text-sm font-semibold text-[#0F3460] ml-2">
-                                Total: {formatPrice(itemTotal)} 
-                              </span>
-                            </div>
-                          </div>
+                          {/* Quantity and Total - Mobile */}
+<div className="mt-3 pt-3 border-t border-gray-100">
+  <div className="flex items-center justify-between">
+    <div className="flex items-center gap-2">
+      <span className="text-xs text-gray-500">Qté:</span>
+      <div className="flex items-center gap-1 sm:gap-2">
+        <button
+          onClick={() => updateQuantity(item.product_id, item.quantity - 1)}
+          className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 transition flex-shrink-0"
+          aria-label="Diminuer la quantité"
+        >
+          <Minus className="w-3 h-3 sm:w-4 sm:h-4 text-gray-600" />
+        </button>
+        <span className="w-8 text-center text-sm font-medium text-gray-800">
+          {item.quantity}
+        </span>
+        <button
+          onClick={() => updateQuantity(item.product_id, item.quantity + 1)}
+          className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 transition flex-shrink-0"
+          aria-label="Augmenter la quantité"
+        >
+          <Plus className="w-3 h-3 sm:w-4 sm:h-4 text-gray-600" />
+        </button>
+      </div>
+    </div>
+    
+    <div className="flex items-center gap-3">
+      <span className="text-xs text-gray-500">Total:</span>
+      <span className="text-sm sm:text-base font-bold text-[#0F3460]">
+        {formatPrice(itemTotal)} 
+      </span>
+    </div>
+  </div>
+  
+  {/* Remove button for mobile */}
+  <button
+    onClick={() => {
+      removeItemFromCart(item.product_id)
+      toast.error('Produit retiré du panier.')
+    }}
+    className="mt-2 w-full flex items-center justify-center gap-2 py-1.5 text-sm text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition"
+    aria-label="Supprimer l'article"
+  >
+    <Trash2 className="w-4 h-4" />
+    Supprimer
+  </button>
+</div>
                         </div>
                       </div>
                     </div>
@@ -338,11 +380,7 @@ const PanierClientPage = () => {
                 Continuer mes achats
               </Link>
               <button
-                onClick={() => {
-                  if (window.confirm('Voulez-vous vraiment vider votre panier ?')) {
-                    clearCart();
-                  }
-                }}
+                onClick={() => setShowClearModal(true)}
                 className="inline-flex items-center justify-center gap-2 px-4 py-2.5 border border-red-200 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition"
               >
                 <Trash2 className="w-4 h-4" />
@@ -482,6 +520,50 @@ const PanierClientPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Clear Cart Modal with Scroll Lock */}
+      {showClearModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          {/* Backdrop */}
+          <div 
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => setShowClearModal(false)}
+          />
+          
+          {/* Modal */}
+          <div className="relative bg-white rounded-2xl max-w-md w-full p-6 shadow-xl animate-in fade-in zoom-in duration-200">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Trash2 className="w-8 h-8 text-red-600" />
+              </div>
+              
+              <h3 className="text-xl font-bold text-gray-900 mb-2">
+                Vider le panier ?
+              </h3>
+              
+              <p className="text-gray-500 text-sm mb-6">
+                Êtes-vous sûr de vouloir supprimer tous les articles de votre panier ? 
+                Cette action est irréversible.
+              </p>
+              
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button
+                  onClick={() => setShowClearModal(false)}
+                  className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition"
+                >
+                  Annuler
+                </button>
+                <button
+                  onClick={handleClearCart}
+                  className="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition"
+                >
+                  Vider le panier
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

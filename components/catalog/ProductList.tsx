@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { ShoppingCart, Eye, Check } from 'lucide-react';
 import { useCartStore } from '@/store/useCartStore';
 import { cn, formatPrice } from '@/lib/utils';
+import { toast } from 'react-toastify';
 
 interface ProductListProps {
   products: any[];
@@ -39,6 +40,7 @@ export default function ProductList({ products, media_url }: ProductListProps) {
     });
 
     setAddedId(product.id);
+    toast.success('Produit ajouté au panier avec succès.')
     setTimeout(() => setAddedId(null), 2000);
   };
 

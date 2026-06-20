@@ -1,10 +1,11 @@
 'use client';
 
 import Image from 'next/image';
-import { Minus, Plus, X, Camera } from 'lucide-react';
+import { Minus, Plus, X, Camera, Trash } from 'lucide-react';
 import { useCartStore, type CartItem as CartItemType } from '@/store/useCartStore';
 import { formatPrice } from '@/lib/utils';
 import { useState } from 'react';
+import { toast } from 'react-toastify';
 
 interface Props {
   item: CartItemType;
@@ -61,6 +62,7 @@ export default function CartItem({ item, media_url }: Props) {
     setIsUpdating(true);
     try {
       removeItem(item.product_id);
+      toast.error('Produit retiré du panier.')
     } finally {
       setTimeout(() => setIsUpdating(false), 300);
     }
@@ -127,10 +129,10 @@ export default function CartItem({ item, media_url }: Props) {
       <button
         onClick={handleRemove}
         disabled={isUpdating}
-        className="flex-shrink-0 self-start p-1 mt-0.5 text-gray-300 hover:text-red-500 transition rounded disabled:opacity-50 disabled:cursor-not-allowed"
+        className="flex-shrink-0 self-start p-1 mt-0.5 bg-red-500/90 text-white transition rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-red-600"
         aria-label="Supprimer"
       >
-        <X className="w-4 h-4" />
+        <Trash className="w-4 h-4" />
       </button>
     </div>
   );

@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { ShoppingCart, Check, Camera } from 'lucide-react';
 import { useCartStore } from '@/store/useCartStore';
 import { cn, formatPrice } from '@/lib/utils';
+import { toast } from 'react-toastify';
 
 type Props = {
   media_url?: string;
@@ -81,6 +82,7 @@ export default function ProductCard({ product, media_url, priority = false }: Pr
     });
 
     setIsAdded(true);
+    toast.success('Produit ajouté au panier avec succès.')
     setTimeout(() => setIsAdded(false), 2000);
   };
 

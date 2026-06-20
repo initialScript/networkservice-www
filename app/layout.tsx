@@ -9,6 +9,7 @@ import { CartDrawerProvider } from '@/lib/contexts/CartDrawerContext';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import CartDrawer from '@/components/cart/CartDrawer';
+import ToastProvider from '@/components/providers/toast-provider';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -33,6 +34,7 @@ export default function RootLayout({
 
           <CartHydrator />
         </CartDrawerProvider>
+        <ToastProvider />
       </body>
     </html>
   );

@@ -23,13 +23,14 @@ interface CatalogueClientProps {
     brand?: string;
     min_price?: string;
     max_price?: string;
+    in_stock?: string;
     sort: string;
     page: number;
   };
   categories: any[];
   brands: any[];
   locale: string;
-  media_url?: string
+  media_url?: string;
 }
 
 // Component that uses useSearchParams
@@ -58,7 +59,7 @@ function CatalogueContent({
     return 0;
   };
 
-  // Sort products based on currentSort
+  // Sort products based on currentSort (but keep the filtered products from server)
   const sortedProducts = useMemo(() => {
     const productsCopy = [...products];
     
@@ -118,8 +119,14 @@ function CatalogueContent({
     
     params.set('page', '1');
     router.push(`?${params.toString()}`);
-    setIsLoading(false);
+    // The loading will stop when the page re-renders with new data
+    // We'll set it to false in a useEffect when products update
   };
+
+  // Reset loading state when products change
+  useEffect(() => {
+    setIsLoading(false);
+  }, [products]);
 
   const handleSortChange = (sort: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -146,7 +153,8 @@ function CatalogueContent({
         currentFilters.category || 
         currentFilters.brand || 
         currentFilters.min_price || 
-        currentFilters.max_price) && (
+        currentFilters.max_price ||
+        currentFilters.in_stock) && (
         <div className="mb-4 flex flex-wrap items-center gap-2">
           <span className="text-sm text-gray-500">Filtres actifs:</span>
           {currentFilters.search && (
@@ -171,6 +179,12 @@ function CatalogueContent({
             <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-xs text-gray-700 rounded-full">
               Prix: {currentFilters.min_price || '0'} DH - {currentFilters.max_price || '∞'} DH
               <button onClick={() => handleFilterChange({ min_price: null, max_price: null })} className="ml-1 hover:text-gray-900">×</button>
+            </span>
+          )}
+          {currentFilters.in_stock === 'true' && (
+            <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-xs text-gray-700 rounded-full">
+              En stock uniquement
+              <button onClick={() => handleFilterChange({ in_stock: null })} className="ml-1 hover:text-gray-900">×</button>
             </span>
           )}
           <button

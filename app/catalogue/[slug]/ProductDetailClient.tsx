@@ -13,6 +13,7 @@ import {
 import Link from "next/link";
 import { useState } from "react";
 import Breadcrumb from "@/components/ui/Breadcrumb";
+import { toast } from "react-toastify";
 
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -127,7 +128,7 @@ const StockBadge = ({ qty }: { qty: number }) => {
     <span className="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full">
       <CircleCheck size={14} />
       En stock
-      {isLowStock ? ` (Plus que ${qty})` : ` (${qty} disponible${qty > 1 ? 's' : ''})`}
+      
     </span>
   );
 };
@@ -236,8 +237,9 @@ const ProductDetailClient = ({
       
       setSuccess('Produit ajouté au panier avec succès !');
       setTimeout(() => setSuccess(null), 3000);
-      
+      toast.success('Produit ajouté au panier avec succès.')
     } catch (err) {
+      toast.error("Une erreur est survenue lors de l'ajout au panier.")
       console.error('Error adding to cart:', err);
       setError(`Erreur: ${err instanceof Error ? err.message : 'Erreur inconnue'}`);
       setTimeout(() => setError(null), 3000);

@@ -85,10 +85,8 @@ function FilterSidebarContent({
 
   const pushFilter = (updates: Record<string, string | null>) => {
     if (onFilterChange) {
-      // Use the callback if provided (for client-side)
       onFilterChange(updates);
     } else {
-      // Fallback to router navigation
       const params = new URLSearchParams(searchParams.toString());
       params.delete('page');
       for (const [key, val] of Object.entries(updates)) {
@@ -102,15 +100,27 @@ function FilterSidebarContent({
     }
   };
 
-  const selectedBrands = currentFilters.brand
-    ? currentFilters.brand.split(',').filter(Boolean)
-    : [];
+  // Single brand selected (not array)
+  const selectedBrand = currentFilters.brand || '';
 
   const toggleBrand = (slug: string) => {
-    const next = selectedBrands.includes(slug)
-      ? selectedBrands.filter((b) => b !== slug)
-      : [...selectedBrands, slug];
-    pushFilter({ brand: next.length ? next.join(',') : null });
+    // If clicking the same brand, deselect it; otherwise select the new one
+    const brandParam = selectedBrand === slug ? null : slug;
+    
+    if (onFilterChange) {
+      onFilterChange({ brand: brandParam });
+    } else {
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete('page');
+      
+      if (brandParam) {
+        params.set('brand', brandParam);
+      } else {
+        params.delete('brand');
+      }
+      
+      router.push(`${pathname}?${params.toString()}`);
+    }
   };
 
   const applyPrice = () => {
@@ -178,20 +188,21 @@ function FilterSidebarContent({
         </ul>
       </Section>
 
-      {/* Marques */}
+      {/* Marques - Now with radio button behavior */}
       {brands.length > 0 && (
         <Section title="Marques">
           <ul className="space-y-1 max-h-56 overflow-y-auto">
             {brands.map((brand) => {
-              const checked = selectedBrands.includes(brand.slug);
+              const isSelected = selectedBrand === brand.slug;
               return (
                 <li key={brand.slug}>
                   <label className="flex items-center gap-2.5 cursor-pointer group">
                     <input
-                      type="checkbox"
-                      checked={checked}
+                      type="radio"
+                      name="brand"
+                      checked={isSelected}
                       onChange={() => toggleBrand(brand.slug)}
-                      className="w-4 h-4 rounded border-gray-300 text-[#0F3460] focus:ring-[#0F3460]/30 cursor-pointer"
+                      className="w-4 h-4 rounded-full border-gray-300 text-[#0F3460] focus:ring-[#0F3460]/30 cursor-pointer"
                     />
                     {brand.logo ? (
                       // eslint-disable-next-line @next/next/no-img-element

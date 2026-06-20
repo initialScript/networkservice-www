@@ -268,12 +268,7 @@ const ClientOrderPage = () => {
       // Log the complete order JSON
       console.log('📦 ORDER COMPLETE JSON:');
       console.log(JSON.stringify(orderData, null, 2));
-      
-      // Log individual sections for better readability
-      console.log('👤 Customer Info:', orderData.customer);
-      console.log('📍 Delivery Address:', orderData.delivery_address);
-      console.log('🛒 Items:', orderData.items);
-      console.log('💰 Total:', orderData.total);
+
       
       // Save to localStorage as backup
       const existingOrders = JSON.parse(localStorage.getItem('user_orders') || '[]');
