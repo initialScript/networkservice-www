@@ -10,6 +10,8 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import CartDrawer from '@/components/cart/CartDrawer';
 import ToastProvider from '@/components/providers/toast-provider';
+import Link from 'next/link';
+import WhatsAppButton from '@/components/WhatsappButton';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -23,7 +25,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fr">
-      <body className={`${inter.variable} ${inter.className}`}>
+      <body className={`${inter.variable} ${inter.className} relative`}>
         <CartDrawerProvider>
           <div className="bg-white antialiased">
             <Header />
@@ -35,6 +37,8 @@ export default function RootLayout({
           <CartHydrator />
         </CartDrawerProvider>
         <ToastProvider />
+        <WhatsAppButton />
+
       </body>
     </html>
   );

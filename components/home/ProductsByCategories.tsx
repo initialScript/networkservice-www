@@ -218,8 +218,8 @@ const ProductsByCategories = ({ categories, media_url }: Props) => {
             <h3 className="text-xl md:text-2xl font-bold text-gray-900">
               {currentCategoryName}
             </h3>
-            <Link href={`/catalogue?category=${'h'}`} className="text-sm text-gray-500">
-              {products.length} produits
+            <Link href={`/catalogue?category=${activeCategory}`} className="text-sm text-gray-500">
+              voir plus
             </Link>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-4">
