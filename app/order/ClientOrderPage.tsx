@@ -12,6 +12,7 @@ import {
 import { useCartStore } from '@/store/useCartStore';
 import { formatPrice } from '@/lib/utils';
 import { cn } from '@/lib/utils';
+import { createGuestOrder } from '@/lib/services/cart';
 
 interface Address {
   id: number;
@@ -212,80 +213,76 @@ const ClientOrderPage = () => {
     setSelectedDeliveryOption(option);
   };
 
-  const handleSubmitOrder = () => {
-    if (items.length === 0) {
-      alert('Votre panier est vide');
-      return;
-    }
+ const handleSubmitOrder = async () => {
+  if (items.length === 0) {
+    alert('Votre panier est vide');
+    return;
+  }
+  
+  setSubmitting(true);
+  
+  try {
+    // Determine which address to use for delivery
+    const useDeliveryAddress = selectedDeliveryOption === 'delivery' && showDeliveryAddress;
     
-    setSubmitting(true);
+    // Prepare the order data
+    const orderData = {
+      customer: {
+        full_name: customerInfo.full_name,
+        email: customerInfo.email,
+        phone: customerInfo.phone,
+        company: customerInfo.company || null,
+        ice: customerInfo.ice || null,
+        address: {
+          address_line: customerInfo.address.address_line,
+          city: customerInfo.address.city,
+          postal_code: customerInfo.address.postal_code || null,
+        }
+      },
+      delivery_address: useDeliveryAddress ? {
+        address_line: deliveryAddress.address_line,
+        city: deliveryAddress.city,
+        postal_code: deliveryAddress.postal_code || null,
+      } : null,
+      payment_method: paymentMethod,
+      notes: notes || null,
+      items: items.map(item => ({
+        product_id: item.product_id,
+        name: item.name,
+        slug: item.slug,
+        price: item.price,
+        compare_price: item.compare_price || null,
+        image: item.image || null,
+        quantity: item.quantity,
+        total: item.price * item.quantity
+      }))
+    };
+
+    console.log('📦 Sending order data:', JSON.stringify(orderData, null, 2));
+
+    // Call the API
+    const response = await createGuestOrder(orderData);
     
-    try {
-      // Determine which address to use for delivery
-      const useDeliveryAddress = selectedDeliveryOption === 'delivery' && showDeliveryAddress;
-      
-      // Generate a random order number
-      const orderNumber = 'ORD-' + Date.now().toString().slice(-8) + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
-      
-      // Build the complete order object
-      const orderData = {
-        order_number: orderNumber,
-        date: new Date().toISOString(),
-        customer: {
-          full_name: customerInfo.full_name,
-          email: customerInfo.email,
-          phone: customerInfo.phone,
-          company: customerInfo.company || null,
-          ice: customerInfo.ice || null,
-          address: {
-            address_line: customerInfo.address.address_line,
-            city: customerInfo.address.city,
-            postal_code: customerInfo.address.postal_code || null,
-          }
-        },
-        delivery_address: useDeliveryAddress ? {
-          address_line: deliveryAddress.address_line,
-          city: deliveryAddress.city,
-          postal_code: deliveryAddress.postal_code || null,
-        } : null,
-        payment_method: paymentMethod,
-        notes: notes || null,
-        items: items.map(item => ({
-          product_id: item.product_id,
-          name: item.name,
-          slug: item.slug,
-          price: item.price,
-          compare_price: item.compare_price || null,
-          image: item.image || null,
-          quantity: item.quantity,
-          total: item.price * item.quantity
-        })),
-        subtotal: subtotal,
-        total: total,
-        status: 'confirmed',
-      };
+    console.log('✅ Order response:', response);
+    
+    // Store the full order data in session storage for the success page
+    sessionStorage.setItem('lastOrderData', JSON.stringify(response.data));
+    
+    // Clear the cart
+    clearCart();
+    
+    // Navigate to success page with order data
+    router.push(
+      `/order/success?order=${response.data.order_number}&id=${response.data.id}&total=${response.data.total}`
+    );
+    
+  } catch (error) {
+    console.error('❌ Order error:', error);
+    alert(error instanceof Error ? error.message : 'Une erreur est survenue lors de la création de la commande');
+    setSubmitting(false);
+  }
+};
 
-      // Log the complete order JSON
-      console.log('📦 ORDER COMPLETE JSON:');
-      console.log(JSON.stringify(orderData, null, 2));
-
-      
-      // Save to localStorage as backup
-      const existingOrders = JSON.parse(localStorage.getItem('user_orders') || '[]');
-      localStorage.setItem('user_orders', JSON.stringify([orderData, ...existingOrders]));
-      
-      // Clear the cart
-      clearCart();
-      
-      // Redirect to success page
-      router.push(`/order/success?order=${orderNumber}&method=${paymentMethod}`);
-      
-    } catch (error) {
-      console.error('Order error:', error);
-      alert('Une erreur est survenue lors de la création de la commande');
-      setSubmitting(false);
-    }
-  };
 
   // Show empty cart state
   if (items.length === 0) {

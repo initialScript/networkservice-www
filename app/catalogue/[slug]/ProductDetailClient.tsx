@@ -8,7 +8,10 @@ import { useCartStore } from "@/store/useCartStore";
 import {
   CircleCheck, ShieldCheck, ShoppingCart, Store, Truck,
   MapPin, Clock, ArrowRight, RefreshCw, Headphones,
-  ChevronDown, ChevronUp, Tag, Package, AlertCircle
+  ChevronDown, ChevronUp, Tag, Package, AlertCircle,
+  LifeBuoy,
+  CreditCard,
+  BadgeCheck
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -185,7 +188,9 @@ const ProductDetailClient = ({
   product: Product;
   relatedProducts: any[];
   media_url?: string
-}) => {
+  }) => {
+
+  
   
   const [quantity, setQuantity] = useState(1);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
@@ -255,6 +260,37 @@ const ProductDetailClient = ({
   const handleDecrease = () => {
     if (quantity > 1) setQuantity(q => q - 1);
   };
+
+  const badges = [
+    {
+      icon: <Truck size={22} strokeWidth={1.8} className="text-indigo-600" />,
+      bg: 'from-indigo-50 to-blue-50',
+      border: 'border-indigo-100',
+      title: 'Livraison rapide',
+      sub: 'Dans toutes les villes et villages du Maroc',
+    },
+    {
+      icon: <BadgeCheck size={22} strokeWidth={1.8} className="text-emerald-600" />,
+      bg: 'from-emerald-50 to-teal-50',
+      border: 'border-emerald-100',
+      title: 'Produit garanti',
+      sub: 'Neuf, authentique, avec facture',
+    },
+    // {
+    //   icon: <CreditCard size={22} strokeWidth={1.8} className="text-amber-600" />,
+    //   bg: 'from-amber-50 to-orange-50',
+    //   border: 'border-amber-100',
+    //   title: 'Moyens de paiement',
+    //   sub: 'Virement, chèque, espèces, CB en ligne',
+    // },
+    {
+      icon: <LifeBuoy size={22} strokeWidth={1.8} className="text-rose-600" />,
+      bg: 'from-rose-50 to-pink-50',
+      border: 'border-rose-100',
+      title: 'Service après-vente',
+      sub: 'Réparation gratuite durant la garantie',
+    },
+  ];
 
   // Data derived from product
   const pct = product.compare_price ? discountPct(product.price, product.compare_price) : null;
@@ -586,43 +622,69 @@ const ProductDetailClient = ({
         </div>
 
         {/* ── Trust Badges ── */}
-        <div className="mt-10 sm:mt-14">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-8 border-t border-gray-100">
-            {[
-              {
-                icon: <ShieldCheck size={20} strokeWidth={1.5} className="text-emerald-600" />,
-                bg: 'from-emerald-50 to-teal-50',
-                title: 'Paiement sécurisé',
-                sub: '100% crypté & protégé',
-              },
-              {
-                icon: <RefreshCw size={20} strokeWidth={1.5} className="text-blue-600" />,
-                bg: 'from-blue-50 to-indigo-50',
-                title: 'Retours gratuits',
-                sub: 'Sous 14 jours',
-              },
-              {
-                icon: <Headphones size={20} strokeWidth={1.5} className="text-orange-600" />,
-                bg: 'from-orange-50 to-amber-50',
-                title: 'Support client',
-                sub: 'Disponible 7j/7',
-              },
-            ].map(({ icon, bg, title, sub }) => (
-              <div
-                key={title}
-                className="group bg-white rounded-2xl p-4 shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 hover:border-gray-200 flex items-center gap-3"
-              >
-                <div className={`shrink-0 w-11 h-11 bg-gradient-to-br ${bg} rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform duration-300`}>
-                  {icon}
-                </div>
-                <div>
-                  <p className="text-gray-800 font-semibold text-sm">{title}</p>
-                  <p className="text-gray-400 text-xs mt-0.5">{sub}</p>
-                </div>
-              </div>
-            ))}
+         <div className="w-full max-w-5xl mx-auto px-4 py-6">
+      {/* Section header with subtle accent */}
+      <div className="flex items-center gap-3 mb-5">
+        <div className="h-1 w-10 bg-gradient-to-r from-indigo-500 to-blue-400 rounded-full" />
+        <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider">
+          Pourquoi nous choisir
+        </h3>
+      </div>
+
+      {/* Responsive grid: 1 col mobile, 2 cols tablet, 4 cols desktop */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {badges.map(({ icon, bg, border, title, sub }) => (
+          <div
+            key={title}
+            className={`
+              group relative bg-white rounded-2xl p-5 
+              border ${border} 
+              shadow-sm hover:shadow-lg 
+              transition-all duration-300 ease-out
+              hover:-translate-y-1
+              flex flex-col items-start gap-3
+              overflow-hidden
+            `}
+          >
+            {/* Background gradient glow on hover */}
+            <div className={`absolute inset-0 bg-gradient-to-br ${bg} opacity-0 group-hover:opacity-40 transition-opacity duration-500`} />
+
+            {/* Icon with animated background */}
+            <div className={`
+              relative z-10 w-12 h-12 
+              bg-gradient-to-br ${bg} 
+              rounded-xl 
+              flex items-center justify-center
+              group-hover:scale-110 group-hover:rotate-2
+              transition-all duration-300
+              shadow-sm
+            `}>
+              {icon}
+            </div>
+
+            {/* Text content */}
+            <div className="relative z-10">
+              <p className="text-gray-800 font-semibold text-base leading-tight">
+                {title}
+              </p>
+              <p className="text-gray-500 text-sm mt-1 leading-relaxed">
+                {sub}
+              </p>
+            </div>
+
+            {/* Decorative dot */}
+            <div className="absolute bottom-3 right-3 w-2 h-2 rounded-full bg-gray-200 group-hover:bg-indigo-400 transition-colors duration-300" />
           </div>
-        </div>
+        ))}
+      </div>
+
+      {/* Trust footer */}
+      <div className="mt-6 flex justify-center items-center gap-2 text-xs text-gray-400">
+        <span className="inline-block w-1 h-1 rounded-full bg-gray-300" />
+        <span>Confiance • Qualité • Service</span>
+        <span className="inline-block w-1 h-1 rounded-full bg-gray-300" />
+      </div>
+    </div>
 
         {/* ── Description ── */}
         {descriptionHtml && (

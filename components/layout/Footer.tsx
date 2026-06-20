@@ -73,10 +73,9 @@ export default function Footer() {
             <h3 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Navigation</h3>
             <ul className="space-y-2.5 text-sm">
               {[
-                { label: 'Accueil', href: '/fr' },
-                { label: 'Catalogue', href: '/fr/catalogue' },
-                { label: 'Services', href: '/fr/services' },
-                { label: 'Contact', href: '/fr#contact' },
+                { label: 'Accueil', href: '/' },
+                { label: 'Catalogue', href: '/catalogue' },
+                { label: 'A propos', href: '/a-propos' },
               ].map(({ label, href }) => (
                 <li key={label}>
                   <Link href={href} className="text-white transition hover:text-gray-400 ">

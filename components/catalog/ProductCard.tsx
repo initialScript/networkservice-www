@@ -21,6 +21,9 @@ export default function ProductCard({ product, media_url, priority = false }: Pr
   const [shouldLoad, setShouldLoad] = useState(false);
   const imgRef = useRef<HTMLDivElement>(null);
 
+  console.log(product);
+  
+
   const hasValidPrice = product.price > 0;
   const isOutOfStock = product.stock_qty === 0;
   const isLowStock = product.stock_qty > 0 && product.stock_qty <= 5;
