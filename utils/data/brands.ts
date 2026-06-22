@@ -99,4 +99,8 @@ export const brandsImages = [
         brand: 'apc',
         src: `${staticUrl}/network-service/brands/apc.png`
     },
+    {
+        brand: 'hikvision',
+        src: `${staticUrl}/network-service/brands/hikvision.png`
+    },
 ];
