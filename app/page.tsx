@@ -39,7 +39,9 @@ const [recentProducts, categories, brands, inStockProducts] =
   const media_url =process.env.NEXT_PUBLIC_MEDIA_URL
   process.env.NEXT_PUBLIC_MEDIA_URL
   
-
+// In your HomePage component, after fetching brands:
+// console.log('All brands from API:', brands.map(b => b.slug));
+console.log('Number of brands from API:', brands.length);
 
   return (
     <div>

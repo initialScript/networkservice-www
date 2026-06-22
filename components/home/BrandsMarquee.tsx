@@ -14,6 +14,8 @@ export default function BrandsMarquee({ brands }: BrandsMarqueeProps) {
     const marqueeRef = useRef<HTMLDivElement>(null);
     const [isPaused, setIsPaused] = useState(false);
 
+    
+
     useEffect(() => {
         if (brands && brands.length > 0) {
             const mappedBrands = getBrandsWithImages(brands);

@@ -25,6 +25,10 @@ const nextConfig = {
         hostname: 'media.yascript.com',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'static.yascript.com',
+      },
     ],
   },
 

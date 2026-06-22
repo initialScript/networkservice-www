@@ -13,7 +13,7 @@ interface Brand {
 
 interface BrandWithImage {
     brand: string;
-    src: string;
+    src: string | null;
     name: string;
     id: string;
 }
@@ -27,7 +27,7 @@ export const getBrandsWithImages = (brands: Brand[]): BrandWithImage[] => {
             return {
                 ...brand,
                 brand: brand.slug,
-                src: image?.src || '/assets/brands/placeholder.png' // fallback image
+                src: image?.src ||  null
             };
         })
         .filter(brand => brand.src); // Only return brands that have images

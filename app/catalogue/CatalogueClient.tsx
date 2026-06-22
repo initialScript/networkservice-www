@@ -59,6 +59,8 @@ function CatalogueContent({
     return 0;
   };
 
+  
+
   // Sort products based on currentSort (but keep the filtered products from server)
   const sortedProducts = useMemo(() => {
     const productsCopy = [...products];
