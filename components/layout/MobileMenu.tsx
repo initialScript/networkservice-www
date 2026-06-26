@@ -64,7 +64,7 @@ function CategoryRow({
   if (!hasChildren) {
     return (
       <Link
-        href={`/catalogue/${cat.slug}`}
+        href={`/catalogue?category=${cat.slug}`}
         onClick={onClose}
         className={`${rowBase} ${depthStyles}`}
       >
@@ -100,7 +100,7 @@ function CategoryRow({
       {open && (
         <div className="ml-6 pl-3 border-l-2 border-gray-100 mt-0.5 mb-1 space-y-0.5">
           <Link
-            href={`/catalogue/${cat.slug}`}
+            href={`/catalogue?category=${cat.slug}`}
             onClick={onClose}
             className="block px-3 py-1.5 text-xs font-semibold text-[#0F3460] hover:bg-blue-50 rounded-lg transition-colors"
           >
