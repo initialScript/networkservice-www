@@ -177,33 +177,7 @@ export default function Header() {
             )}
 
             {/* Account — desktop */}
-            {/* <div ref={userMenuRef} className="relative hidden lg:block">
-              {isAuthenticated ? (
-                <>
-                  <button
-                    onClick={() => setIsUserMenuOpen((v) => !v)}
-                    className="flex items-center gap-1.5 px-3 py-2 rounded-lg hover:bg-gray-100 text-gray-600 hover:text-[#0F3460] transition text-sm"
-                  >
-                    <User className="w-5 h-5" />
-                    <span className="hidden xl:block font-medium max-w-[80px] truncate">{user?.name?.split(' ')[0]}</span>
-                    <ChevronDown className="w-3.5 h-3.5" />
-                  </button>
-                  {isUserMenuOpen && (
-                    <div className="absolute right-0 top-full mt-1.5 w-52 bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 z-50">
-                      <Link href={`/compte`} onClick={() => setIsUserMenuOpen(false)} className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
-                        <User className="w-4 h-4 text-gray-400" /> Mon compte
-                      </Link>
-                      <Link href={`/compte/commandes`} onClick={() => setIsUserMenuOpen(false)} className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
-                        <Package className="w-4 h-4 text-gray-400" /> Mes commandes
-                      </Link>
-                      <hr className="my-1 border-gray-100" />
-                      <button onClick={handleLogout} className="flex items-center gap-2.5 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50">
-                        <LogOut className="w-4 h-4" /> Déconnexion
-                      </button>
-                    </div>
-                  )}
-                </>
-              ) : (
+            <div ref={userMenuRef} className="relative ">
                 <Link
                   href={`/auth/login`}
                   className="flex items-center gap-1.5 px-3 py-2 rounded-lg hover:bg-gray-100 text-gray-600 hover:text-[#0F3460] transition text-sm"
@@ -211,8 +185,7 @@ export default function Header() {
                   <User className="w-5 h-5" />
                   <span className="hidden xl:block font-medium">Se connecter</span>
                 </Link>
-              )}
-            </div> */}
+            </div>
 
             {/* Cart */}
             <button
